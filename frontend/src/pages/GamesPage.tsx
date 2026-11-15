@@ -9,6 +9,8 @@ import { TreasureMapGame } from '../components/games/TreasureMapGame.js';
 import { ClosetShop } from '../components/games/ClosetShop.js';
 import { DrawingGame } from '../components/games/DrawingGame.js';
 import { WorldMapGame } from '../components/games/WorldMapGame.js';
+import { SnakeGame } from '../components/games/SnakeGame.js';
+import { CastleDefenseGame } from '../components/games/CastleDefenseGame.js';
 import { generateDuolingoVariations } from '../utils/questionReformulator.js';
 import { Mascot } from '../components/Mascot.js';
 
@@ -18,7 +20,7 @@ interface GamesPageProps {
   onStarsUpdated?: (newStars: number) => void;
 }
 
-type ActiveGameMode = 'hub' | 'memory' | 'bubble' | 'wheel' | 'treasure' | 'closet' | 'drawing' | 'worldmap';
+type ActiveGameMode = 'hub' | 'memory' | 'bubble' | 'wheel' | 'treasure' | 'closet' | 'drawing' | 'worldmap' | 'snake' | 'castle';
 
 type TaggedExerciseItem = ExerciseItem & {
   unitId?: string;
@@ -161,6 +163,28 @@ export const GamesPage: React.FC<GamesPageProps> = ({
     return (
       <TreasureMapGame
         exercises={filteredExercises}
+        onBack={() => setActiveMode('hub')}
+        onStarsEarned={handleStarsEarned}
+      />
+    );
+  }
+
+  if (activeMode === 'snake') {
+    return (
+      <SnakeGame
+        exercises={filteredExercises}
+        title={`🐍 Serpiente Sabia: ${getSelectionLabel()}`}
+        onBack={() => setActiveMode('hub')}
+        onStarsEarned={handleStarsEarned}
+      />
+    );
+  }
+
+  if (activeMode === 'castle') {
+    return (
+      <CastleDefenseGame
+        exercises={filteredExercises}
+        title={`🏰 Muralla Mágica: ${getSelectionLabel()}`}
         onBack={() => setActiveMode('hub')}
         onStarsEarned={handleStarsEarned}
       />
@@ -394,7 +418,47 @@ export const GamesPage: React.FC<GamesPageProps> = ({
           </div>
         </button>
 
-        {/* 7. El Armario de Chispa */}
+        {/* 7. La Serpiente Sabia (Snake Educativo) */}
+        <button
+          onClick={() => setActiveMode('snake')}
+          className="group relative bg-gradient-to-br from-emerald-500 to-green-700 hover:from-emerald-600 hover:to-green-800 text-white p-7 rounded-4xl shadow-xl shadow-green-200 border-4 border-emerald-400 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl shadow-inner group-hover:scale-110 transition-transform">
+            🐍
+          </div>
+
+          <div>
+            <span className="text-xs font-black uppercase tracking-wider text-emerald-200 block mb-1">
+              Arcade Clásico
+            </span>
+            <h3 className="text-2xl font-black leading-tight">Serpiente Sabia</h3>
+            <p className="text-emerald-100 text-xs md:text-sm font-semibold mt-1">
+              Guía a la serpiente y come solo las comidas con la respuesta correcta.
+            </p>
+          </div>
+        </button>
+
+        {/* 8. Salva la Muralla (Castle Repair) */}
+        <button
+          onClick={() => setActiveMode('castle')}
+          className="group relative bg-gradient-to-br from-amber-500 to-stone-600 hover:from-amber-600 hover:to-stone-700 text-white p-7 rounded-4xl shadow-xl shadow-stone-200 border-4 border-amber-400 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl shadow-inner group-hover:scale-110 transition-transform">
+            🏰
+          </div>
+
+          <div>
+            <span className="text-xs font-black uppercase tracking-wider text-amber-200 block mb-1">
+              Defensa y Construcción
+            </span>
+            <h3 className="text-2xl font-black leading-tight">Salva la Muralla</h3>
+            <p className="text-amber-100 text-xs md:text-sm font-semibold mt-1">
+              Sella las grietas del castillo colocando los bloques de piedra correctos.
+            </p>
+          </div>
+        </button>
+
+        {/* 9. El Armario de Chispa */}
         <button
           onClick={() => setActiveMode('closet')}
           className="group relative bg-gradient-to-br from-pink-400 to-rose-500 hover:from-pink-500 hover:to-rose-600 text-white p-7 rounded-4xl shadow-xl shadow-pink-200 border-4 border-pink-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
