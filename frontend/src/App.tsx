@@ -9,6 +9,7 @@ import { SettingsPage } from './pages/SettingsPage.js';
 import { GamesPage } from './pages/GamesPage.js';
 import { PinModal } from './components/PinModal.js';
 import { UserSwitcherModal } from './components/UserSwitcherModal.js';
+import { VersionBadge } from './components/VersionBadge.js';
 import { fetchProfile, syncOfflineProgress } from './services/api.js';
 import { UserProfile, ExerciseSet } from './types.js';
 
@@ -139,8 +140,9 @@ export const App: React.FC = () => {
       </div>
 
       {/* Footer amable */}
-      <footer className="text-center py-4 text-xs font-bold text-slate-400 border-t border-slate-100">
-        Mi Cuaderno Mágico para iPad • Diseñado para aprender jugando ✨
+      <footer className="text-center py-4 text-xs font-bold text-slate-400 border-t border-slate-100 flex items-center justify-center gap-2">
+        <span>Mi Cuaderno Mágico para iPad • Diseñado para aprender jugando ✨</span>
+        <VersionBadge variant="footer" />
       </footer>
 
       {/* Modal de PIN para adultos */}

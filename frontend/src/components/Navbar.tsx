@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Star, Flame, Wifi, WifiOff, Settings, Home, BookOpen, Gamepad2 } from 'lucide-react';
 import { UserProfile } from '../types.js';
 import { syncOfflineProgress } from '../services/api.js';
+import { VersionBadge } from './VersionBadge.js';
 
 interface NavbarProps {
   profile: UserProfile | null;
@@ -86,6 +87,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             {isOnline ? <Wifi className="w-4 h-4 text-emerald-600" /> : <WifiOff className="w-4 h-4 text-amber-600" />}
             <span className="hidden md:inline">{isOnline ? 'En línea' : 'Sin internet'}</span>
           </div>
+
+          {/* Versión actual con check */}
+          <VersionBadge />
 
           {/* Acceso Directo a Juegos */}
           {onGamesClick && (
