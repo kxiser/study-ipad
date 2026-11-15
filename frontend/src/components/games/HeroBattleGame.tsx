@@ -11,11 +11,15 @@ import {
   Heart,
   Swords,
   CheckCircle2,
-  XCircle
+  XCircle,
+  PenLine,
+  LayoutGrid
 } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects.js';
 import { ConfettiCelebration } from '../ConfettiCelebration.js';
 import { SpeechButton } from '../SpeechButton.js';
+import { WrittenAnswerInput } from '../WrittenAnswerInput.js';
+import { validateWrittenAnswer, ValidationResult } from '../../utils/answerValidator.js';
 import { completeStudySession } from '../../services/api.js';
 import { getDynamicGameQuestions, GameQuestion } from '../../utils/questionReformulator.js';
 import { ExerciseItem } from '../../types.js';
@@ -78,6 +82,7 @@ export const HeroBattleGame: React.FC<HeroBattleGameProps> = ({
   const [feedback, setFeedback] = useState<{ isHit: boolean; text: string } | null>(null);
   const [isFinished, setIsFinished] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [inputMode, setInputMode] = useState<'buttons' | 'written'>('buttons');
 
   const hero = getSelectedCharacter();
   const currentBoss = BOSSES[bossIdx % BOSSES.length];
@@ -164,6 +169,15 @@ export const HeroBattleGame: React.FC<HeroBattleGameProps> = ({
         }
       }, 2600);
     }, 800);
+  };
+
+  const handleWrittenCast = (result: ValidationResult) => {
+    if (battlePhase !== 'idle' || isFinished) return;
+    if (result.isCorrect) {
+      handleCastSpell(currentQ.correctAnswer, 0);
+    } else {
+      handleCastSpell(result.userClean || 'fallo', 0);
+    }
   };
 
   return (
@@ -329,9 +343,34 @@ export const HeroBattleGame: React.FC<HeroBattleGameProps> = ({
                 <span className="px-3 py-1 bg-purple-500 text-white font-black text-xs rounded-full uppercase tracking-wider">
                   Turno de Ataque {currentIdx + 1}/{questions.length}
                 </span>
-                <span className="text-xs text-purple-300/80 font-bold hidden sm:inline">
-                  Selecciona el hechizo con la respuesta correcta
-                </span>
+
+                {/* Selector de Modo: Botones vs Escribir */}
+                <div className="flex items-center bg-black/40 p-1 rounded-xl border border-purple-500/30">
+                  <button
+                    type="button"
+                    onClick={() => setInputMode('buttons')}
+                    className={`px-2.5 py-1 rounded-lg font-black text-[11px] flex items-center gap-1 transition-all ${
+                      inputMode === 'buttons'
+                        ? 'bg-purple-500 text-white shadow-sm'
+                        : 'text-purple-200/70 hover:text-white'
+                    }`}
+                  >
+                    <LayoutGrid className="w-3 h-3" />
+                    <span>Opciones</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInputMode('written')}
+                    className={`px-2.5 py-1 rounded-lg font-black text-[11px] flex items-center gap-1 transition-all ${
+                      inputMode === 'written'
+                        ? 'bg-purple-500 text-white shadow-sm'
+                        : 'text-purple-200/70 hover:text-white'
+                    }`}
+                  >
+                    <PenLine className="w-3 h-3" />
+                    <span>Escribir ✍️</span>
+                  </button>
+                </div>
               </div>
               <SpeechButton text={`${currentQ.question}`} size="sm" />
             </div>
@@ -340,31 +379,45 @@ export const HeroBattleGame: React.FC<HeroBattleGameProps> = ({
               {currentQ.question}
             </h2>
 
-            {/* BOTONES DE HECHIZOS MÁGICOS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {currentQ.options.map((option, optIdx) => {
-                const spell = SPELL_EFFECTS[optIdx % SPELL_EFFECTS.length];
+            {/* MODO 1: BOTONES DE HECHIZOS MÁGICOS */}
+            {inputMode === 'buttons' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {currentQ.options.map((option, optIdx) => {
+                  const spell = SPELL_EFFECTS[optIdx % SPELL_EFFECTS.length];
 
-                return (
-                  <button
-                    key={optIdx}
-                    onClick={() => handleCastSpell(option, optIdx)}
-                    disabled={battlePhase !== 'idle'}
-                    className={`group relative p-4 rounded-2xl border-2 ${spell.border} bg-slate-900/90 hover:bg-gradient-to-r ${spell.color} font-bold text-base sm:text-lg text-left transition-all duration-150 active:scale-98 flex items-center justify-between gap-3 shadow-lg`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-xl bg-black/50 border border-white/20 flex items-center justify-center font-black text-purple-300 shrink-0 group-hover:scale-110 transition-transform">
-                        {String.fromCharCode(65 + optIdx)}
+                  return (
+                    <button
+                      key={optIdx}
+                      onClick={() => handleCastSpell(option, optIdx)}
+                      disabled={battlePhase !== 'idle'}
+                      className={`group relative p-4 rounded-2xl border-2 ${spell.border} bg-slate-900/90 hover:bg-gradient-to-r ${spell.color} font-bold text-base sm:text-lg text-left transition-all duration-150 active:scale-98 flex items-center justify-between gap-3 shadow-lg`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-xl bg-black/50 border border-white/20 flex items-center justify-center font-black text-purple-300 shrink-0 group-hover:scale-110 transition-transform">
+                          {String.fromCharCode(65 + optIdx)}
+                        </span>
+                        <span className="text-white leading-snug">{option}</span>
+                      </div>
+                      <span className={`text-[11px] font-black ${spell.textColor} bg-black/40 px-2 py-1 rounded-lg border border-white/20 shrink-0 hidden sm:inline`}>
+                        {spell.name}
                       </span>
-                      <span className="text-white leading-snug">{option}</span>
-                    </div>
-                    <span className={`text-[11px] font-black ${spell.textColor} bg-black/40 px-2 py-1 rounded-lg border border-white/20 shrink-0 hidden sm:inline`}>
-                      {spell.name}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              /* MODO 2: ENTRADA ESCRITA */
+              <div className="bg-black/30 p-4 rounded-2xl border border-purple-500/20">
+                <WrittenAnswerInput
+                  correctAnswer={currentQ.correctAnswer}
+                  options={currentQ.options}
+                  placeholder="Escribe la palabra mágica para lanzar el hechizo ✨..."
+                  disabled={battlePhase !== 'idle'}
+                  onValidate={handleWrittenCast}
+                  onSwitchToOptions={() => setInputMode('buttons')}
+                />
+              </div>
+            )}
           </div>
         ) : (
           /* PANTALLA FINAL: VICTORIA ÉPICA */

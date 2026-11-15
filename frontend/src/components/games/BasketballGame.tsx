@@ -9,11 +9,15 @@ import {
   Volume2,
   CheckCircle2,
   XCircle,
-  Timer
+  Timer,
+  PenLine,
+  LayoutGrid
 } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects.js';
 import { ConfettiCelebration } from '../ConfettiCelebration.js';
 import { SpeechButton } from '../SpeechButton.js';
+import { WrittenAnswerInput } from '../WrittenAnswerInput.js';
+import { validateWrittenAnswer, ValidationResult } from '../../utils/answerValidator.js';
 import { completeStudySession } from '../../services/api.js';
 import { getDynamicGameQuestions, GameQuestion } from '../../utils/questionReformulator.js';
 import { ExerciseItem } from '../../types.js';
@@ -43,6 +47,7 @@ export const BasketballGame: React.FC<BasketballGameProps> = ({
   const [isFinished, setIsFinished] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [shotClock, setShotClock] = useState(24);
+  const [inputMode, setInputMode] = useState<'buttons' | 'written'>('buttons');
 
   const hero = getSelectedCharacter();
 
@@ -142,6 +147,15 @@ export const BasketballGame: React.FC<BasketballGameProps> = ({
         }
       }, 2600);
     }, 900);
+  };
+
+  const handleWrittenShoot = (result: ValidationResult) => {
+    if (ballAnimation !== 'idle' || isFinished) return;
+    if (result.isCorrect) {
+      handleShoot(currentQ.correctAnswer);
+    } else {
+      handleShoot(result.userClean || 'incorrecto');
+    }
   };
 
   return (
@@ -337,9 +351,34 @@ export const BasketballGame: React.FC<BasketballGameProps> = ({
                 <span className="px-3 py-1 bg-amber-500 text-slate-950 font-black text-xs rounded-full uppercase tracking-wider">
                   Ronda {currentIdx + 1} de {questions.length}
                 </span>
-                <span className="text-xs text-amber-300/80 font-bold hidden sm:inline">
-                  Elige la respuesta correcta para tirar a canasta
-                </span>
+
+                {/* Selector de Modo: Botones vs Escribir */}
+                <div className="flex items-center bg-black/40 p-1 rounded-xl border border-amber-500/30">
+                  <button
+                    type="button"
+                    onClick={() => setInputMode('buttons')}
+                    className={`px-2.5 py-1 rounded-lg font-black text-[11px] flex items-center gap-1 transition-all ${
+                      inputMode === 'buttons'
+                        ? 'bg-amber-500 text-slate-950 shadow-sm'
+                        : 'text-amber-200/70 hover:text-white'
+                    }`}
+                  >
+                    <LayoutGrid className="w-3 h-3" />
+                    <span>Opciones</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInputMode('written')}
+                    className={`px-2.5 py-1 rounded-lg font-black text-[11px] flex items-center gap-1 transition-all ${
+                      inputMode === 'written'
+                        ? 'bg-amber-500 text-slate-950 shadow-sm'
+                        : 'text-amber-200/70 hover:text-white'
+                    }`}
+                  >
+                    <PenLine className="w-3 h-3" />
+                    <span>Escribir ✍️</span>
+                  </button>
+                </div>
               </div>
               <SpeechButton text={`${currentQ.question}`} size="sm" />
             </div>
@@ -348,44 +387,58 @@ export const BasketballGame: React.FC<BasketballGameProps> = ({
               {currentQ.question}
             </h2>
 
-            {/* BOTONES DE RESPUESTAS TÁCTILES TIPO NBA ARCADE */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {currentQ.options.map((option, optIdx) => {
-                const isSelected = selectedOption === option;
-                const isCorrect = option.trim().toLowerCase() === currentQ.correctAnswer.trim().toLowerCase();
+            {/* MODO 1: BOTONES DE RESPUESTAS TÁCTILES TIPO NBA ARCADE */}
+            {inputMode === 'buttons' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {currentQ.options.map((option, optIdx) => {
+                  const isSelected = selectedOption === option;
+                  const isCorrect = option.trim().toLowerCase() === currentQ.correctAnswer.trim().toLowerCase();
 
-                let btnStyle =
-                  'bg-gradient-to-r from-slate-800 to-slate-900 hover:from-amber-900/40 hover:to-orange-900/40 border-slate-700 text-white';
+                  let btnStyle =
+                    'bg-gradient-to-r from-slate-800 to-slate-900 hover:from-amber-900/40 hover:to-orange-900/40 border-slate-700 text-white';
 
-                if (selectedOption !== null) {
-                  if (isSelected) {
-                    btnStyle = isCorrect
-                      ? 'bg-emerald-600 border-emerald-400 text-white shadow-lg shadow-emerald-600/40 scale-[1.02]'
-                      : 'bg-rose-600 border-rose-400 text-white shadow-lg shadow-rose-600/40';
-                  } else if (isCorrect) {
-                    btnStyle = 'bg-emerald-800/60 border-emerald-500 text-emerald-200';
-                  } else {
-                    btnStyle = 'opacity-40 border-slate-800 text-slate-500';
+                  if (selectedOption !== null) {
+                    if (isSelected) {
+                      btnStyle = isCorrect
+                        ? 'bg-emerald-600 border-emerald-400 text-white shadow-lg shadow-emerald-600/40 scale-[1.02]'
+                        : 'bg-rose-600 border-rose-400 text-white shadow-lg shadow-rose-600/40';
+                    } else if (isCorrect) {
+                      btnStyle = 'bg-emerald-800/60 border-emerald-500 text-emerald-200';
+                    } else {
+                      btnStyle = 'opacity-40 border-slate-800 text-slate-500';
+                    }
                   }
-                }
 
-                const letter = String.fromCharCode(65 + optIdx); // A, B, C, D
+                  const letter = String.fromCharCode(65 + optIdx); // A, B, C, D
 
-                return (
-                  <button
-                    key={optIdx}
-                    onClick={() => handleShoot(option)}
-                    disabled={ballAnimation !== 'idle'}
-                    className={`group relative p-4 rounded-2xl border-2 font-bold text-base sm:text-lg text-left transition-all duration-150 active:scale-98 flex items-center gap-3.5 shadow-md ${btnStyle}`}
-                  >
-                    <span className="w-9 h-9 rounded-xl bg-black/40 border border-white/20 flex items-center justify-center font-black text-amber-400 shrink-0 group-hover:scale-110 transition-transform">
-                      {letter}
-                    </span>
-                    <span className="flex-1 leading-snug">{option}</span>
-                  </button>
-                );
-              })}
-            </div>
+                  return (
+                    <button
+                      key={optIdx}
+                      onClick={() => handleShoot(option)}
+                      disabled={ballAnimation !== 'idle'}
+                      className={`group relative p-4 rounded-2xl border-2 font-bold text-base sm:text-lg text-left transition-all duration-150 active:scale-98 flex items-center gap-3.5 shadow-md ${btnStyle}`}
+                    >
+                      <span className="w-9 h-9 rounded-xl bg-black/40 border border-white/20 flex items-center justify-center font-black text-amber-400 shrink-0 group-hover:scale-110 transition-transform">
+                        {letter}
+                      </span>
+                      <span className="flex-1 leading-snug">{option}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              /* MODO 2: ENTRADA ESCRITA */
+              <div className="bg-black/30 p-4 rounded-2xl border border-amber-500/20">
+                <WrittenAnswerInput
+                  correctAnswer={currentQ.correctAnswer}
+                  options={currentQ.options}
+                  placeholder="Escribe tu respuesta y lanza el triple 🏀..."
+                  disabled={ballAnimation !== 'idle'}
+                  onValidate={handleWrittenShoot}
+                  onSwitchToOptions={() => setInputMode('buttons')}
+                />
+              </div>
+            )}
           </div>
         ) : (
           /* PANTALLA FINAL DE VICTORIA CON TROFEO Y ESTRELLAS */

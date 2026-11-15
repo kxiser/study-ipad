@@ -9,11 +9,15 @@ import {
   Timer,
   CheckCircle2,
   XCircle,
-  Volume2
+  Volume2,
+  PenLine,
+  LayoutGrid
 } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects.js';
 import { ConfettiCelebration } from '../ConfettiCelebration.js';
 import { SpeechButton } from '../SpeechButton.js';
+import { WrittenAnswerInput } from '../WrittenAnswerInput.js';
+import { validateWrittenAnswer, ValidationResult } from '../../utils/answerValidator.js';
 import { completeStudySession } from '../../services/api.js';
 import { getDynamicGameQuestions, GameQuestion } from '../../utils/questionReformulator.js';
 import { ExerciseItem } from '../../types.js';
@@ -73,6 +77,7 @@ export const QuizShowGame: React.FC<QuizShowGameProps> = ({
   const [isFinished, setIsFinished] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(20);
+  const [inputMode, setInputMode] = useState<'buttons' | 'written'>('buttons');
 
   const hero = getSelectedCharacter();
 
@@ -171,6 +176,15 @@ export const QuizShowGame: React.FC<QuizShowGameProps> = ({
     }, 2500);
   };
 
+  const handleWrittenAnswer = (result: ValidationResult) => {
+    if (selectedOption !== null || isFinished) return;
+    if (result.isCorrect) {
+      handleSelectOption(currentQ.correctAnswer);
+    } else {
+      handleSelectOption(result.userClean || 'incorrecto');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-950 to-slate-950 text-white flex flex-col select-none overflow-x-hidden">
       {showCelebration && <ConfettiCelebration />}
@@ -255,9 +269,40 @@ export const QuizShowGame: React.FC<QuizShowGameProps> = ({
             {/* TARJETA DE LA PREGUNTA PRINCIPAL */}
             <div className="bg-slate-900/90 backdrop-blur-md rounded-3xl p-6 border-2 border-indigo-500/40 shadow-2xl flex flex-col justify-center items-center text-center relative mb-4 min-h-[140px]">
               <div className="flex items-center justify-between w-full mb-3">
-                <span className="px-3.5 py-1 bg-indigo-500 text-white font-black text-xs rounded-full uppercase tracking-wider">
-                  Pregunta {currentIdx + 1} de {questions.length}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="px-3.5 py-1 bg-indigo-500 text-white font-black text-xs rounded-full uppercase tracking-wider">
+                    Pregunta {currentIdx + 1} de {questions.length}
+                  </span>
+
+                  {/* Selector de Modo: Botones vs Escribir */}
+                  <div className="flex items-center bg-black/40 p-1 rounded-xl border border-indigo-500/30">
+                    <button
+                      type="button"
+                      onClick={() => setInputMode('buttons')}
+                      className={`px-2.5 py-1 rounded-lg font-black text-[11px] flex items-center gap-1 transition-all ${
+                        inputMode === 'buttons'
+                          ? 'bg-indigo-500 text-white shadow-sm'
+                          : 'text-indigo-200/70 hover:text-white'
+                      }`}
+                    >
+                      <LayoutGrid className="w-3 h-3" />
+                      <span>Kahoot</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setInputMode('written')}
+                      className={`px-2.5 py-1 rounded-lg font-black text-[11px] flex items-center gap-1 transition-all ${
+                        inputMode === 'written'
+                          ? 'bg-indigo-500 text-white shadow-sm'
+                          : 'text-indigo-200/70 hover:text-white'
+                      }`}
+                    >
+                      <PenLine className="w-3 h-3" />
+                      <span>Escribir ✍️</span>
+                    </button>
+                  </div>
+                </div>
+
                 <SpeechButton text={`${currentQ.question}`} size="sm" />
               </div>
 
@@ -266,44 +311,58 @@ export const QuizShowGame: React.FC<QuizShowGameProps> = ({
               </h2>
             </div>
 
-            {/* 4 BOTONES GIGANTES TIPO KAHOOT / BLOOKET */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 flex-1">
-              {currentQ.options.map((option, optIdx) => {
-                const colorConfig = KAHOOT_COLORS[optIdx % KAHOOT_COLORS.length];
-                const isSelected = selectedOption === option;
-                const isCorrect = option.trim().toLowerCase() === currentQ.correctAnswer.trim().toLowerCase();
+            {/* MODO 1: 4 BOTONES GIGANTES TIPO KAHOOT / BLOOKET */}
+            {inputMode === 'buttons' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 flex-1">
+                {currentQ.options.map((option, optIdx) => {
+                  const colorConfig = KAHOOT_COLORS[optIdx % KAHOOT_COLORS.length];
+                  const isSelected = selectedOption === option;
+                  const isCorrect = option.trim().toLowerCase() === currentQ.correctAnswer.trim().toLowerCase();
 
-                let cardStyle = `${colorConfig.bg} ${colorConfig.border} ${colorConfig.shadow}`;
+                  let cardStyle = `${colorConfig.bg} ${colorConfig.border} ${colorConfig.shadow}`;
 
-                if (selectedOption !== null) {
-                  if (isSelected) {
-                    cardStyle = isCorrect
-                      ? 'bg-emerald-600 border-white ring-4 ring-emerald-400 scale-[1.02]'
-                      : 'bg-rose-600 border-white ring-4 ring-rose-400';
-                  } else if (isCorrect) {
-                    cardStyle = 'bg-emerald-600 border-emerald-300';
-                  } else {
-                    cardStyle = 'opacity-30 grayscale border-transparent';
+                  if (selectedOption !== null) {
+                    if (isSelected) {
+                      cardStyle = isCorrect
+                        ? 'bg-emerald-600 border-white ring-4 ring-emerald-400 scale-[1.02]'
+                        : 'bg-rose-600 border-white ring-4 ring-rose-400';
+                    } else if (isCorrect) {
+                      cardStyle = 'bg-emerald-600 border-emerald-300';
+                    } else {
+                      cardStyle = 'opacity-30 grayscale border-transparent';
+                    }
                   }
-                }
 
-                return (
-                  <button
-                    key={optIdx}
-                    onClick={() => handleSelectOption(option)}
-                    disabled={selectedOption !== null}
-                    className={`group relative p-5 sm:p-6 rounded-3xl border-4 font-black text-lg sm:text-xl text-left text-white transition-all duration-150 active:scale-98 flex items-center gap-4 shadow-xl min-h-[90px] ${cardStyle}`}
-                  >
-                    {/* Forma geométrica blanca tipo Kahoot */}
-                    <div className="w-12 h-12 rounded-2xl bg-black/25 flex items-center justify-center font-black text-2xl shrink-0 group-hover:scale-110 transition-transform">
-                      {colorConfig.shape}
-                    </div>
+                  return (
+                    <button
+                      key={optIdx}
+                      onClick={() => handleSelectOption(option)}
+                      disabled={selectedOption !== null}
+                      className={`group relative p-5 sm:p-6 rounded-3xl border-4 font-black text-lg sm:text-xl text-left text-white transition-all duration-150 active:scale-98 flex items-center gap-4 shadow-xl min-h-[90px] ${cardStyle}`}
+                    >
+                      {/* Forma geométrica blanca tipo Kahoot */}
+                      <div className="w-12 h-12 rounded-2xl bg-black/25 flex items-center justify-center font-black text-2xl shrink-0 group-hover:scale-110 transition-transform">
+                        {colorConfig.shape}
+                      </div>
 
-                    <span className="flex-1 leading-snug drop-shadow-sm">{option}</span>
-                  </button>
-                );
-              })}
-            </div>
+                      <span className="flex-1 leading-snug drop-shadow-sm">{option}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              /* MODO 2: ENTRADA ESCRITA */
+              <div className="bg-slate-900/90 backdrop-blur-md p-6 rounded-3xl border-2 border-indigo-500/40 shadow-xl">
+                <WrittenAnswerInput
+                  correctAnswer={currentQ.correctAnswer}
+                  options={currentQ.options}
+                  placeholder="¡Escribe rápido la respuesta antes de que termine el tiempo! ⏱️..."
+                  disabled={selectedOption !== null}
+                  onValidate={handleWrittenAnswer}
+                  onSwitchToOptions={() => setInputMode('buttons')}
+                />
+              </div>
+            )}
           </div>
         ) : (
           /* PODIO DE CONCURSO FINAL */

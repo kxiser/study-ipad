@@ -8,11 +8,15 @@ import {
   Flame,
   CheckCircle2,
   XCircle,
-  Volume2
+  Volume2,
+  PenLine,
+  LayoutGrid
 } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects.js';
 import { ConfettiCelebration } from '../ConfettiCelebration.js';
 import { SpeechButton } from '../SpeechButton.js';
+import { WrittenAnswerInput } from '../WrittenAnswerInput.js';
+import { validateWrittenAnswer, ValidationResult } from '../../utils/answerValidator.js';
 import { completeStudySession } from '../../services/api.js';
 import { getDynamicGameQuestions, GameQuestion } from '../../utils/questionReformulator.js';
 import { ExerciseItem } from '../../types.js';
@@ -40,6 +44,7 @@ export const SoccerPenaltyGame: React.FC<SoccerPenaltyGameProps> = ({
   const [feedback, setFeedback] = useState<{ isGoal: boolean; text: string } | null>(null);
   const [isFinished, setIsFinished] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [inputMode, setInputMode] = useState<'buttons' | 'written'>('buttons');
 
   const hero = getSelectedCharacter();
 
@@ -133,6 +138,15 @@ export const SoccerPenaltyGame: React.FC<SoccerPenaltyGameProps> = ({
         }
       }, 2600);
     }, 850);
+  };
+
+  const handleWrittenShoot = (result: ValidationResult) => {
+    if (shootState !== 'idle' || isFinished) return;
+    if (result.isCorrect) {
+      handleShoot(currentQ.correctAnswer, 0);
+    } else {
+      handleShoot(result.userClean || 'fuera', 0);
+    }
   };
 
   const goalsCount = penaltyHistory.filter(p => p === 'goal').length;
@@ -359,9 +373,34 @@ export const SoccerPenaltyGame: React.FC<SoccerPenaltyGameProps> = ({
                 <span className="px-3 py-1 bg-emerald-500 text-slate-950 font-black text-xs rounded-full uppercase tracking-wider">
                   Penalti {currentIdx + 1} de {questions.length}
                 </span>
-                <span className="text-xs text-emerald-300/80 font-bold hidden sm:inline">
-                  Acierta la pregunta para colocar el balón en la red
-                </span>
+
+                {/* Selector de Modo: Botones vs Escribir */}
+                <div className="flex items-center bg-black/40 p-1 rounded-xl border border-emerald-500/30">
+                  <button
+                    type="button"
+                    onClick={() => setInputMode('buttons')}
+                    className={`px-2.5 py-1 rounded-lg font-black text-[11px] flex items-center gap-1 transition-all ${
+                      inputMode === 'buttons'
+                        ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                        : 'text-emerald-200/70 hover:text-white'
+                    }`}
+                  >
+                    <LayoutGrid className="w-3 h-3" />
+                    <span>Opciones</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInputMode('written')}
+                    className={`px-2.5 py-1 rounded-lg font-black text-[11px] flex items-center gap-1 transition-all ${
+                      inputMode === 'written'
+                        ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                        : 'text-emerald-200/70 hover:text-white'
+                    }`}
+                  >
+                    <PenLine className="w-3 h-3" />
+                    <span>Escribir ✍️</span>
+                  </button>
+                </div>
               </div>
               <SpeechButton text={`${currentQ.question}`} size="sm" />
             </div>
@@ -370,32 +409,46 @@ export const SoccerPenaltyGame: React.FC<SoccerPenaltyGameProps> = ({
               {currentQ.question}
             </h2>
 
-            {/* BOTONES DE RESPUESTA: 4 ZONAS DE TIRO */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {currentQ.options.map((option, optIdx) => {
-                const zoneNames = ['↖️ Escuadra Izquierda', '↗️ Escuadra Derecha', '↙️ Raso Izquierda', '↘️ Raso Derecha'];
-                const zoneBadge = zoneNames[optIdx % zoneNames.length];
+            {/* MODO 1: BOTONES DE RESPUESTA Y ZONAS DE TIRO */}
+            {inputMode === 'buttons' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {currentQ.options.map((option, optIdx) => {
+                  const zoneNames = ['↖️ Escuadra Izquierda', '↗️ Escuadra Derecha', '↙️ Raso Izquierda', '↘️ Raso Derecha'];
+                  const zoneBadge = zoneNames[optIdx % zoneNames.length];
 
-                return (
-                  <button
-                    key={optIdx}
-                    onClick={() => handleShoot(option, optIdx)}
-                    disabled={shootState !== 'idle'}
-                    className="group relative p-4 rounded-2xl border-2 border-slate-700 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-emerald-950/60 hover:to-green-950/60 font-bold text-base sm:text-lg text-left transition-all duration-150 active:scale-98 flex items-center justify-between gap-3 shadow-md"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-xl bg-black/40 border border-white/20 flex items-center justify-center font-black text-emerald-400 shrink-0 group-hover:scale-110 transition-transform">
-                        {String.fromCharCode(65 + optIdx)}
+                  return (
+                    <button
+                      key={optIdx}
+                      onClick={() => handleShoot(option, optIdx)}
+                      disabled={shootState !== 'idle'}
+                      className="group relative p-4 rounded-2xl border-2 border-slate-700 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-emerald-950/60 hover:to-green-950/60 font-bold text-base sm:text-lg text-left transition-all duration-150 active:scale-98 flex items-center justify-between gap-3 shadow-md"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-xl bg-black/40 border border-white/20 flex items-center justify-center font-black text-emerald-400 shrink-0 group-hover:scale-110 transition-transform">
+                          {String.fromCharCode(65 + optIdx)}
+                        </span>
+                        <span className="text-white leading-snug">{option}</span>
+                      </div>
+                      <span className="text-[11px] font-bold text-emerald-400/80 bg-emerald-950/80 px-2 py-1 rounded-lg border border-emerald-500/30 shrink-0 hidden sm:inline">
+                        {zoneBadge}
                       </span>
-                      <span className="text-white leading-snug">{option}</span>
-                    </div>
-                    <span className="text-[11px] font-bold text-emerald-400/80 bg-emerald-950/80 px-2 py-1 rounded-lg border border-emerald-500/30 shrink-0 hidden sm:inline">
-                      {zoneBadge}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              /* MODO 2: ENTRADA ESCRITA */
+              <div className="bg-black/30 p-4 rounded-2xl border border-emerald-500/20">
+                <WrittenAnswerInput
+                  correctAnswer={currentQ.correctAnswer}
+                  options={currentQ.options}
+                  placeholder="Escribe tu respuesta y chuta a gol ⚽..."
+                  disabled={shootState !== 'idle'}
+                  onValidate={handleWrittenShoot}
+                  onSwitchToOptions={() => setInputMode('buttons')}
+                />
+              </div>
+            )}
           </div>
         ) : (
           /* PANTALLA FINAL: CAMPEONES DE LA COPA */

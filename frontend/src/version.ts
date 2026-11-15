@@ -1,7 +1,19 @@
-export const APP_VERSION = '2.4.0';
-export const APP_BUILD = '2026.11.15-v2.4.0';
+export const APP_VERSION = '2.5.0';
+export const APP_BUILD = '2026.11.15-v2.5.0';
 
 export const VERSION_CHANGELOG = [
+  {
+    version: '2.5.0',
+    date: '15 Nov 2026',
+    title: 'Modo Respuesta Escrita y Corrección Didáctica Inteligente',
+    items: [
+      '✍️ Doble modo de respuesta: Alterna libremente entre "Opciones táctiles (A, B, C, D)" y "Escribir respuesta" con teclado virtual/físico de iPad.',
+      '🔍 Validador ortográfico inteligente: Tolerancia a mayúsculas, artículos iniciales ("el perro" === "perro") y números en letras o cifras ("60" === "sesenta").',
+      '💡 Consejos de ortografía formativos: Si Samantha acierta sin tildes, la app le felicita y le recuerda cariñosamente la regla de acentuación para sus exámenes.',
+      '🏀 Deportes y Batallas con escritura: Escribe la palabra para lanzar triples en Baloncesto, chutar a gol en Penaltis o invocar hechizos en Duelo de Héroes.',
+      '📝 Exámenes con respuesta redactada: Los simuladores de examen permiten redactar en renglón como en las fichas reales de Pureza de María.'
+    ]
+  },
   {
     version: '2.4.0',
     date: '15 Nov 2026',

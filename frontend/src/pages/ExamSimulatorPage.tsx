@@ -15,7 +15,9 @@ import {
   BookOpen,
   Volume2,
   Check,
-  AlertCircle
+  AlertCircle,
+  PenLine,
+  LayoutGrid
 } from 'lucide-react';
 import { SpeechButton } from '../components/SpeechButton.js';
 import { ConfettiCelebration } from '../components/ConfettiCelebration.js';
@@ -23,6 +25,7 @@ import { sounds } from '../utils/soundEffects.js';
 import { completeStudySession, fetchUnits, fetchUnit } from '../services/api.js';
 import { getDynamicGameQuestions, VERIFIED_FACTS, GameQuestion } from '../utils/questionReformulator.js';
 import { ExerciseItem, UserProfile } from '../types.js';
+import { validateWrittenAnswer } from '../utils/answerValidator.js';
 
 interface ExamSimulatorPageProps {
   profile: UserProfile | null;
@@ -55,6 +58,7 @@ export const ExamSimulatorPage: React.FC<ExamSimulatorPageProps> = ({
   const [questions, setQuestions] = useState<ExamQuestionItem[]>([]);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [currentIdx, setCurrentIdx] = useState(0);
+  const [inputMode, setInputMode] = useState<'buttons' | 'written'>('buttons');
 
   // Temporizador (en segundos)
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutos por defecto
@@ -153,8 +157,9 @@ export const ExamSimulatorPage: React.FC<ExamSimulatorPageProps> = ({
     let correct = 0;
 
     questions.forEach((q, idx) => {
-      const studentAns = answers[idx];
-      if (studentAns === q.correctAnswer) {
+      const studentAns = answers[idx] || '';
+      const validation = validateWrittenAnswer(studentAns, q.correctAnswer, q.options);
+      if (validation.isCorrect) {
         earnedPoints += q.points;
         correct += 1;
       }
@@ -437,7 +442,37 @@ export const ExamSimulatorPage: React.FC<ExamSimulatorPageProps> = ({
                 Ejercicio {currentIdx + 1} de {questions.length} • {currentQ.topic} ({currentQ.points} ptos)
               </span>
 
-              <SpeechButton text={currentQ.question} size="sm" />
+              <div className="flex items-center gap-2">
+                {/* Selector Opciones vs Escribir */}
+                <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setInputMode('buttons')}
+                    className={`px-2 py-0.5 rounded-lg text-[10px] font-black flex items-center gap-1 transition-all ${
+                      inputMode === 'buttons'
+                        ? 'bg-indigo-600 text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <LayoutGrid className="w-3 h-3" />
+                    <span>Opciones</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInputMode('written')}
+                    className={`px-2 py-0.5 rounded-lg text-[10px] font-black flex items-center gap-1 transition-all ${
+                      inputMode === 'written'
+                        ? 'bg-indigo-600 text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <PenLine className="w-3 h-3" />
+                    <span>Escribir ✍️</span>
+                  </button>
+                </div>
+
+                <SpeechButton text={currentQ.question} size="sm" />
+              </div>
             </div>
 
             <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug">
@@ -445,32 +480,53 @@ export const ExamSimulatorPage: React.FC<ExamSimulatorPageProps> = ({
             </h3>
           </div>
 
-          {/* Opciones de Respuesta */}
-          <div className="space-y-2.5 pt-1">
-            {currentQ.options.map((opt, oIdx) => {
-              const letter = String.fromCharCode(65 + oIdx);
-              const isSelected = answers[currentIdx] === opt;
+          {/* MODO 1: Opciones de Respuesta Marcables */}
+          {inputMode === 'buttons' ? (
+            <div className="space-y-2.5 pt-1">
+              {currentQ.options.map((opt, oIdx) => {
+                const letter = String.fromCharCode(65 + oIdx);
+                const isSelected = answers[currentIdx] === opt;
 
-              return (
-                <button
-                  key={oIdx}
-                  onClick={() => selectAnswer(currentIdx, opt)}
-                  className={`w-full p-3.5 sm:p-4 rounded-2xl border-2 text-left flex items-center gap-3 transition-all active:scale-98 ${
-                    isSelected
-                      ? 'bg-indigo-50 border-indigo-600 text-indigo-950 font-black shadow-md ring-2 ring-indigo-200'
-                      : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800 font-semibold'
-                  }`}
-                >
-                  <span className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs shrink-0 ${
-                    isSelected ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-300 text-slate-700'
-                  }`}>
-                    {letter}
-                  </span>
-                  <span className="text-xs sm:text-sm leading-relaxed">{opt}</span>
-                </button>
-              );
-            })}
-          </div>
+                return (
+                  <button
+                    key={oIdx}
+                    onClick={() => selectAnswer(currentIdx, opt)}
+                    className={`w-full p-3.5 sm:p-4 rounded-2xl border-2 text-left flex items-center gap-3 transition-all active:scale-98 ${
+                      isSelected
+                        ? 'bg-indigo-50 border-indigo-600 text-indigo-950 font-black shadow-md ring-2 ring-indigo-200'
+                        : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800 font-semibold'
+                    }`}
+                  >
+                    <span className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs shrink-0 ${
+                      isSelected ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-300 text-slate-700'
+                    }`}>
+                      {letter}
+                    </span>
+                    <span className="text-xs sm:text-sm leading-relaxed">{opt}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            /* MODO 2: Respuesta Redactada en Líneas Escolares */
+            <div className="pt-2">
+              <label className="text-xs font-bold text-slate-500 mb-1.5 block">
+                Escribe tu respuesta a mano o con el teclado:
+              </label>
+              <input
+                type="text"
+                value={answers[currentIdx] || ''}
+                onChange={e => {
+                  setAnswers(prev => ({ ...prev, [currentIdx]: e.target.value }));
+                }}
+                placeholder="Escribe aquí tu respuesta..."
+                className="w-full p-4 text-base sm:text-lg font-bold rounded-2xl border-2 border-indigo-300 bg-amber-50/40 text-slate-900 shadow-inner outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 transition-all"
+              />
+              <p className="text-[11px] text-slate-400 mt-1 italic">
+                * Corrección automática con tolerancia a mayúsculas y acentos.
+              </p>
+            </div>
+          )}
 
           {/* Pie de la Hoja con Botones Anterior / Siguiente */}
           <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
