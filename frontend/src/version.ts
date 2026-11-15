@@ -1,24 +1,24 @@
-export const APP_VERSION = '1.6.0';
-export const APP_BUILD = '2026.11.15-v1.6.0';
+export const APP_VERSION = '1.7.0';
+export const APP_BUILD = '2026.11.15-v1.7.0';
 
 export const VERSION_CHANGELOG = [
   {
-    version: '1.6.0',
+    version: '1.7.0',
     date: '15 Nov 2026',
-    title: 'Nuevos Juegos: Serpiente Sabia (Snake) y Salva la Muralla (Castle Repair)',
+    title: 'Nueva Aventura 2D: La Leyenda de Chispa (Estilo Mario y Zelda)',
     items: [
-      '🐍 Nuevo juego: Serpiente Sabia (Snake). Guía a la serpiente para comer solo los bocados con la respuesta correcta sin chocar con distractores.',
-      '🏰 Nuevo juego: Salva la Muralla (Castle Repair). El castillo sufre grietas: coloca los bloques de piedra con las respuestas correctas para reparar la muralla y salvar la torre.',
-      '📱 Controles táctiles D-Pad optimizados para iPad y envolvente Pac-Man sin muertes frustrantes.',
-      '🛡️ 100% verificado contra el banco de hechos pedagógicos sin erratas.'
+      '⚔️ Aventura 2D con scroll lateral: Camina con Chispa por un mundo mágico, salta plataformas, recoge estrellas y llega al Castillo del Saber.',
+      '🧙 Batallas RPG de Conocimiento: Cada monstruo o guardián que bloquea el camino te reta a un duelo; derrótalo invocando el poder/hechizo con la respuesta correcta.',
+      '✨ Animaciones mágicas: Rayos de estrellas, polvo mágico y celebración de confeti al salvar el reino.',
+      '📱 Controles táctiles gigantes diseñados específicamente para iPad (Izquierda, Derecha, Salto).'
     ]
   },
   {
-    version: '1.5.2',
+    version: '1.6.0',
     date: '15 Nov 2026',
-    title: 'Capas de Renderizado SVG Corregidas',
+    title: 'Serpiente Sabia (Snake) y Salva la Muralla (Castle Repair)',
     items: [
-      'Nombres y botones de océanos flotando por encima de todos los polígonos del mapa.'
+      'Snake educativo con comida selectiva y juego de reparación de muralla.'
     ]
   }
 ];

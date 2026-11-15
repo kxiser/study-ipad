@@ -11,6 +11,7 @@ import { DrawingGame } from '../components/games/DrawingGame.js';
 import { WorldMapGame } from '../components/games/WorldMapGame.js';
 import { SnakeGame } from '../components/games/SnakeGame.js';
 import { CastleDefenseGame } from '../components/games/CastleDefenseGame.js';
+import { PlatformerRpgGame } from '../components/games/PlatformerRpgGame.js';
 import { generateDuolingoVariations } from '../utils/questionReformulator.js';
 import { Mascot } from '../components/Mascot.js';
 
@@ -20,7 +21,7 @@ interface GamesPageProps {
   onStarsUpdated?: (newStars: number) => void;
 }
 
-type ActiveGameMode = 'hub' | 'memory' | 'bubble' | 'wheel' | 'treasure' | 'closet' | 'drawing' | 'worldmap' | 'snake' | 'castle';
+type ActiveGameMode = 'hub' | 'memory' | 'bubble' | 'wheel' | 'treasure' | 'closet' | 'drawing' | 'worldmap' | 'snake' | 'castle' | 'rpg';
 
 type TaggedExerciseItem = ExerciseItem & {
   unitId?: string;
@@ -163,6 +164,17 @@ export const GamesPage: React.FC<GamesPageProps> = ({
     return (
       <TreasureMapGame
         exercises={filteredExercises}
+        onBack={() => setActiveMode('hub')}
+        onStarsEarned={handleStarsEarned}
+      />
+    );
+  }
+
+  if (activeMode === 'rpg') {
+    return (
+      <PlatformerRpgGame
+        exercises={filteredExercises}
+        title={`⚔️ La Leyenda de Chispa: ${getSelectionLabel()}`}
         onBack={() => setActiveMode('hub')}
         onStarsEarned={handleStarsEarned}
       />
@@ -458,7 +470,27 @@ export const GamesPage: React.FC<GamesPageProps> = ({
           </div>
         </button>
 
-        {/* 9. El Armario de Chispa */}
+        {/* 9. La Leyenda de Chispa (Aventura 2D Plataformas / RPG) */}
+        <button
+          onClick={() => setActiveMode('rpg')}
+          className="group relative bg-gradient-to-br from-indigo-600 via-purple-700 to-pink-600 hover:from-indigo-700 hover:to-pink-700 text-white p-7 rounded-4xl shadow-xl shadow-purple-200 border-4 border-amber-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl shadow-inner group-hover:scale-110 transition-transform">
+            ⚔️
+          </div>
+
+          <div>
+            <span className="text-xs font-black uppercase tracking-wider text-amber-300 block mb-1">
+              Aventura 2D / Mario & Zelda
+            </span>
+            <h3 className="text-2xl font-black leading-tight">La Leyenda de Chispa</h3>
+            <p className="text-purple-100 text-xs md:text-sm font-semibold mt-1">
+              Camina por el mundo 2D, salta obstáculos y vence monstruos usando tus poderes.
+            </p>
+          </div>
+        </button>
+
+        {/* 10. El Armario de Chispa */}
         <button
           onClick={() => setActiveMode('closet')}
           className="group relative bg-gradient-to-br from-pink-400 to-rose-500 hover:from-pink-500 hover:to-rose-600 text-white p-7 rounded-4xl shadow-xl shadow-pink-200 border-4 border-pink-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
