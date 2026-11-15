@@ -1,26 +1,16 @@
-export const APP_VERSION = '1.5.0';
-export const APP_BUILD = '2026.11.15-v1.5.0';
+export const APP_VERSION = '1.5.1';
+export const APP_BUILD = '2026.11.15-v1.5.1';
 
 export const VERSION_CHANGELOG = [
   {
-    version: '1.5.0',
+    version: '1.5.1',
     date: '15 Nov 2026',
-    title: 'Mapa del Mundo Interactivo (Explora la Tierra) + Océanos y Continentes',
+    title: 'Cartografía Auténtica de Alta Calidad en el Mapa del Mundo',
     items: [
-      '🌍 Nuevo mapa interactivo táctil: Explora la Tierra con los 6 continentes y los 5 océanos en vector SVG alta resolución para iPad.',
-      '🧭 Modo Reto Explorador: Chispa plantea misiones para localizar el Océano Atlántico, Europa (España), la Antártida y ganar 5 Estrellas Mágicas.',
-      '🔊 Modo Exploración con Voz: Información curiosa y didáctica para 3.º de Primaria leída en voz alta con botón de voz.',
-      '🎨 Pizarra Mágica: Dibuja y Aprende con retos temáticos y descarga de dibujos.',
-      '🛡️ 100% libre de erratas y respuestas verificadas.'
-    ]
-  },
-  {
-    version: '1.4.0',
-    date: '15 Nov 2026',
-    title: 'Reformulación tipo Duolingo y Pizarra Mágica',
-    items: [
-      'Preguntas reformuladas desde varios ángulos para consolidar conceptos.',
-      'Pizarra de dibujo con herramientas táctiles y retos.'
+      '🗺️ Mapa del mundo renovado: sustituidos los polígonos aproximados por siluetas vectoriales auténticas de atlas mundial con más de 300 países y costas reales.',
+      '⭐ España y Europa perfectamente delimitadas con su península ibérica y estrella animada.',
+      '🌊 Océanos y continentes interactivos con botones táctiles grandes para iPad.',
+      '🔊 Explicaciones sonoras con botón de voz para cada continente y océano.'
     ]
   }
 ];

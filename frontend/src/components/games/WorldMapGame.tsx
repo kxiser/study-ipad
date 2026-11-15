@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Globe2, Compass, Sparkles, Star, Trophy, HelpCircle, CheckCircle2, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Globe2, Compass, Sparkles, Star, Trophy, Speech, CheckCircle2, RotateCcw } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects.js';
 import { ConfettiCelebration } from '../ConfettiCelebration.js';
 import { SpeechButton } from '../SpeechButton.js';
 import { Mascot } from '../Mascot.js';
 import { completeStudySession } from '../../services/api.js';
+import { CONTINENT_PATHS } from './worldMapData.js';
 
-export interface MapRegion {
+export interface InfoItem {
   id: string;
   name: string;
   type: 'continent' | 'ocean' | 'country';
@@ -17,12 +18,10 @@ export interface MapRegion {
   labelY: number;
   facts: string;
   curiosity: string;
-  path: string;
 }
 
-const MAP_REGIONS: MapRegion[] = [
-  // ================= CONTINENTES =================
-  {
+export const CONTINENTS_INFO: Record<string, InfoItem> = {
+  'europa': {
     id: 'europa',
     name: 'Europa',
     type: 'continent',
@@ -30,25 +29,23 @@ const MAP_REGIONS: MapRegion[] = [
     color: '#10b981', // Verde esmeralda
     hoverColor: '#059669',
     labelX: 520,
-    labelY: 140,
-    facts: 'Continente donde vivimos nosotros (incluye a España).',
-    curiosity: '¡Tiene países llenos de historia como España, Francia e Italia! Está separado de América por el Océano Atlántico.',
-    path: 'M 470,110 L 530,95 L 565,115 L 560,165 L 525,175 L 495,185 L 475,175 L 465,145 Z'
+    labelY: 175,
+    facts: 'El continente donde vivimos nosotros (¡donde está España!).',
+    curiosity: 'Tiene países llenos de castillos e historia como España, Francia e Italia. Está separado de América por el Océano Atlántico.'
   },
-  {
+  'africa': {
     id: 'africa',
     name: 'África',
     type: 'continent',
     emoji: '🦁',
-    color: '#eab308', // Amarillo cálido
+    color: '#eab308', // Amarillo oro
     hoverColor: '#ca8a04',
     labelX: 525,
-    labelY: 275,
+    labelY: 340,
     facts: 'Gran continente situado al sur de Europa.',
-    curiosity: '¡Hogar de la sabana, leones, jirafas, el río Nilo y el gran desierto del Sáhara!',
-    path: 'M 480,195 L 555,185 L 575,230 L 585,280 L 550,370 L 510,380 L 475,290 L 465,225 Z'
+    curiosity: '¡Hogar de la gran sabana, leones, jirafas, elefantes, el río Nilo y el desierto del Sáhara!'
   },
-  {
+  'asia': {
     id: 'asia',
     name: 'Asia',
     type: 'continent',
@@ -56,131 +53,122 @@ const MAP_REGIONS: MapRegion[] = [
     color: '#8b5cf6', // Violeta mágico
     hoverColor: '#7c3aed',
     labelX: 710,
-    labelY: 150,
-    facts: 'El continente más grande y poblado de la Tierra.',
-    curiosity: 'Aquí se encuentra la montaña más alta del planeta, el Monte Everest, y países como China y Japón.',
-    path: 'M 565,95 L 675,70 L 810,90 L 830,160 L 780,230 L 710,240 L 640,215 L 575,160 Z'
+    labelY: 200,
+    facts: 'El continente más grande y con más personas de la Tierra.',
+    curiosity: 'Aquí está la montaña más alta del mundo: el Monte Everest, y países como China, Japón e India.'
   },
-  {
+  'america-norte': {
     id: 'america-norte',
     name: 'América del Norte',
     type: 'continent',
     emoji: '🦅',
-    color: '#f97316', // Naranja brillante
+    color: '#f97316', // Naranja atardecer
     hoverColor: '#ea580c',
-    labelX: 230,
-    labelY: 140,
+    labelX: 200,
+    labelY: 170,
     facts: 'Parte norte del gran continente americano.',
-    curiosity: 'Tiene grandes bosques y lagos. Aquí se encuentran México, Estados Unidos y Canadá.',
-    path: 'M 130,80 L 250,65 L 320,105 L 290,170 L 245,210 L 210,180 L 160,150 L 125,115 Z'
+    curiosity: 'Tiene inmensos bosques de pinos, lagos gigantes y montañas rocosas. Aquí están México, EE.UU. y Canadá.'
   },
-  {
+  'america-sur': {
     id: 'america-sur',
     name: 'América del Sur',
     type: 'continent',
     emoji: '🦜',
-    color: '#f43f5e', // Rosa fuego / carmesí
+    color: '#f43f5e', // Rosa fuego
     hoverColor: '#e11d48',
-    labelX: 335,
-    labelY: 330,
+    labelX: 320,
+    labelY: 410,
     facts: 'Parte sur del continente americano.',
-    curiosity: '¡Aquí está la selva del Amazonas, la más grande del mundo, y la cordillera de los Andes!',
-    path: 'M 285,230 L 370,260 L 395,310 L 360,420 L 325,435 L 300,340 L 275,255 Z'
+    curiosity: '¡Aquí se encuentra la selva del Amazonas, la más grande del mundo, y la gran cordillera de los Andes!'
   },
-  {
+  'oceania': {
     id: 'oceania',
     name: 'Oceanía',
     type: 'continent',
     emoji: '🦘',
-    color: '#ec4899', // Rosa vibrante
+    color: '#ec4899', // Rosa coral
     hoverColor: '#db2777',
-    labelX: 810,
-    labelY: 345,
-    facts: 'Continente formado por Australia e islas del Pacífico.',
-    curiosity: '¡Es la tierra de los canguros y los koalas, rodeada por aguas cristalinas y corales!',
-    path: 'M 745,315 L 850,305 L 870,365 L 825,395 L 755,375 Z'
+    labelX: 825,
+    labelY: 440,
+    facts: 'Continente formado por Australia y muchas islas del Pacífico.',
+    curiosity: '¡Es la tierra de los canguros y los koalas, rodeada por aguas cálidas y la Gran Barrera de Coral!'
   },
-  {
+  'antartida': {
     id: 'antartida',
     name: 'Antártida',
     type: 'continent',
     emoji: '🐧',
-    color: '#bae6fd', // Glacial hielo
-    hoverColor: '#7dd3fc',
-    labelX: 500,
-    labelY: 485,
-    facts: 'El continente blanco situado en el Polo Sur.',
-    curiosity: '¡Está casi completamente cubierto de hielo y es el lugar más frío de la Tierra! Aquí viven los pingüinos.',
-    path: 'M 120,470 L 350,460 L 650,460 L 880,470 L 840,515 L 500,525 L 160,515 Z'
-  },
+    color: '#93c5fd', // Glacial hielo
+    hoverColor: '#60a5fa',
+    labelX: 475,
+    labelY: 575,
+    facts: 'El continente de hielo situado en el Polo Sur.',
+    curiosity: '¡Está casi todo cubierto por una gruesa capa de nieve y hielo! Es el lugar más frío de la Tierra y hogar de los pingüinos.'
+  }
+};
 
-  // ================= OCÉANOS =================
-  {
+export const OCEANS_INFO: Record<string, InfoItem> = {
+  'atlantico': {
     id: 'atlantico',
     name: 'Océano Atlántico',
     type: 'ocean',
     emoji: '🌊',
-    color: '#0284c7', // Azul marino atlántico
+    color: '#0284c7',
     hoverColor: '#0369a1',
-    labelX: 425,
-    labelY: 250,
+    labelX: 405,
+    labelY: 290,
     facts: 'Gran océano que separa Europa y África de América.',
-    curiosity: '¡Es el segundo océano más grande! Los aviones y barcos lo cruzan para viajar de Europa a América.',
-    path: 'M 380,120 L 460,120 L 460,370 L 380,370 Z'
+    curiosity: '¡Es el océano que cruzan los barcos y aviones para ir de España a América! Es de agua salada y el 2.º más grande.'
   },
-  {
-    id: 'pacifico-oeste',
+  'pacifico': {
+    id: 'pacifico',
     name: 'Océano Pacífico',
     type: 'ocean',
     emoji: '🐋',
     color: '#0369a1',
     hoverColor: '#075985',
-    labelX: 95,
-    labelY: 260,
+    labelX: 80,
+    labelY: 330,
     facts: 'El océano más grande y profundo de todo el planeta Tierra.',
-    curiosity: '¡Cubre más espacio que todos los continentes juntos! En él nadan ballenas gigantes y delfines.',
-    path: 'M 20,90 L 110,90 L 110,430 L 20,430 Z'
+    curiosity: '¡Cubre más de un tercio de todo nuestro planeta! En él nadan las ballenas azules gigantes.'
   },
-  {
-    id: 'pacifico-este',
-    name: 'Océano Pacífico',
-    type: 'ocean',
-    emoji: '🐋',
-    color: '#0369a1',
-    hoverColor: '#075985',
-    labelX: 910,
-    labelY: 250,
-    facts: 'El océano más grande y profundo del planeta.',
-    curiosity: '¡Da la vuelta al globo terráqueo uniendo Asia y Oceanía con América!',
-    path: 'M 880,90 L 980,90 L 980,430 L 880,430 Z'
-  },
-  {
+  'indico': {
     id: 'indico',
     name: 'Océano Índico',
     type: 'ocean',
     emoji: '🐬',
     color: '#0284c7',
     hoverColor: '#0369a1',
-    labelX: 665,
-    labelY: 330,
-    facts: 'Océano de aguas cálidas situado entre África, Asia y Oceanía.',
-    curiosity: 'Es famoso por sus aguas templadas donde habitan tortugas marinas y corales tropicales.',
-    path: 'M 605,255 L 725,255 L 725,410 L 605,410 Z'
+    labelX: 680,
+    labelY: 410,
+    facts: 'Océano cálido situado entre África, Asia y Oceanía.',
+    curiosity: 'Sus aguas son muy templadas y en sus arrecifes viven tortugas marinas y cientos de peces de colores.'
   },
-  {
+  'artico': {
     id: 'artico',
     name: 'Glacial Ártico',
     type: 'ocean',
     emoji: '🐻‍❄️',
     color: '#38bdf8',
     hoverColor: '#0ea5e9',
-    labelX: 500,
-    labelY: 45,
+    labelX: 475,
+    labelY: 55,
     facts: 'Océano helado situado en el Polo Norte.',
-    curiosity: 'Muchos de sus tramos están cubiertos por gruesas capas de hielo sobre las que caminan los osos polares.',
-    path: 'M 350,20 L 650,20 L 650,65 L 350,65 Z'
+    curiosity: 'Está cubierto por bloques de hielo flotante donde viven los osos polares y las focas árticas.'
+  },
+  'antartico': {
+    id: 'antartico',
+    name: 'Glacial Antártico',
+    type: 'ocean',
+    emoji: '🧊',
+    color: '#0284c7',
+    hoverColor: '#0369a1',
+    labelX: 475,
+    labelY: 520,
+    facts: 'Océano muy frío que rodea completamente la Antártida.',
+    curiosity: 'Sus aguas frías están llenas de krill diminuto del que se alimentan las ballenas y los pingüinos.'
   }
-];
+};
 
 interface WorldMapGameProps {
   onBack: () => void;
@@ -197,42 +185,47 @@ const QUIZ_MISSIONS: Mission[] = [
   {
     targetId: 'atlantico',
     prompt: '¡Encuentra el Océano Atlántico! (El que separa Europa de América)',
-    hint: 'Busca la gran masa de agua azul en medio, entre América y Europa.'
+    hint: 'Toca la masa de agua en el centro, entre América y Europa/África.'
   },
   {
     targetId: 'europa',
-    prompt: '¿En qué continente vivimos nosotros? (¡Donde está España!)',
+    prompt: '¿En qué continente vivimos nosotros? (¡Donde está España ⭐!)',
     hint: 'Busca el continente verde en el centro-norte, encima de África.'
   },
   {
     targetId: 'antartida',
-    prompt: 'Toca el continente cubierto de hielo en el Polo Sur.',
-    hint: 'Está en la parte más baja de todo el mapa y es de color blanco hielo.'
+    prompt: 'Toca el continente cubierto de hielo en el Polo Sur (la Antártida).',
+    hint: 'Está en la parte más baja de todo el mapa y es blanco como el hielo.'
   },
   {
     targetId: 'africa',
-    prompt: 'Toca el continente de África, famoso por sus leones y el río Nilo.',
+    prompt: 'Toca el continente de África, famoso por sus leones y la sabana.',
     hint: 'Es el continente amarillo en el centro, justo debajo de Europa.'
   },
   {
     targetId: 'america-sur',
     prompt: '¿Dónde está América del Sur, donde se encuentra la gran selva del Amazonas?',
-    hint: 'Está en el lado izquierdo del mapa, en la parte sur de América.'
+    hint: 'Está en la parte izquierda del mapa, abajo de América del Norte.'
   },
   {
     targetId: 'oceania',
-    prompt: 'Toca el continente de Oceanía, la tierra de los canguros y koalas.',
-    hint: 'Busca abajo a la derecha, cerca del Océano Índico y Pacífico.'
+    prompt: 'Toca Oceanía, la tierra de los canguros y koalas.',
+    hint: 'Busca abajo a la derecha del mapa (Australia y sus islas).'
   },
   {
     targetId: 'asia',
-    prompt: 'Toca Asia, el continente más grande de todo el planeta.',
-    hint: 'Es el gigante de color violeta a la derecha de Europa.'
+    prompt: 'Toca Asia, el continente más grande de la Tierra.',
+    hint: 'Es el continente gigante de color violeta a la derecha de Europa.'
+  },
+  {
+    targetId: 'pacifico',
+    prompt: 'Toca el Océano Pacífico, el más grande y profundo de todos.',
+    hint: 'Está en los laterales del mapa, cubriendo una inmensa parte de agua.'
   }
 ];
 
 export const WorldMapGame: React.FC<WorldMapGameProps> = ({ onBack, onStarsEarned }) => {
-  const [selectedRegion, setSelectedRegion] = useState<MapRegion | null>(MAP_REGIONS[0]);
+  const [selectedId, setSelectedId] = useState<string>('europa');
   const [gameMode, setGameMode] = useState<'explore' | 'quiz'>('explore');
   const [quizIndex, setQuizIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -242,22 +235,24 @@ export const WorldMapGame: React.FC<WorldMapGameProps> = ({ onBack, onStarsEarne
 
   const currentMission = QUIZ_MISSIONS[quizIndex];
 
-  const handleRegionClick = (region: MapRegion) => {
-    setSelectedRegion(region);
+  const getInfo = (id: string): InfoItem => {
+    return CONTINENTS_INFO[id] || OCEANS_INFO[id] || CONTINENTS_INFO['europa'];
+  };
+
+  const handleSelect = (id: string) => {
+    setSelectedId(id);
 
     if (gameMode === 'explore') {
       sounds.playPopSound();
     } else {
-      // Modo Quiz Misión
-      const isCorrect =
-        region.id === currentMission.targetId ||
-        (currentMission.targetId === 'pacifico-oeste' && region.id === 'pacifico-este') ||
-        (currentMission.targetId === 'atlantico' && region.name.includes('Atlántico'));
+      // Modo Quiz
+      const isCorrect = id === currentMission.targetId;
 
       if (isCorrect) {
         sounds.playMatchSound();
         setScore(s => s + 1);
-        setQuizFeedback(`¡Correcto! ✨ Has encontrado ${region.name}.`);
+        const info = getInfo(id);
+        setQuizFeedback(`¡Correcto! ✨ Has tocado ${info.name}.`);
 
         setTimeout(() => {
           if (quizIndex + 1 >= QUIZ_MISSIONS.length) {
@@ -277,19 +272,22 @@ export const WorldMapGame: React.FC<WorldMapGameProps> = ({ onBack, onStarsEarne
             setQuizIndex(i => i + 1);
             setQuizFeedback(null);
           }
-        }, 1200);
+        }, 1100);
       } else {
         sounds.playWobbleSound();
-        setQuizFeedback(`¡Casi! Has tocado "${region.name}". ${currentMission.hint}`);
+        const wrongInfo = getInfo(id);
+        setQuizFeedback(`¡Casi! Has tocado "${wrongInfo.name}". ${currentMission.hint}`);
       }
     }
   };
+
+  const selectedItem = getInfo(selectedId);
 
   return (
     <div className="max-w-5xl mx-auto px-3 sm:px-6 py-4 animate-fade-in space-y-4">
       {showCelebration && <ConfettiCelebration />}
 
-      {/* Barra Superior de Controles */}
+      {/* Barra Superior */}
       <div className="flex items-center justify-between gap-2">
         <button
           onClick={onBack}
@@ -299,8 +297,8 @@ export const WorldMapGame: React.FC<WorldMapGameProps> = ({ onBack, onStarsEarne
           <span>Volver a Juegos</span>
         </button>
 
-        {/* Selector de Modo: Explorar vs Reto */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200">
+        {/* Selector de Modo */}
+        <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner">
           <button
             onClick={() => {
               setGameMode('explore');
@@ -309,7 +307,7 @@ export const WorldMapGame: React.FC<WorldMapGameProps> = ({ onBack, onStarsEarne
             }}
             className={`px-3.5 py-1.5 rounded-xl font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all ${
               gameMode === 'explore'
-                ? 'bg-magic-600 text-white shadow-sm'
+                ? 'bg-magic-600 text-white shadow-md'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -328,7 +326,7 @@ export const WorldMapGame: React.FC<WorldMapGameProps> = ({ onBack, onStarsEarne
             }}
             className={`px-3.5 py-1.5 rounded-xl font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all ${
               gameMode === 'quiz'
-                ? 'bg-sunny-500 text-amber-950 shadow-sm'
+                ? 'bg-sunny-500 text-amber-950 shadow-md'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -338,9 +336,9 @@ export const WorldMapGame: React.FC<WorldMapGameProps> = ({ onBack, onStarsEarne
         </div>
       </div>
 
-      {/* Banner de Misión (Si estamos en modo Quiz) */}
+      {/* Banner de Misión (Modo Quiz) */}
       {gameMode === 'quiz' && !isGameOver && (
-        <div className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 rounded-3xl p-4 text-white shadow-md border-2 border-amber-300 flex items-center justify-between gap-4 animate-scale-up">
+        <div className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 rounded-3xl p-4 text-white shadow-lg border-2 border-amber-300 flex items-center justify-between gap-4 animate-scale-up">
           <div className="flex items-center gap-3 text-left">
             <span className="text-3xl">🧭</span>
             <div>
@@ -367,196 +365,197 @@ export const WorldMapGame: React.FC<WorldMapGameProps> = ({ onBack, onStarsEarne
         </div>
       )}
 
-      {/* Contenedor del Mapa Interactivo SVG */}
-      <div className="relative bg-gradient-to-b from-sky-400 via-sky-500 to-blue-600 rounded-4xl p-3 sm:p-5 shadow-2xl border-4 border-sky-300 overflow-hidden select-none">
-        {/* Decoración de Olas y Rosa de los Vientos */}
-        <div className="absolute top-4 left-4 pointer-events-none opacity-40">
-          <Compass className="w-16 h-16 text-white animate-spin-slow" />
+      {/* MAPA DEL MUNDO AUTÉNTICO SVG */}
+      <div className="relative bg-gradient-to-b from-[#38bdf8] via-[#0284c7] to-[#0369a1] rounded-4xl p-2 sm:p-4 shadow-2xl border-4 border-sky-300 overflow-hidden select-none">
+        {/* Rosa de los vientos decorativa */}
+        <div className="absolute top-3 left-3 pointer-events-none opacity-40">
+          <Compass className="w-14 h-14 text-white" />
         </div>
 
-        {/* SVG con proyección cartográfica interactiva */}
         <svg
-          viewBox="0 0 1000 530"
-          className="w-full h-auto max-h-[500px] drop-shadow-md block"
+          viewBox="0 0 950 620"
+          className="w-full h-auto max-h-[520px] drop-shadow-xl block"
         >
           {/* Fondo oceánico */}
-          <rect width="1000" height="530" fill="transparent" />
+          <rect width="950" height="620" fill="transparent" />
 
-          {/* Océano Ártico (Polar Superior) */}
+          {/* ================= BOTONES OCÉANOS INTERACTIVOS ================= */}
+          {/* Glacial Ártico */}
           <g
-            onClick={() => handleRegionClick(MAP_REGIONS.find(r => r.id === 'artico')!)}
+            onClick={() => handleSelect('artico')}
             className="cursor-pointer group"
           >
-            <rect x="250" y="10" width="500" height="60" rx="20" fill="#38bdf8" fillOpacity="0.4" className="group-hover:fillOpacity-70 transition-all" />
-            <text x="500" y="45" fill="#FFFFFF" fontSize="16" fontWeight="900" textAnchor="middle">
-              ❄️ Océano Glacial Ártico
+            <rect x="360" y="25" width="230" height="42" rx="21" fill="#e0f2fe" fillOpacity={selectedId === 'artico' ? 0.95 : 0.75} stroke="#0284c7" strokeWidth="2" className="group-hover:fillOpacity-100 transition-all" />
+            <text x="475" y="51" fill="#0369a1" fontSize="13" fontWeight="900" textAnchor="middle">
+              ❄️ Glacial Ártico
             </text>
           </g>
 
-          {/* Océano Pacífico (Lado Oeste) */}
+          {/* Océano Pacífico (Oeste) */}
           <g
-            onClick={() => handleRegionClick(MAP_REGIONS.find(r => r.id === 'pacifico-oeste')!)}
+            onClick={() => handleSelect('pacifico')}
             className="cursor-pointer group"
           >
-            <rect x="15" y="80" width="130" height="360" rx="25" fill="#0369a1" fillOpacity="0.35" className="group-hover:fillOpacity-60 transition-all" />
-            <text x="80" y="270" fill="#FFFFFF" fontSize="15" fontWeight="900" textAnchor="middle" transform="rotate(-90 80 270)">
+            <rect x="25" y="260" width="110" height="42" rx="21" fill="#e0f2fe" fillOpacity={selectedId === 'pacifico' ? 0.95 : 0.75} stroke="#0284c7" strokeWidth="2" className="group-hover:fillOpacity-100 transition-all" />
+            <text x="80" y="286" fill="#0369a1" fontSize="13" fontWeight="900" textAnchor="middle">
               🐋 Océano Pacífico
             </text>
           </g>
 
-          {/* Océano Pacífico (Lado Este) */}
+          {/* Océano Pacífico (Este) */}
           <g
-            onClick={() => handleRegionClick(MAP_REGIONS.find(r => r.id === 'pacifico-este')!)}
+            onClick={() => handleSelect('pacifico')}
             className="cursor-pointer group"
           >
-            <rect x="855" y="80" width="130" height="360" rx="25" fill="#0369a1" fillOpacity="0.35" className="group-hover:fillOpacity-60 transition-all" />
-            <text x="920" y="270" fill="#FFFFFF" fontSize="15" fontWeight="900" textAnchor="middle" transform="rotate(90 920 270)">
+            <rect x="815" y="260" width="110" height="42" rx="21" fill="#e0f2fe" fillOpacity={selectedId === 'pacifico' ? 0.95 : 0.75} stroke="#0284c7" strokeWidth="2" className="group-hover:fillOpacity-100 transition-all" />
+            <text x="870" y="286" fill="#0369a1" fontSize="13" fontWeight="900" textAnchor="middle">
               🐋 Océano Pacífico
             </text>
           </g>
 
           {/* Océano Atlántico (Centro) */}
           <g
-            onClick={() => handleRegionClick(MAP_REGIONS.find(r => r.id === 'atlantico')!)}
+            onClick={() => handleSelect('atlantico')}
             className="cursor-pointer group"
           >
             <rect
-              x="370"
-              y="120"
-              width="100"
-              height="300"
-              rx="30"
-              fill={selectedRegion?.id === 'atlantico' ? '#0284c7' : '#0369a1'}
-              fillOpacity={selectedRegion?.id === 'atlantico' ? '0.8' : '0.4'}
-              stroke="#FFFFFF"
-              strokeWidth={selectedRegion?.id === 'atlantico' ? '3' : '1'}
-              className="group-hover:fill-sky-600 transition-all"
+              x="340"
+              y="265"
+              width="130"
+              height="46"
+              rx="23"
+              fill={selectedId === 'atlantico' ? '#facc15' : '#e0f2fe'}
+              fillOpacity={selectedId === 'atlantico' ? 1 : 0.85}
+              stroke={selectedId === 'atlantico' ? '#b45309' : '#0284c7'}
+              strokeWidth="2.5"
+              className="group-hover:scale-105 transition-all drop-shadow-md"
             />
-            <text x="420" y="270" fill="#FFFFFF" fontSize="16" fontWeight="900" textAnchor="middle" transform="rotate(-75 420 270)">
+            <text x="405" y="293" fill={selectedId === 'atlantico' ? '#78350f' : '#0369a1'} fontSize="13" fontWeight="900" textAnchor="middle">
               🌊 Océano Atlántico
             </text>
           </g>
 
-          {/* Océano Índico (Sur de Asia) */}
+          {/* Océano Índico */}
           <g
-            onClick={() => handleRegionClick(MAP_REGIONS.find(r => r.id === 'indico')!)}
+            onClick={() => handleSelect('indico')}
             className="cursor-pointer group"
           >
-            <rect
-              x="600"
-              y="250"
-              width="135"
-              height="180"
-              rx="30"
-              fill={selectedRegion?.id === 'indico' ? '#0284c7' : '#0369a1'}
-              fillOpacity={selectedRegion?.id === 'indico' ? '0.8' : '0.4'}
-              stroke="#FFFFFF"
-              strokeWidth={selectedRegion?.id === 'indico' ? '3' : '1'}
-              className="group-hover:fill-sky-600 transition-all"
-            />
-            <text x="665" y="340" fill="#FFFFFF" fontSize="16" fontWeight="900" textAnchor="middle">
+            <rect x="625" y="385" width="110" height="42" rx="21" fill="#e0f2fe" fillOpacity={selectedId === 'indico' ? 0.95 : 0.75} stroke="#0284c7" strokeWidth="2" className="group-hover:fillOpacity-100 transition-all" />
+            <text x="680" y="411" fill="#0369a1" fontSize="13" fontWeight="900" textAnchor="middle">
               🐬 Océano Índico
             </text>
           </g>
 
-          {/* Océano Antártico (Franja Sur) */}
+          {/* Glacial Antártico */}
           <g
-            onClick={() => handleRegionClick(MAP_REGIONS.find(r => r.id === 'antartida')!)}
+            onClick={() => handleSelect('antartico')}
             className="cursor-pointer group"
           >
-            <text x="500" y="445" fill="#FFFFFF" fontSize="14" fontWeight="800" textAnchor="middle" fillOpacity="0.8">
-              🧊 Océano Glacial Antártico
+            <rect x="410" y="495" width="130" height="36" rx="18" fill="#e0f2fe" fillOpacity={selectedId === 'antartico' ? 0.95 : 0.75} stroke="#0284c7" strokeWidth="2" className="group-hover:fillOpacity-100 transition-all" />
+            <text x="475" y="518" fill="#0369a1" fontSize="12" fontWeight="900" textAnchor="middle">
+              🧊 Glacial Antártico
             </text>
           </g>
 
-          {/* POLÍGONOS DE CONTINENTES */}
-          {MAP_REGIONS.filter(r => r.type === 'continent').map(reg => {
-            const isSelected = selectedRegion?.id === reg.id;
+          {/* ================= CONTINENTES CON PAÍSES REALES ================= */}
+          {Object.entries(CONTINENT_PATHS).map(([continentKey, countries]) => {
+            const info = CONTINENTS_INFO[continentKey];
+            if (!info) return null;
+            const isSelected = selectedId === continentKey;
+
             return (
               <g
-                key={reg.id}
-                onClick={() => handleRegionClick(reg)}
-                className="cursor-pointer transition-transform duration-200 group"
+                key={continentKey}
+                onClick={() => handleSelect(continentKey)}
+                className="cursor-pointer group"
               >
-                <path
-                  d={reg.path}
-                  fill={isSelected ? reg.hoverColor : reg.color}
-                  stroke={isSelected ? '#FBBF24' : '#FFFFFF'}
-                  strokeWidth={isSelected ? '5' : '3'}
-                  strokeLinejoin="round"
-                  className="filter drop-shadow group-hover:scale-102 transition-all"
-                />
+                {/* Renderizar cada país con geometría cartográfica auténtica */}
+                {countries.map((c, idx) => (
+                  <path
+                    key={`${c.id}-${idx}`}
+                    d={c.d}
+                    fill={isSelected ? info.hoverColor : info.color}
+                    stroke="#FFFFFF"
+                    strokeWidth={isSelected ? '1.2' : '0.6'}
+                    strokeLinejoin="round"
+                    className="transition-colors duration-150 group-hover:brightness-110"
+                  />
+                ))}
 
-                {/* Etiqueta visible en el continente */}
-                <g pointerEvents="none">
+                {/* Etiqueta visible flotante del continente */}
+                <g pointerEvents="none" className="transition-transform group-hover:scale-105">
                   <rect
-                    x={reg.labelX - 60}
-                    y={reg.labelY - 14}
-                    width="120"
+                    x={info.labelX - 58}
+                    y={info.labelY - 14}
+                    width="116"
                     height="28"
                     rx="14"
                     fill="#FFFFFF"
-                    fillOpacity="0.92"
-                    stroke={reg.color}
-                    strokeWidth="2"
+                    fillOpacity="0.95"
+                    stroke={isSelected ? '#F59E0B' : info.color}
+                    strokeWidth={isSelected ? '3' : '2'}
+                    className="drop-shadow-md"
                   />
                   <text
-                    x={reg.labelX}
-                    y={reg.labelY + 5}
+                    x={info.labelX}
+                    y={info.labelY + 5}
                     fill="#0f172a"
-                    fontSize="12"
+                    fontSize="11"
                     fontWeight="900"
                     textAnchor="middle"
                   >
-                    {reg.emoji} {reg.name}
+                    {info.emoji} {info.name}
                   </text>
                 </g>
               </g>
             );
           })}
 
-          {/* Detalle especial: España en Europa */}
-          <g pointerEvents="none">
-            <circle cx="482" cy="172" r="6" fill="#facc15" stroke="#ef4444" strokeWidth="2" />
-            <text x="482" y="195" fill="#FFFFFF" fontSize="10" fontWeight="900" textAnchor="middle" stroke="#000000" strokeWidth="0.5">
+          {/* ================= DETALLE ESPECIAL: ESPAÑA ================= */}
+          <g
+            onClick={() => handleSelect('europa')}
+            className="cursor-pointer group"
+          >
+            <circle cx="475" cy="205" r="7" fill="#facc15" stroke="#ef4444" strokeWidth="2.5" className="animate-pulse" />
+            <text x="475" y="226" fill="#FFFFFF" fontSize="11" fontWeight="900" textAnchor="middle" stroke="#000000" strokeWidth="0.6">
               ⭐ España
             </text>
           </g>
         </svg>
       </div>
 
-      {/* Tarjeta de Información Detallada del Lugar Seleccionado */}
-      {selectedRegion && (
+      {/* Tarjeta de Información Didáctica */}
+      {selectedItem && (
         <div className="bg-white rounded-3xl p-5 border-3 border-magic-200 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-5 text-left animate-scale-up">
           <div className="flex items-start gap-4">
             <div
-              style={{ backgroundColor: selectedRegion.color }}
+              style={{ backgroundColor: selectedItem.color }}
               className="w-16 h-16 rounded-3xl flex items-center justify-center text-3xl shadow-md text-white shrink-0"
             >
-              {selectedRegion.emoji}
+              {selectedItem.emoji}
             </div>
 
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black uppercase tracking-wider bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full">
-                  {selectedRegion.type === 'continent' ? 'Continente de la Tierra' : 'Océano del Planeta'}
+                  {selectedItem.type === 'continent' ? 'Continente de la Tierra' : 'Océano del Planeta'}
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {selectedRegion.name}
+                  {selectedItem.name}
                 </h3>
               </div>
               <p className="text-xs sm:text-sm font-bold text-slate-600">
-                {selectedRegion.facts}
+                {selectedItem.facts}
               </p>
               <p className="text-xs sm:text-sm text-magic-700 font-semibold bg-magic-50 p-2.5 rounded-2xl border border-magic-100 mt-2">
-                💡 <strong>Dato Mágico:</strong> {selectedRegion.curiosity}
+                💡 <strong>Dato Mágico:</strong> {selectedItem.curiosity}
               </p>
             </div>
           </div>
 
           <div className="shrink-0 flex items-center gap-2">
             <SpeechButton
-              text={`${selectedRegion.name}. ${selectedRegion.facts} ${selectedRegion.curiosity}`}
+              text={`${selectedItem.name}. ${selectedItem.facts} ${selectedItem.curiosity}`}
               size="lg"
             />
           </div>
