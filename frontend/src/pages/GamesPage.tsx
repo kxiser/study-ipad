@@ -50,7 +50,19 @@ export const GamesPage: React.FC<GamesPageProps> = ({
           try {
             const data = await fetchUnit(u.id);
             if (data?.exercises) {
-              allExercises.push(...data.exercises);
+              const sanitized = data.exercises.map(ex => {
+                // Auto-corrección semántica si la explicación contradice una respuesta incorrecta
+                if (ex.type === 'multiple_choice' && ex.options && ex.explanation) {
+                  const exp = ex.explanation.toLowerCase();
+                  for (const opt of ex.options) {
+                    if (opt.length >= 4 && exp.includes(opt.toLowerCase()) && !exp.includes('casi') && !exp.includes('en realidad no')) {
+                      return { ...ex, correctAnswer: opt };
+                    }
+                  }
+                }
+                return ex;
+              });
+              allExercises.push(...sanitized);
             }
           } catch {}
         }
