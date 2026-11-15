@@ -7,6 +7,8 @@ import { BubbleGame } from '../components/games/BubbleGame.js';
 import { WheelGame } from '../components/games/WheelGame.js';
 import { TreasureMapGame } from '../components/games/TreasureMapGame.js';
 import { ClosetShop } from '../components/games/ClosetShop.js';
+import { DrawingGame } from '../components/games/DrawingGame.js';
+import { generateDuolingoVariations } from '../utils/questionReformulator.js';
 import { Mascot } from '../components/Mascot.js';
 
 interface GamesPageProps {
@@ -15,7 +17,7 @@ interface GamesPageProps {
   onStarsUpdated?: (newStars: number) => void;
 }
 
-type ActiveGameMode = 'hub' | 'memory' | 'bubble' | 'wheel' | 'treasure' | 'closet';
+type ActiveGameMode = 'hub' | 'memory' | 'bubble' | 'wheel' | 'treasure' | 'closet' | 'drawing';
 
 type TaggedExerciseItem = ExerciseItem & {
   unitId?: string;
@@ -55,24 +57,14 @@ export const GamesPage: React.FC<GamesPageProps> = ({
           try {
             const data = await fetchUnit(u.id);
             if (data?.exercises) {
-              const sanitized: TaggedExerciseItem[] = data.exercises.map(ex => {
-                let updated = { ...ex, unitId: u.id, unitTitle: u.title, unitSubject: u.subject };
-                // Corrección directa de ejercicios específicos si tuvieran datos legacy
-                if (updated.type === 'multiple_choice') {
-                  const mc = updated as TaggedExerciseItem & { type: 'multiple_choice' };
-                  if (mc.id === 'unit-mwho7gch-jyjj-ex-7-xptp' || (mc.question && mc.question.includes('aeropuerto'))) {
-                    mc.correctAnswer = 'En zonas llanas.';
-                  }
-                  if (mc.question && mc.question.includes('parte más alta de una montaña')) {
-                    mc.correctAnswer = 'La cima o cumbre';
-                  }
-                  if (mc.question && mc.question.includes('corresponde a un océano')) {
-                    mc.correctAnswer = 'Atlántico';
-                  }
-                }
-                return updated;
+              data.exercises.forEach((ex, exIdx) => {
+                // Generar variaciones tipo Duolingo a partir de hechos pedagógicos verificados
+                const variants = generateDuolingoVariations(ex, exIdx);
+                variants.forEach(v => {
+                  let updated = { ...v, unitId: u.id, unitTitle: u.title, unitSubject: u.subject };
+                  allExercises.push(updated);
+                });
               });
-              allExercises.push(...sanitized);
             }
           } catch {}
         }
@@ -168,6 +160,15 @@ export const GamesPage: React.FC<GamesPageProps> = ({
     return (
       <TreasureMapGame
         exercises={filteredExercises}
+        onBack={() => setActiveMode('hub')}
+        onStarsEarned={handleStarsEarned}
+      />
+    );
+  }
+
+  if (activeMode === 'drawing') {
+    return (
+      <DrawingGame
         onBack={() => setActiveMode('hub')}
         onStarsEarned={handleStarsEarned}
       />
@@ -343,7 +344,27 @@ export const GamesPage: React.FC<GamesPageProps> = ({
           </div>
         </button>
 
-        {/* 5. El Armario de Chispa */}
+        {/* 5. Pizarra Mágica: Dibuja y Aprende */}
+        <button
+          onClick={() => setActiveMode('drawing')}
+          className="group relative bg-gradient-to-br from-fuchsia-500 to-pink-600 hover:from-fuchsia-600 hover:to-pink-700 text-white p-7 rounded-4xl shadow-xl shadow-pink-200 border-4 border-pink-400 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl shadow-inner group-hover:scale-110 transition-transform">
+            🎨
+          </div>
+
+          <div>
+            <span className="text-xs font-black uppercase tracking-wider text-pink-200 block mb-1">
+              Creatividad Táctil
+            </span>
+            <h3 className="text-2xl font-black leading-tight">Dibuja y Aprende</h3>
+            <p className="text-pink-100 text-xs md:text-sm font-semibold mt-1">
+              Dibuja montañas, aviones y animales con tu dedo o lápiz en el iPad.
+            </p>
+          </div>
+        </button>
+
+        {/* 6. El Armario de Chispa */}
         <button
           onClick={() => setActiveMode('closet')}
           className="group relative bg-gradient-to-br from-pink-400 to-rose-500 hover:from-pink-500 hover:to-rose-600 text-white p-7 rounded-4xl shadow-xl shadow-pink-200 border-4 border-pink-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
