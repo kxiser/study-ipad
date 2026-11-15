@@ -47,6 +47,14 @@ export const LocalStore = {
     return all[id] || null;
   },
 
+  removeCachedUnit(id: string) {
+    try {
+      const all = LocalStore.getAllCachedUnits();
+      delete all[id];
+      localStorage.setItem(CACHE_UNITS_KEY, JSON.stringify(all));
+    } catch (e) {}
+  },
+
   // Perfil
   cacheProfile(profile: UserProfile) {
     try {

@@ -199,7 +199,20 @@ export function getUnitById(unitId: string) {
 }
 
 export function deleteUnitById(unitId: string) {
-  return db.prepare('DELETE FROM units WHERE id = ?').run(unitId);
+  const exRows = db.prepare('SELECT id FROM exercises WHERE unit_id = ?').all(unitId) as any[];
+  const exIds = exRows.map(r => r.id);
+
+  const tx = db.transaction(() => {
+    if (exIds.length > 0) {
+      const placeholders = exIds.map(() => '?').join(',');
+      db.prepare(`DELETE FROM srs_items WHERE exercise_id IN (${placeholders})`).run(...exIds);
+      db.prepare('DELETE FROM exercises WHERE unit_id = ?').run(unitId);
+    }
+    db.prepare('DELETE FROM study_sessions WHERE unit_id = ?').run(unitId);
+    db.prepare('DELETE FROM units WHERE id = ?').run(unitId);
+  });
+
+  return tx();
 }
 
 export function getExercisesForReview(limit: number = 8, userId?: string) {

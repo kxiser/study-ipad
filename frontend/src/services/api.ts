@@ -142,6 +142,20 @@ export async function fetchUnit(id: string): Promise<ExerciseSet> {
   }
 }
 
+export async function deleteUnit(id: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/units/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    LocalStore.removeCachedUnit(id);
+    return res.ok;
+  } catch (err) {
+    LocalStore.removeCachedUnit(id);
+    return true;
+  }
+}
+
 export async function fetchReviewToday(limit = 8): Promise<ReviewItem[]> {
   try {
     const res = await fetch(`${API_BASE}/review/today?limit=${limit}`, {

@@ -1,8 +1,21 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { fetchUnits, fetchUnit } from '../services/api.js';
+import { fetchUnits, fetchUnit, deleteUnit } from '../services/api.js';
 import { UnitSummary, ExerciseSet } from '../types.js';
-import { ArrowLeft, BookOpen, Clock, Play, Sparkles, Compass, Filter } from 'lucide-react';
+import {
+  ArrowLeft,
+  BookOpen,
+  Clock,
+  Play,
+  Sparkles,
+  Compass,
+  Filter,
+  Trash2,
+  AlertTriangle,
+  X,
+  CheckCircle2
+} from 'lucide-react';
 import { Mascot } from '../components/Mascot.js';
+import { sounds } from '../utils/soundEffects.js';
 
 interface UnitsPageProps {
   onBack: () => void;
@@ -36,12 +49,19 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
   const [units, setUnits] = useState<UnitSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSubject, setSelectedSubject] = useState<string>('all');
+  const [unitToDelete, setUnitToDelete] = useState<UnitSummary | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadUnits = () => {
     fetchUnits().then(data => {
       setUnits(data);
       setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    loadUnits();
   }, []);
 
   // Deduplicar temas repetidos por título normalizado
@@ -79,8 +99,36 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
     }
   };
 
+  const handleConfirmDelete = async () => {
+    if (!unitToDelete) return;
+    setIsDeleting(true);
+    sounds.playPopSound();
+
+    try {
+      const success = await deleteUnit(unitToDelete.id);
+      if (success) {
+        setUnits(prev => prev.filter(u => u.id !== unitToDelete.id));
+        setToastMessage(`El tema "${unitToDelete.title}" ha sido eliminado.`);
+        setTimeout(() => setToastMessage(null), 3000);
+      }
+    } catch (e) {
+      console.error('Error al eliminar unidad:', e);
+    } finally {
+      setIsDeleting(false);
+      setUnitToDelete(null);
+    }
+  };
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 md:py-8 space-y-6 animate-fade-in">
+    <div className="max-w-4xl mx-auto px-4 py-6 md:py-8 space-y-6 animate-fade-in relative">
+      {/* Toast informativo */}
+      {toastMessage && (
+        <div className="fixed top-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl border-2 border-emerald-500 flex items-center gap-2.5 animate-slide-in">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <span className="text-sm font-bold">{toastMessage}</span>
+        </div>
+      )}
+
       {/* Botón Volver y Acceso rápido a Enciclopedia */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <button
@@ -115,7 +163,7 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
           Tus Temas y Actividades Guardadas
         </h2>
         <p className="text-slate-500 font-bold text-sm md:text-base">
-          Temas organizados por materia para repasar y jugar en tu iPad.
+          Temas organizados por materia para repasar, jugar o eliminar cuando ya los domines.
         </p>
       </div>
 
@@ -191,7 +239,7 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
             return (
               <div
                 key={unit.id}
-                className="bg-white rounded-3xl p-6 shadow-md border-2 border-magic-100 hover:border-magic-300 transition-all flex flex-col justify-between gap-4"
+                className="bg-white rounded-3xl p-6 shadow-md border-2 border-magic-100 hover:border-magic-300 transition-all flex flex-col justify-between gap-4 group relative"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -213,23 +261,85 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100 gap-2">
                   <span className="text-xs font-black text-magic-600">
                     {unit.exercise_count} actividades
                   </span>
 
-                  <button
-                    type="button"
-                    onClick={() => handlePlay(unit.id)}
-                    className="px-5 py-2.5 rounded-2xl bg-magic-600 hover:bg-magic-700 text-white font-black text-sm flex items-center gap-2 shadow-md shadow-magic-200 active:scale-95 transition-all"
-                  >
-                    <Play className="w-4 h-4 fill-white" />
-                    <span>Jugar ahora</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {/* Botón Eliminar Tema */}
+                    <button
+                      type="button"
+                      onClick={() => setUnitToDelete(unit)}
+                      title="Eliminar tema"
+                      className="p-2.5 rounded-2xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-100 hover:border-rose-200 transition-all active:scale-95 flex items-center justify-center"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+
+                    {/* Botón Jugar */}
+                    <button
+                      type="button"
+                      onClick={() => handlePlay(unit.id)}
+                      className="px-5 py-2.5 rounded-2xl bg-magic-600 hover:bg-magic-700 text-white font-black text-sm flex items-center gap-2 shadow-md shadow-magic-200 active:scale-95 transition-all"
+                    >
+                      <Play className="w-4 h-4 fill-white" />
+                      <span>Jugar ahora</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* MODAL DE CONFIRMACIÓN DE ELIMINAR TEMA */}
+      {unitToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-4xl p-6 sm:p-8 max-w-md w-full border-4 border-rose-300 shadow-2xl space-y-5 animate-scale-up text-center">
+            <div className="w-16 h-16 rounded-3xl bg-rose-100 border-2 border-rose-300 text-rose-600 flex items-center justify-center mx-auto shadow-inner">
+              <AlertTriangle className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-1.5">
+              <span className="text-xs font-black uppercase tracking-wider text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-200 inline-block">
+                Eliminar tema
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
+                ¿Seguro que deseas eliminar este tema?
+              </h3>
+              <p className="text-sm font-semibold text-slate-600 px-2">
+                Se borrará <strong className="text-slate-800">"{unitToDelete.title}"</strong> y sus {unitToDelete.exercise_count || ''} ejercicios de tu lista.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setUnitToDelete(null)}
+                disabled={isDeleting}
+                className="flex-1 py-3.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-sm transition-all active:scale-95"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="flex-1 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-black text-sm shadow-lg shadow-rose-200 transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                {isDeleting ? (
+                  <span>Eliminando...</span>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Sí, eliminar</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
