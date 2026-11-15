@@ -1,6 +1,6 @@
 import { ExerciseSet, UnitSummary, UserProfile, ReviewItem } from '../types.js';
 
-const CACHE_UNITS_KEY = 'study_cached_units_v2';
+const CACHE_UNITS_KEY = 'study_cached_units_v3';
 const CACHE_PROFILE_KEY = 'study_cached_profile';
 const PENDING_ANSWERS_KEY = 'study_pending_answers';
 const PENDING_SESSIONS_KEY = 'study_pending_sessions';

@@ -108,10 +108,12 @@ export const WheelGame: React.FC<WheelGameProps> = ({
     }, 4200);
   };
 
+  const norm = (s: string) => (s || '').trim().toLowerCase().replace(/[\.\,\!]$/, '');
+
   const handleAnswerQuestion = (selectedOption: string) => {
     if (!activeQuestion || !selectedSector) return;
 
-    if (selectedOption === activeQuestion.ans) {
+    if (norm(selectedOption) === norm(activeQuestion.ans)) {
       sounds.playVictorySound();
       setShowCelebration(true);
       setResultMessage(`¡Respuesta Perfecta! Ganaste ${selectedSector.stars} Estrellas Mágicas.`);

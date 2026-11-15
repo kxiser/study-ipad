@@ -21,12 +21,14 @@ export const MultipleChoice: React.FC<Props> = ({ exercise, onAnswer, onNext }) 
   const [selected, setSelected] = useState<string | null>(null);
   const [hasAnswered, setHasAnswered] = useState(false);
 
+  const norm = (s: string) => (s || '').trim().toLowerCase().replace(/[\.\,\!]$/, '');
+
   const handleSelect = (option: string) => {
     if (hasAnswered) return;
     setSelected(option);
     setHasAnswered(true);
 
-    const isCorrect = option === exercise.correctAnswer;
+    const isCorrect = norm(option) === norm(exercise.correctAnswer);
     if (isCorrect) {
       fireSuccessConfetti();
     }
@@ -47,7 +49,7 @@ export const MultipleChoice: React.FC<Props> = ({ exercise, onAnswer, onNext }) 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {exercise.options.map((option, idx) => {
           let stateStyle = OPTION_COLORS[idx % OPTION_COLORS.length];
-          const isThisCorrect = option === exercise.correctAnswer;
+          const isThisCorrect = norm(option) === norm(exercise.correctAnswer);
 
           if (hasAnswered) {
             if (isThisCorrect) {

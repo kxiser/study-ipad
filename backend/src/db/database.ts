@@ -67,8 +67,9 @@ if (seedPath) {
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `);
       const insEx = db.prepare(`
-        INSERT OR IGNORE INTO exercises (id, unit_id, type, data_json, created_at)
+        INSERT INTO exercises (id, unit_id, type, data_json, created_at)
         VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET data_json = excluded.data_json
       `);
       const insSrs = db.prepare(`
         INSERT OR IGNORE INTO srs_items (id, exercise_id, ease_factor, interval_days, repetitions, next_review_date, times_correct, times_incorrect)

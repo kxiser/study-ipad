@@ -99,9 +99,11 @@ export const TreasureMapGame: React.FC<TreasureMapGameProps> = ({
     setShowLevelEndModal(false);
   };
 
+  const norm = (s: string) => (s || '').trim().toLowerCase().replace(/[\.\,\!]$/, '');
+
   const handleAnswer = (selected: string) => {
     const currentQ = activeQuestions[quizIndex];
-    const isCorrect = selected === currentQ.ans;
+    const isCorrect = norm(selected) === norm(currentQ.ans);
 
     if (isCorrect) {
       sounds.playMatchSound();

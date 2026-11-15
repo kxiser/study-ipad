@@ -98,14 +98,18 @@ export const BubbleGame: React.FC<BubbleGameProps> = ({
       'from-amber-400 to-orange-500 border-amber-300 text-white'
     ];
 
+    const norm = (s: string) => (s || '').trim().toLowerCase().replace(/[\.\,\!]$/, '');
+    const cleanCorrect = norm(currentQ.correct);
+
     const newBubbles: Bubble[] = currentQ.options.slice(0, 4).map((opt, idx) => {
       // Dispersar horizontalmente
       const spread = 80 / Math.max(currentQ.options.length, 1);
       const baseX = 10 + idx * spread;
+      const cleanOpt = norm(opt);
       return {
         id: `bubble-${currentRound}-${idx}`,
         text: opt,
-        isCorrect: opt === currentQ.correct,
+        isCorrect: cleanOpt === cleanCorrect,
         x: Math.min(Math.max(baseX + (Math.random() * 8 - 4), 5), 75),
         y: 40 + (idx % 2 === 0 ? 0 : 25) + (Math.random() * 10 - 5),
         speed: 0.3 + Math.random() * 0.2,
