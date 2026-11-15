@@ -8,6 +8,7 @@ import { UnitsPage } from './pages/UnitsPage.js';
 import { SettingsPage } from './pages/SettingsPage.js';
 import { GamesPage } from './pages/GamesPage.js';
 import { ExamSimulatorPage } from './pages/ExamSimulatorPage.js';
+import { EncyclopediaPage } from './pages/EncyclopediaPage.js';
 import { PinModal } from './components/PinModal.js';
 import { UserSwitcherModal } from './components/UserSwitcherModal.js';
 import { VersionBadge } from './components/VersionBadge.js';
@@ -73,6 +74,7 @@ export const App: React.FC = () => {
           onHomeClick={() => handleNavigate('home')}
           onGamesClick={() => handleNavigate('games')}
           onExamClick={() => handleNavigate('exam')}
+          onEncyclopediaClick={() => handleNavigate('encyclopedia')}
           onSettingsClick={handleSettingsClick}
           onMyUnitsClick={() => handleNavigate('units')}
           onUserClick={() => setIsUserModalOpen(true)}
@@ -135,7 +137,16 @@ export const App: React.FC = () => {
             <UnitsPage
               mascotType={profile?.mascot}
               onBack={() => handleNavigate('home')}
+              onOpenEncyclopedia={() => handleNavigate('encyclopedia')}
               onSelectUnit={(unitId, set) => handleNavigate('study', { unitId, set })}
+            />
+          )}
+
+          {currentPage === 'encyclopedia' && (
+            <EncyclopediaPage
+              mascotType={profile?.mascot}
+              onBack={() => handleNavigate('home')}
+              onUnitCreated={(unitId, set) => handleNavigate('study', { unitId, set })}
             />
           )}
 

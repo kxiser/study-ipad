@@ -9,6 +9,7 @@ import { exerciseRoutes } from './routes/exercises.routes.js';
 import { profileRoutes } from './routes/profile.routes.js';
 import { authRoutes } from './routes/auth.routes.js';
 import { healthRoutes } from './routes/health.routes.js';
+import { encyclopediaRoutes } from './routes/encyclopedia.routes.js';
 
 export function buildServer() {
   const fastify = Fastify({
@@ -36,6 +37,7 @@ export function buildServer() {
   fastify.register(authRoutes);
   fastify.register(exerciseRoutes);
   fastify.register(profileRoutes);
+  fastify.register(encyclopediaRoutes);
 
   // Servir frontend compilado estático si existe (para producción en Cloud Run / Docker único)
   const candidateStaticDirs = [

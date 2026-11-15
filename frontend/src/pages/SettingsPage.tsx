@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { checkServerHealth, updateMascotPreference } from '../services/api.js';
-import { ArrowLeft, Cpu, ShieldCheck, Heart, Sparkles, Check } from 'lucide-react';
+import { ArrowLeft, Cpu, ShieldCheck, Heart, Sparkles, Check, Users } from 'lucide-react';
 import { Mascot } from '../components/Mascot.js';
+import { PLAYABLE_CHARACTERS, getSelectedCharacter, setSelectedCharacter } from '../utils/characters.js';
 
 interface SettingsPageProps {
   onBack: () => void;
@@ -61,57 +62,51 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
         </p>
       </div>
 
-      {/* 1. Elegir Mascota */}
+      {/* 1. Elegir Personaje / Mascota */}
       <div className="bg-white rounded-3xl p-6 shadow-md border-2 border-magic-100 space-y-4">
-        <div className="flex items-center gap-2">
-          <Heart className="w-5 h-5 text-rose-500" />
-          <h3 className="text-lg font-black text-slate-800">Elige la Mascota de Estudio</h3>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Heart className="w-5 h-5 text-rose-500" />
+            <h3 className="text-lg font-black text-slate-800">Elige tu Personaje Héroe</h3>
+          </div>
+          <span className="text-xs font-black uppercase text-magic-600 bg-magic-50 px-2.5 py-1 rounded-full border border-magic-200">
+            6 Héroes
+          </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          {/* Chispa */}
-          <button
-            type="button"
-            onClick={() => handleSelectMascot('chispa')}
-            className={`p-4 rounded-2xl border-3 flex flex-col items-center gap-3 transition-all active:scale-95 ${
-              currentMascot === 'chispa'
-                ? 'bg-amber-50 border-amber-400 ring-4 ring-amber-200'
-                : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
-            }`}
-          >
-            <Mascot mascotType="chispa" size="md" mood="happy" />
-            <div className="text-center">
-              <span className="font-black text-slate-800 text-sm md:text-base block">Chispa el Zorro</span>
-              <span className="text-xs text-slate-500 font-medium">Aventurero y alegre</span>
-            </div>
-            {currentMascot === 'chispa' && (
-              <span className="text-xs font-black bg-amber-400 text-amber-950 px-2 py-0.5 rounded-full flex items-center gap-1">
-                <Check className="w-3 h-3" /> Seleccionado
-              </span>
-            )}
-          </button>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {PLAYABLE_CHARACTERS.map(char => {
+            const isSelected = currentMascot === char.id || (currentMascot === 'chispa' && char.id === 'chispa-dragon') || (currentMascot === 'buho' && char.id === 'luna-buho');
 
-          {/* Búho Sabio */}
-          <button
-            type="button"
-            onClick={() => handleSelectMascot('buho')}
-            className={`p-4 rounded-2xl border-3 flex flex-col items-center gap-3 transition-all active:scale-95 ${
-              currentMascot === 'buho'
-                ? 'bg-magic-50 border-magic-400 ring-4 ring-magic-200'
-                : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
-            }`}
-          >
-            <Mascot mascotType="buho" size="md" mood="happy" />
-            <div className="text-center">
-              <span className="font-black text-slate-800 text-sm md:text-base block">Búho Sabio</span>
-              <span className="text-xs text-slate-500 font-medium">Curioso y paciente</span>
-            </div>
-            {currentMascot === 'buho' && (
-              <span className="text-xs font-black bg-magic-600 text-white px-2 py-0.5 rounded-full flex items-center gap-1">
-                <Check className="w-3 h-3" /> Seleccionado
-              </span>
-            )}
-          </button>
+            return (
+              <button
+                key={char.id}
+                type="button"
+                onClick={() => {
+                  handleSelectMascot(char.id);
+                  setSelectedCharacter(char.id);
+                }}
+                className={`p-3.5 rounded-2xl border-3 flex flex-col items-center gap-2 text-center transition-all active:scale-95 relative ${
+                  isSelected
+                    ? `bg-white border-magic-500 ring-4 ${char.ringColor} shadow-md`
+                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-inner border-2 ${char.badgeBg}`}>
+                  {char.emoji}
+                </div>
+                <div>
+                  <span className="font-black text-slate-800 text-xs sm:text-sm block leading-tight">{char.name}</span>
+                  <span className="text-[10px] text-slate-500 font-bold block">{char.title}</span>
+                </div>
+                {isSelected && (
+                  <span className="text-[10px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                    <Check className="w-3 h-3" /> Activo
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 

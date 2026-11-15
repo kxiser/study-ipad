@@ -19,15 +19,6 @@
       "user_id": "user-samantha"
     },
     {
-      "id": "unit-mwhn65p0-v2mm",
-      "title": "Los Animales Vertebrados e Invertebrados",
-      "subject": "Ciencias Naturales",
-      "summary": "Descubre los dos grandes grupos de animales según tengan esqueleto interno o no.",
-      "estimated_minutes": 6,
-      "created_at": "2026-11-15 09:38:08",
-      "user_id": "user-samantha"
-    },
-    {
       "id": "unit-mwhni8el-lnpl",
       "title": "¡El Increíble Mundo de los Seres Vivos!",
       "subject": "Ciencias Naturales",
@@ -79,15 +70,6 @@
       "summary": "¡Hola, explorador! Hoy vamos a descubrir cómo son los paisajes llanos, sus pequeñas montañas y cómo las personas los transformamos para vivir.",
       "estimated_minutes": 10,
       "created_at": "2026-11-15 10:06:02",
-      "user_id": "user-samantha"
-    },
-    {
-      "id": "unit-mwho7gch-jyjj",
-      "title": "¡Exploramos las llanuras!",
-      "subject": "Ciencias Sociales",
-      "summary": "Vamos a descubrir por qué es tan fácil vivir en las llanuras, cómo son sus carreteras y qué trabajos realizan las personas allí.",
-      "estimated_minutes": 8,
-      "created_at": "2026-11-15 10:07:08",
       "user_id": "user-samantha"
     }
   ],
@@ -175,48 +157,6 @@
       "type": "flashcard",
       "data_json": "{\"id\":\"mock-6-3905\",\"type\":\"flashcard\",\"front\":\"¿Cuál es el mamífero más grande de todo el planeta Tierra?\",\"back\":\"¡La ballena azul! Aunque vive en el océano, es un mamífero y respira aire con sus pulmones.\",\"tip\":\"¡Es más larga que tres autobuses juntos!\",\"explanation\":\"¡Super dato curioso guardado en tu memoria!\"}",
       "created_at": "2026-11-15 09:37:13"
-    },
-    {
-      "id": "mock-1-8340",
-      "unit_id": "unit-mwhn65p0-v2mm",
-      "type": "multiple_choice",
-      "data_json": "{\"id\":\"mock-1-8340\",\"type\":\"multiple_choice\",\"question\":\"¿Cuál de estos animales es un VERTEBRADO porque tiene columna vertebral?\",\"options\":[\"El perro\",\"La mariposa\",\"El caracol\",\"La medusa\"],\"correctAnswer\":\"El perro\",\"explanation\":\"¡Genial! Los perros, los gatos, las aves y nosotros somos vertebrados.\",\"hint\":\"Piensa en un animal que tenga huesos por dentro.\"}",
-      "created_at": "2026-11-15 09:38:08"
-    },
-    {
-      "id": "mock-2-8340",
-      "unit_id": "unit-mwhn65p0-v2mm",
-      "type": "true_false",
-      "data_json": "{\"id\":\"mock-2-8340\",\"type\":\"true_false\",\"statement\":\"Los animales invertebrados NO tienen esqueleto interno con huesos.\",\"isTrue\":true,\"explanation\":\"¡Exacto! Los invertebrados como las hormigas o lombrices no tienen huesos.\",\"hint\":\"El prefijo \\\"in-\\\" significa \\\"sin\\\".\"}",
-      "created_at": "2026-11-15 09:38:08"
-    },
-    {
-      "id": "mock-3-8340",
-      "unit_id": "unit-mwhn65p0-v2mm",
-      "type": "fill_blank",
-      "data_json": "{\"id\":\"mock-3-8340\",\"type\":\"fill_blank\",\"textWithBlank\":\"Los peces respiran el oxígeno del agua a través de sus ___ .\",\"options\":[\"branquias\",\"pulmones\",\"alas\"],\"correctAnswer\":\"branquias\",\"explanation\":\"¡Fantástico! Las branquias les permiten respirar bajo el agua.\",\"hint\":\"Están a los lados de su cabeza.\"}",
-      "created_at": "2026-11-15 09:38:08"
-    },
-    {
-      "id": "mock-4-8340",
-      "unit_id": "unit-mwhn65p0-v2mm",
-      "type": "ordering",
-      "data_json": "{\"id\":\"mock-4-8340\",\"type\":\"ordering\",\"instruction\":\"Ordena la metamorfosis de una mariposa de principio a fin:\",\"items\":[\"Huevo pequeño en una hoja\",\"Oruga glotona comiendo hojas\",\"Crisálida o capullo dormido\",\"Mariposa con hermosas alas\"],\"explanation\":\"¡Maravilloso! Es una de las transformaciones más mágicas de la naturaleza.\",\"hint\":\"Todo comienza con un huevecillo.\"}",
-      "created_at": "2026-11-15 09:38:08"
-    },
-    {
-      "id": "mock-5-8340",
-      "unit_id": "unit-mwhn65p0-v2mm",
-      "type": "matching",
-      "data_json": "{\"id\":\"mock-5-8340\",\"type\":\"matching\",\"instruction\":\"Une cada grupo de vertebrados con su característica principal:\",\"pairs\":[{\"left\":\"Mamíferos\",\"right\":\"Toman leche materna al nacer\"},{\"left\":\"Aves\",\"right\":\"Tienen plumas y ponen huevos\"},{\"left\":\"Peces\",\"right\":\"Tienen escamas y viven en el agua\"}],\"explanation\":\"¡Increíble memoria! Has emparejado cada grupo a la perfección.\",\"hint\":\"Fíjate en cómo nacen o qué cubre su cuerpo.\"}",
-      "created_at": "2026-11-15 09:38:08"
-    },
-    {
-      "id": "mock-6-8340",
-      "unit_id": "unit-mwhn65p0-v2mm",
-      "type": "flashcard",
-      "data_json": "{\"id\":\"mock-6-8340\",\"type\":\"flashcard\",\"front\":\"¿Cuál es el mamífero más grande de todo el planeta Tierra?\",\"back\":\"¡La ballena azul! Aunque vive en el océano, es un mamífero y respira aire con sus pulmones.\",\"tip\":\"¡Es más larga que tres autobuses juntos!\",\"explanation\":\"¡Super dato curioso guardado en tu memoria!\"}",
-      "created_at": "2026-11-15 09:38:08"
     },
     {
       "id": "ex-01",
@@ -497,55 +437,6 @@
       "type": "flashcard",
       "data_json": "{\"id\":\"unit-mwho61fo-ji2o-ex-7-hxdd\",\"type\":\"flashcard\",\"front\":\"¿Cómo diferenciamos un elemento natural de uno humanizado?\",\"back\":\"Los naturales (como cerros o ríos) los crea la naturaleza. Los humanizados (como puentes o vías del tren) los fabricamos nosotros. ¡Truco: Si tiene ladrillos, asfalto o metal, suele ser humanizado!\",\"explanation\":\"¡Buen trabajo! Ahora ya sabes distinguir qué estaba ahí antes y qué hemos puesto nosotros.\"}",
       "created_at": "2026-11-15 10:06:02"
-    },
-    {
-      "id": "unit-mwho7gch-jyjj-ex-1-9qcv",
-      "unit_id": "unit-mwho7gch-jyjj",
-      "type": "multiple_choice",
-      "data_json": "{\"id\":\"unit-mwho7gch-jyjj-ex-1-9qcv\",\"type\":\"multiple_choice\",\"question\":\"¿Por qué la mayoría de los pueblos y ciudades se encuentran en las llanuras?\",\"options\":[\"Porque es más fácil construir en terrenos planos.\",\"Porque a la gente le gusta escalar montañas.\",\"Porque en las llanuras siempre hace más frío.\"],\"correctAnswer\":\"Porque es más fácil construir en terrenos planos.\",\"explanation\":\"¡Exacto! Construir casas, edificios y calles es mucho más sencillo cuando el suelo es llanito y no hay pendientes.\"}",
-      "created_at": "2026-11-15 10:07:08"
-    },
-    {
-      "id": "unit-mwho7gch-jyjj-ex-2-mwpk",
-      "unit_id": "unit-mwho7gch-jyjj",
-      "type": "true_false",
-      "data_json": "{\"id\":\"unit-mwho7gch-jyjj-ex-2-mwpk\",\"type\":\"true_false\",\"statement\":\"Las carreteras y las vías del tren en las llanuras suelen ser bastante rectas.\",\"isTrue\":true,\"explanation\":\"¡Muy bien! Como no hay montañas que esquivar, los caminos pueden ir en línea recta de un lugar a otro.\"}",
-      "created_at": "2026-11-15 10:07:08"
-    },
-    {
-      "id": "unit-mwho7gch-jyjj-ex-3-79b8",
-      "unit_id": "unit-mwho7gch-jyjj",
-      "type": "fill_blank",
-      "data_json": "{\"id\":\"unit-mwho7gch-jyjj-ex-3-79b8\",\"type\":\"fill_blank\",\"textWithBlank\":\"El trabajo principal en las zonas llanas del campo es la ___ .\",\"options\":[\"pesca\",\"agricultura\",\"minería\"],\"correctAnswer\":\"agricultura\",\"explanation\":\"¡Genial! La tierra plana y el agua de los ríos son perfectas para plantar frutas y verduras.\"}",
-      "created_at": "2026-11-15 10:07:08"
-    },
-    {
-      "id": "unit-mwho7gch-jyjj-ex-4-6o1q",
-      "unit_id": "unit-mwho7gch-jyjj",
-      "type": "matching",
-      "data_json": "{\"id\":\"unit-mwho7gch-jyjj-ex-4-6o1q\",\"type\":\"matching\",\"instruction\":\"Relaciona cada lugar con los trabajos que se realizan habitualmente allí:\",\"pairs\":[{\"left\":\"En los pueblos\",\"right\":\"Agricultura y cultivos\"},{\"left\":\"En las ciudades\",\"right\":\"Fábricas, oficinas y colegios\"},{\"left\":\"Zonas llanas\",\"right\":\"Construcción de aeropuertos\"}],\"explanation\":\"¡Lo has clavado! Cada lugar aprovecha el terreno de forma diferente para trabajar.\"}",
-      "created_at": "2026-11-15 10:07:08"
-    },
-    {
-      "id": "unit-mwho7gch-jyjj-ex-5-k5b3",
-      "unit_id": "unit-mwho7gch-jyjj",
-      "type": "flashcard",
-      "data_json": "{\"id\":\"unit-mwho7gch-jyjj-ex-5-k5b3\",\"type\":\"flashcard\",\"front\":\"¿Qué es una MESETA?\",\"back\":\"Es una llanura que está elevada, como si fuera una montaña con la parte de arriba plana. ¡Truco! Imagina una 'mesa' gigante en medio del campo.\",\"explanation\":\"¡Excelente! Ahora ya sabes distinguir entre una llanura baja y una meseta.\"}",
-      "created_at": "2026-11-15 10:07:08"
-    },
-    {
-      "id": "unit-mwho7gch-jyjj-ex-6-u2lj",
-      "unit_id": "unit-mwho7gch-jyjj",
-      "type": "ordering",
-      "data_json": "{\"id\":\"unit-mwho7gch-jyjj-ex-6-u2lj\",\"type\":\"ordering\",\"instruction\":\"Ordena estos pasos para construir una ciudad en la llanura:\",\"items\":[\"Buscar un terreno que sea plano.\",\"Trazar carreteras rectas y vías de tren.\",\"Construir edificios como hospitales y colegios.\"],\"explanation\":\"¡Perfecto! Ese es el orden lógico para aprovechar el espacio en una zona llana.\"}",
-      "created_at": "2026-11-15 10:07:08"
-    },
-    {
-      "id": "unit-mwho7gch-jyjj-ex-7-xptp",
-      "unit_id": "unit-mwho7gch-jyjj",
-      "type": "multiple_choice",
-      "data_json": "{\"id\":\"unit-mwho7gch-jyjj-ex-7-xptp\",\"type\":\"multiple_choice\",\"question\":\"¿Dónde se suelen construir los aeropuertos?\",\"options\":[\"En lo alto de los cerros.\",\"En zonas llanas.\",\"En medio de los bosques espesos.\"],\"correctAnswer\":\"En zonas llanas.\",\"explanation\":\"¡Correcto! Los aviones necesitan pistas muy largas y planas para poder despegar y aterrizar con seguridad.\"}",
-      "created_at": "2026-11-15 10:07:08"
     }
   ],
   "srs": [
@@ -673,72 +564,6 @@
     {
       "id": "srs-mock-6-3905",
       "exercise_id": "mock-6-3905",
-      "ease_factor": 2.5,
-      "interval_days": 0,
-      "repetitions": 0,
-      "next_review_date": "2026-11-15",
-      "last_reviewed_at": null,
-      "times_correct": 0,
-      "times_incorrect": 0
-    },
-    {
-      "id": "srs-mock-1-8340",
-      "exercise_id": "mock-1-8340",
-      "ease_factor": 2.5,
-      "interval_days": 0,
-      "repetitions": 0,
-      "next_review_date": "2026-11-15",
-      "last_reviewed_at": null,
-      "times_correct": 0,
-      "times_incorrect": 0
-    },
-    {
-      "id": "srs-mock-2-8340",
-      "exercise_id": "mock-2-8340",
-      "ease_factor": 2.5,
-      "interval_days": 0,
-      "repetitions": 0,
-      "next_review_date": "2026-11-15",
-      "last_reviewed_at": null,
-      "times_correct": 0,
-      "times_incorrect": 0
-    },
-    {
-      "id": "srs-mock-3-8340",
-      "exercise_id": "mock-3-8340",
-      "ease_factor": 2.5,
-      "interval_days": 0,
-      "repetitions": 0,
-      "next_review_date": "2026-11-15",
-      "last_reviewed_at": null,
-      "times_correct": 0,
-      "times_incorrect": 0
-    },
-    {
-      "id": "srs-mock-4-8340",
-      "exercise_id": "mock-4-8340",
-      "ease_factor": 2.5,
-      "interval_days": 0,
-      "repetitions": 0,
-      "next_review_date": "2026-11-15",
-      "last_reviewed_at": null,
-      "times_correct": 0,
-      "times_incorrect": 0
-    },
-    {
-      "id": "srs-mock-5-8340",
-      "exercise_id": "mock-5-8340",
-      "ease_factor": 2.5,
-      "interval_days": 0,
-      "repetitions": 0,
-      "next_review_date": "2026-11-15",
-      "last_reviewed_at": null,
-      "times_correct": 0,
-      "times_incorrect": 0
-    },
-    {
-      "id": "srs-mock-6-8340",
-      "exercise_id": "mock-6-8340",
       "ease_factor": 2.5,
       "interval_days": 0,
       "repetitions": 0,
@@ -1179,83 +1004,6 @@
     {
       "id": "srs-unit-mwho61fo-ji2o-ex-7-hxdd",
       "exercise_id": "unit-mwho61fo-ji2o-ex-7-hxdd",
-      "ease_factor": 2.5,
-      "interval_days": 0,
-      "repetitions": 0,
-      "next_review_date": "2026-11-15",
-      "last_reviewed_at": null,
-      "times_correct": 0,
-      "times_incorrect": 0
-    },
-    {
-      "id": "srs-unit-mwho7gch-jyjj-ex-1-9qcv",
-      "exercise_id": "unit-mwho7gch-jyjj-ex-1-9qcv",
-      "ease_factor": 2.5,
-      "interval_days": 0,
-      "repetitions": 0,
-      "next_review_date": "2026-11-15",
-      "last_reviewed_at": null,
-      "times_correct": 0,
-      "times_incorrect": 0
-    },
-    {
-      "id": "srs-unit-mwho7gch-jyjj-ex-2-mwpk",
-      "exercise_id": "unit-mwho7gch-jyjj-ex-2-mwpk",
-      "ease_factor": 2.5,
-      "interval_days": 0,
-      "repetitions": 0,
-      "next_review_date": "2026-11-15",
-      "last_reviewed_at": null,
-      "times_correct": 0,
-      "times_incorrect": 0
-    },
-    {
-      "id": "srs-unit-mwho7gch-jyjj-ex-3-79b8",
-      "exercise_id": "unit-mwho7gch-jyjj-ex-3-79b8",
-      "ease_factor": 2.5,
-      "interval_days": 0,
-      "repetitions": 0,
-      "next_review_date": "2026-11-15",
-      "last_reviewed_at": null,
-      "times_correct": 0,
-      "times_incorrect": 0
-    },
-    {
-      "id": "srs-unit-mwho7gch-jyjj-ex-4-6o1q",
-      "exercise_id": "unit-mwho7gch-jyjj-ex-4-6o1q",
-      "ease_factor": 2.5,
-      "interval_days": 0,
-      "repetitions": 0,
-      "next_review_date": "2026-11-15",
-      "last_reviewed_at": null,
-      "times_correct": 0,
-      "times_incorrect": 0
-    },
-    {
-      "id": "srs-unit-mwho7gch-jyjj-ex-5-k5b3",
-      "exercise_id": "unit-mwho7gch-jyjj-ex-5-k5b3",
-      "ease_factor": 2.5,
-      "interval_days": 0,
-      "repetitions": 0,
-      "next_review_date": "2026-11-15",
-      "last_reviewed_at": null,
-      "times_correct": 0,
-      "times_incorrect": 0
-    },
-    {
-      "id": "srs-unit-mwho7gch-jyjj-ex-6-u2lj",
-      "exercise_id": "unit-mwho7gch-jyjj-ex-6-u2lj",
-      "ease_factor": 2.5,
-      "interval_days": 0,
-      "repetitions": 0,
-      "next_review_date": "2026-11-15",
-      "last_reviewed_at": null,
-      "times_correct": 0,
-      "times_incorrect": 0
-    },
-    {
-      "id": "srs-unit-mwho7gch-jyjj-ex-7-xptp",
-      "exercise_id": "unit-mwho7gch-jyjj-ex-7-xptp",
       "ease_factor": 2.5,
       "interval_days": 0,
       "repetitions": 0,

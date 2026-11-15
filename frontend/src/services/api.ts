@@ -354,3 +354,73 @@ export async function syncOfflineProgress(): Promise<number> {
 
   return syncedCount;
 }
+
+export interface CuratedTopicItem {
+  id: string;
+  title: string;
+  subject: string;
+  emoji: string;
+  ageRange: string;
+  minAge: number;
+  maxAge: number;
+  summary: string;
+  searchQuery: string;
+  tags: string[];
+}
+
+export interface EncyclopediaSearchResult {
+  id: string;
+  title: string;
+  extract: string;
+  thumbnail: string | null;
+  source: string;
+  sourceUrl: string;
+  suggestedAge: number;
+}
+
+export async function fetchCuratedTopics(age: number = 8): Promise<CuratedTopicItem[]> {
+  try {
+    const res = await fetch(`${API_BASE}/encyclopedia/curated?age=${age}`);
+    if (!res.ok) throw new Error('Error al obtener temas recomendados');
+    const data = await res.json();
+    return data.topics || [];
+  } catch (e) {
+    console.error('Error fetching curated topics:', e);
+    return [];
+  }
+}
+
+export async function searchEncyclopedia(query: string, age: number = 8): Promise<EncyclopediaSearchResult[]> {
+  const res = await fetch(`${API_BASE}/encyclopedia/search?query=${encodeURIComponent(query)}&age=${age}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Error buscando en la enciclopedia');
+  }
+  const data = await res.json();
+  return data.results || [];
+}
+
+export async function generateUnitFromTopic(params: {
+  topic: string;
+  age?: number;
+  encyclopediaContext?: string;
+  subjectHint?: string;
+}): Promise<{ unitId: string; exerciseSet: ExerciseSet }> {
+  const res = await fetch(`${API_BASE}/encyclopedia/generate`, {
+    method: 'POST',
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({
+      topic: params.topic,
+      age: params.age || 8,
+      encyclopediaContext: params.encyclopediaContext,
+      subjectHint: params.subjectHint
+    })
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Error al generar la unidad interactiva');
+  }
+
+  return res.json();
+}

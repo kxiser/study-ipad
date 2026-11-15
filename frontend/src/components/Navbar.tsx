@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Flame, Wifi, WifiOff, Settings, Home, BookOpen, Gamepad2, GraduationCap } from 'lucide-react';
+import { Star, Flame, Wifi, WifiOff, Settings, Home, BookOpen, Gamepad2, GraduationCap, Compass } from 'lucide-react';
 import { UserProfile } from '../types.js';
 import { syncOfflineProgress } from '../services/api.js';
 import { VersionBadge } from './VersionBadge.js';
@@ -9,6 +9,7 @@ interface NavbarProps {
   onHomeClick: () => void;
   onGamesClick?: () => void;
   onExamClick?: () => void;
+  onEncyclopediaClick?: () => void;
   onSettingsClick: () => void;
   onMyUnitsClick?: () => void;
   onUserClick?: () => void;
@@ -19,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onHomeClick,
   onGamesClick,
   onExamClick,
+  onEncyclopediaClick,
   onSettingsClick,
   onMyUnitsClick,
   onUserClick
@@ -114,6 +116,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <GraduationCap className="w-4 h-4 text-amber-300" />
               <span className="hidden sm:inline">Exámenes</span>
+            </button>
+          )}
+
+          {/* Acceso Directo a Enciclopedia Infantil */}
+          {onEncyclopediaClick && (
+            <button
+              onClick={onEncyclopediaClick}
+              title="Enciclopedia Infantil (Vikidia) y Temas por Edad"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-black text-sm active:scale-95 transition-all shadow-sm"
+            >
+              <Compass className="w-4 h-4 text-teal-100" />
+              <span className="hidden sm:inline">Descubrir</span>
             </button>
           )}
 

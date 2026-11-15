@@ -1,4 +1,4 @@
-import { AIProvider, ImageData, SYSTEM_PROMPT_8_YEARS_OLD } from './types.js';
+import { AIProvider, ImageData, TopicPromptOptions, SYSTEM_PROMPT_8_YEARS_OLD } from './types.js';
 import { ExerciseSet } from '../schemas/exercise.schema.js';
 import { parseAndValidateExerciseSet } from './validate.js';
 import { config } from '../config.js';
@@ -68,6 +68,58 @@ export class GeminiProvider implements AIProvider {
     }
 
     throw new Error(`Fallo definitivo al generar ejercicios con Gemini tras reintento: ${secondCheck.error}`);
+  }
+
+  async generateExercisesFromTopic(options: TopicPromptOptions): Promise<ExerciseSet> {
+    const age = options.ageYears || 8;
+    const promptText = `${SYSTEM_PROMPT_8_YEARS_OLD}
+
+Eres el profesor de Samantha (niña de ${age} años, en educación primaria de Madrid, España).
+Genera una unidad didáctica completa, divertida y motivadora con entre 6 y 8 ejercicios sobre el tema: "${options.topic}".
+${options.subjectHint ? `Materia: ${options.subjectHint}.` : ''}
+${options.encyclopediaContext ? `Información enciclopédica de referencia (Vikidia/Wikipedia):\n"""\n${options.encyclopediaContext.substring(0, 2500)}\n"""` : ''}
+
+REQUISITOS OBLIGATORIOS:
+- Enunciados claros y entretenidos adecuados para ${age} años.
+- Preguntas con datos curiosos y pedagógicos reales.
+- El objeto JSON DEBE incluir: "title", "subject", "summary", "estimatedMinutes", y "exercises".
+- Para "multiple_choice": 4 opciones y "correctAnswer" exacta.
+- Para "true_false": "statement", "isTrue", "explanation".
+- Para "fill_blank": "textWithBlank" con '___', "options", "correctAnswer".
+- Para "ordering": 3 o 4 pasos ordenados cronológica o lógicamente en "items".
+- Para "matching": 3 o 4 parejas en "pairs" con "left" y "right".
+- Responde EXCLUSIVAMENTE con el objeto JSON válido.`;
+
+    const contents = [
+      {
+        role: 'user',
+        parts: [{ text: promptText }]
+      }
+    ];
+
+    const rawResponse = await this.callGeminiWithFallback(contents);
+    const firstCheck = parseAndValidateExerciseSet(rawResponse);
+
+    if (firstCheck.success) {
+      return firstCheck.data;
+    }
+
+    console.warn(`[GeminiProvider Topic] Primer intento falló validación: ${firstCheck.error}. Reintentando...`);
+
+    const retryContents = [
+      ...contents,
+      { role: 'model', parts: [{ text: rawResponse }] },
+      { role: 'user', parts: [{ text: `El JSON anterior tuvo este error de validación: ${firstCheck.error}. Corrige el formato y devuelve ÚNICAMENTE el JSON válido.` }] }
+    ];
+
+    const retryResponse = await this.callGeminiWithFallback(retryContents);
+    const secondCheck = parseAndValidateExerciseSet(retryResponse);
+
+    if (secondCheck.success) {
+      return secondCheck.data;
+    }
+
+    throw new Error(`Fallo al generar ejercicios del tema con Gemini tras reintento: ${secondCheck.error}`);
   }
 
   private async callGeminiWithFallback(contents: any[]): Promise<string> {

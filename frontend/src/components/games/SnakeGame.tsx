@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ArrowLeft, Play, Pause, RotateCcw, Heart, Star, Trophy, Sparkles, Volume2 } from 'lucide-react';
+import { ArrowLeft, Play, Pause, RotateCcw, Heart, Star, Trophy, Sparkles, Volume2, UserCheck } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects.js';
 import { ConfettiCelebration } from '../ConfettiCelebration.js';
 import { SpeechButton } from '../SpeechButton.js';
 import { completeStudySession } from '../../services/api.js';
 import { getDynamicGameQuestions, GameQuestion } from '../../utils/questionReformulator.js';
 import { ExerciseItem } from '../../types.js';
+import { getSelectedCharacter, PlayableCharacter } from '../../utils/characters.js';
+import { CharacterSelectorModal } from '../CharacterSelectorModal.js';
 
 interface Point {
   x: number;
@@ -59,6 +61,14 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
   const [hasWon, setHasWon] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [hero, setHero] = useState<PlayableCharacter>(getSelectedCharacter());
+  const [showHeroModal, setShowHeroModal] = useState(false);
+
+  useEffect(() => {
+    const handleCharChange = () => setHero(getSelectedCharacter());
+    window.addEventListener('study_character_changed', handleCharChange);
+    return () => window.removeEventListener('study_character_changed', handleCharChange);
+  }, []);
 
   // Referencias para el touch swipe y joystick
   const boardTouchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -356,7 +366,18 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
         </button>
 
         {/* Vidas y Puntuación */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Botón para cambiar personaje */}
+          <button
+            type="button"
+            onClick={() => setShowHeroModal(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl bg-white border-2 border-magic-200 text-magic-950 hover:bg-magic-50 font-black text-xs shadow-sm active:scale-95 transition-all"
+            title="Cambiar Héroe"
+          >
+            <span className="text-lg">{hero.emoji}</span>
+            <span className="hidden sm:inline">{hero.name}</span>
+          </button>
+
           <div className="flex items-center gap-1 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-2xl">
             {[...Array(3)].map((_, i) => (
               <Heart
@@ -453,10 +474,10 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
                 key={idx}
                 className="relative rounded-lg flex items-center justify-center bg-slate-900/60"
               >
-                {/* Cabeza de la serpiente */}
+                {/* Cabeza de la serpiente con el héroe elegido */}
                 {isHead && (
-                  <div className="w-full h-full bg-gradient-to-br from-emerald-400 via-green-400 to-emerald-600 rounded-2xl shadow-lg border-2 border-emerald-200 flex items-center justify-center text-xs animate-pulse z-20">
-                    <span className="drop-shadow">👀</span>
+                  <div className="w-full h-full bg-gradient-to-br from-emerald-400 via-green-400 to-emerald-600 rounded-2xl shadow-lg border-2 border-emerald-200 flex items-center justify-center text-sm animate-pulse z-20">
+                    <span className="drop-shadow">{hero.emoji}</span>
                   </div>
                 )}
 
@@ -588,6 +609,18 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
             </button>
           </div>
         </div>
+      )}
+
+      {/* Modal de Selección de Personaje */}
+      {showHeroModal && (
+        <CharacterSelectorModal
+          isOpen={showHeroModal}
+          onClose={() => setShowHeroModal(false)}
+          onSelectCharacter={(selected) => {
+            setHero(selected);
+            setShowHeroModal(false);
+          }}
+        />
       )}
     </div>
   );

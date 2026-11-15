@@ -1,4 +1,4 @@
-import { AIProvider, ImageData } from './types.js';
+import { AIProvider, ImageData, TopicPromptOptions } from './types.js';
 import { ExerciseSet } from '../schemas/exercise.schema.js';
 
 export class MockProvider implements AIProvider {
@@ -135,6 +135,59 @@ export class MockProvider implements AIProvider {
         ...e,
         id: `${e.id}-${Date.now().toString().slice(-4)}`
       }))
+    };
+  }
+
+  async generateExercisesFromTopic(options: TopicPromptOptions): Promise<ExerciseSet> {
+    await new Promise(r => setTimeout(r, 600));
+    const topic = options.topic || 'El Sistema Solar';
+    const age = options.ageYears || 8;
+
+    return {
+      title: `${topic} (Nivel ${age} años)`,
+      subject: (options.subjectHint as any) || 'Ciencias Naturales',
+      summary: `Aprende y descubre los secretos más asombrosos sobre ${topic}.`,
+      estimatedMinutes: 7,
+      exercises: [
+        {
+          id: `enc-${Date.now()}-1`,
+          type: 'multiple_choice',
+          question: `¿Qué es lo más característico e importante que debemos saber sobre ${topic}?`,
+          options: [
+            'Es un tema fascinante que forma parte de la naturaleza o la historia',
+            'No existe en la vida real',
+            'Solo ocurre de noche',
+            'Es completamente invisible y no se puede estudiar'
+          ],
+          correctAnswer: 'Es un tema fascinante que forma parte de la naturaleza o la historia',
+          explanation: `¡Fantástico! ${topic} es un concepto clave en primaria.`,
+          hint: 'Piensa en lo que nos enseña la enciclopedia infantil.'
+        },
+        {
+          id: `enc-${Date.now()}-2`,
+          type: 'true_false',
+          statement: `Aprender sobre ${topic} nos ayuda a comprender mejor el mundo que nos rodea.`,
+          isTrue: true,
+          explanation: '¡Exacto! El conocimiento y la curiosidad son los mejores superpoderes.',
+          hint: 'Siempre es genial aprender cosas nuevas.'
+        },
+        {
+          id: `enc-${Date.now()}-3`,
+          type: 'fill_blank',
+          textWithBlank: `Cuando investigamos sobre ${topic}, descubrimos datos muy ___ .`,
+          options: ['asombrosos', 'aburridos', 'imposibles', 'dañinos'],
+          correctAnswer: 'asombrosos',
+          explanation: '¡Genial! Hay miles de curiosidades por explorar.',
+          hint: 'Una palabra positiva sobre descubrir el mundo.'
+        },
+        {
+          id: `enc-${Date.now()}-4`,
+          type: 'flashcard',
+          front: `Concepto clave: ${topic}`,
+          back: `¡Muy bien recordado! El tema "${topic}" nos enseña cómo funciona la naturaleza y el universo.`,
+          explanation: `¡Dato clave sobre ${topic} aprendido y guardado en tu memoria!`
+        }
+      ]
     };
   }
 }

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ArrowLeft, Star, Trophy, Zap, Shield, RotateCcw, Volume2, Sparkles, Flame, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Star, Trophy, Zap, Shield, RotateCcw, Volume2, Sparkles, Flame, HelpCircle, Users } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects.js';
 import { ConfettiCelebration } from '../ConfettiCelebration.js';
 import { SpeechButton } from '../SpeechButton.js';
+import { CharacterSelectorModal } from '../CharacterSelectorModal.js';
+import { getSelectedCharacter, PlayableCharacter } from '../../utils/characters.js';
 import { completeStudySession } from '../../services/api.js';
 import { getDynamicGameQuestions, GameQuestion } from '../../utils/questionReformulator.js';
 import { ExerciseItem } from '../../types.js';
@@ -73,6 +75,10 @@ export const PlatformerRpgGame: React.FC<PlatformerRpgGameProps> = ({
   const [renderPos, setRenderPos] = useState({ x: 60, y: GROUND_Y, isGrounded: true, facingRight: true });
   const [walkFrame, setWalkFrame] = useState(0);
   const [cameraX, setCameraX] = useState(0);
+
+  // Personaje Jugable Seleccionado
+  const [hero, setHero] = useState<PlayableCharacter>(getSelectedCharacter());
+  const [isCharModalOpen, setIsCharModalOpen] = useState(false);
 
   // Modo Super Chispa (Power-Up de estrella / fuego)
   const [isSuperChispa, setIsSuperChispa] = useState(false);
@@ -474,13 +480,25 @@ export const PlatformerRpgGame: React.FC<PlatformerRpgGameProps> = ({
 
       {/* Barra Superior */}
       <div className="flex items-center justify-between gap-2">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white hover:bg-slate-100 border-2 border-slate-200 text-slate-700 font-bold active:scale-95 transition-all shadow-sm"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Volver</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white hover:bg-slate-100 border-2 border-slate-200 text-slate-700 font-bold active:scale-95 transition-all shadow-sm"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Volver</span>
+          </button>
+
+          {/* Selector de Personaje en el Juego */}
+          <button
+            onClick={() => setIsCharModalOpen(true)}
+            title="Cambiar tu personaje jugable"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-white hover:bg-magic-50 border-2 border-magic-200 text-slate-800 font-black text-xs active:scale-95 shadow-sm transition-all"
+          >
+            <span className="text-base">{hero.emoji}</span>
+            <span className="hidden sm:inline">{hero.name}</span>
+          </button>
+        </div>
 
         {/* Monedas y Estado Super Chispa */}
         <div className="flex items-center gap-2">
@@ -696,7 +714,7 @@ export const PlatformerRpgGame: React.FC<PlatformerRpgGameProps> = ({
               }`}
             >
               <div className="relative text-4xl drop-shadow-xl select-none">
-                🐉
+                {hero.emoji}
               </div>
               <div className="absolute -right-2 top-1 text-sm animate-pulse">
                 {isSuperChispa ? '🔥' : '🪄'}
@@ -830,6 +848,13 @@ export const PlatformerRpgGame: React.FC<PlatformerRpgGameProps> = ({
           </div>
         </div>
       )}
+
+      {/* Modal de Selección de Personaje */}
+      <CharacterSelectorModal
+        isOpen={isCharModalOpen}
+        onClose={() => setIsCharModalOpen(false)}
+        onSelectCharacter={setHero}
+      />
     </div>
   );
 };

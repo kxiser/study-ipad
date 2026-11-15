@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Sparkles, Star, Trophy, Gamepad2, ArrowLeft, BookOpen, Check, Layers, Filter } from 'lucide-react';
 import { UserProfile, ExerciseItem, UnitSummary } from '../types.js';
 import { fetchUnits, fetchUnit } from '../services/api.js';
@@ -41,6 +41,18 @@ export const GamesPage: React.FC<GamesPageProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [userStars, setUserStars] = useState(profile?.stars || 30);
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
+  const [modalSubjectFilter, setModalSubjectFilter] = useState<string>('all');
+
+  // Deduplicar temas por título normalizado
+  const uniqueUnits = useMemo(() => {
+    const seen = new Set<string>();
+    return units.filter(u => {
+      const key = u.title.trim().toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [units]);
 
   useEffect(() => {
     if (profile?.stars !== undefined) {
@@ -523,8 +535,37 @@ export const GamesPage: React.FC<GamesPageProps> = ({
                 ¿De qué temas quieres jugar?
               </h3>
               <p className="text-xs md:text-sm font-semibold text-slate-500">
-                Puedes marcar uno solo para repasar ese examen, o marcar varios a la vez.
+                Selecciona temas agrupados por materia para repasar con minijuegos en tu iPad.
               </p>
+
+              {/* Filtro rápido por materia en modal */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pt-2 pb-1 scrollbar-none">
+                <button
+                  type="button"
+                  onClick={() => setModalSubjectFilter('all')}
+                  className={`px-3 py-1 rounded-xl text-xs font-black transition-all ${
+                    modalSubjectFilter === 'all'
+                      ? 'bg-magic-600 text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  🌟 Todos
+                </button>
+                {Array.from(new Set(uniqueUnits.map(u => u.subject))).map(subj => (
+                  <button
+                    key={subj}
+                    type="button"
+                    onClick={() => setModalSubjectFilter(subj)}
+                    className={`px-3 py-1 rounded-xl text-xs font-black transition-all ${
+                      modalSubjectFilter === subj
+                        ? 'bg-magic-600 text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {subj === 'Ciencias Naturales' ? '🌿' : subj === 'Ciencias Sociales' ? '🌍' : subj === 'Matemáticas' ? '🔢' : '📖'} {subj}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Lista scrollable de temas de Samantha */}
@@ -548,8 +589,10 @@ export const GamesPage: React.FC<GamesPageProps> = ({
                 </div>
               </div>
 
-              {/* Lista de temas de Samantha */}
-              {units.map(u => {
+              {/* Lista de temas de Samantha (deduplicados y filtrados) */}
+              {uniqueUnits
+                .filter(u => modalSubjectFilter === 'all' || u.subject === modalSubjectFilter)
+                .map(u => {
                 const isSelected = selectedUnitIds.includes(u.id);
 
                 return (

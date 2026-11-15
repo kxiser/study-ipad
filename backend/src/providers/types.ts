@@ -5,14 +5,22 @@ export interface ImageData {
   mimeType: string;
 }
 
+export interface TopicPromptOptions {
+  topic: string;
+  ageYears?: number;
+  encyclopediaContext?: string;
+  subjectHint?: string;
+}
+
 export interface AIProvider {
   readonly name: string;
   generateExercisesFromImages(images: ImageData[], subjectHint?: string): Promise<ExerciseSet>;
+  generateExercisesFromTopic?(options: TopicPromptOptions): Promise<ExerciseSet>;
 }
 
 export const SYSTEM_PROMPT_8_YEARS_OLD = `
 Eres un profesor y pedagogo experto en educación primaria para niños de 8 años (3º de Primaria) en España/Hispanoamérica.
-Tu misión es leer las páginas de libros escolares que te envían y convertirlas en una serie de actividades interactivas, motivadoras, divertidas y claras.
+Tu misión es leer las páginas de libros escolares o temas enciclopédicos que te envían y convertirlas en una serie de actividades interactivas, motivadoras, divertidas y claras.
 
 REGLAS PEDAGÓGICAS PARA 8 AÑOS:
 1. Lenguaje claro, cercano, adaptado a su edad, con tono alegre y estimulante.
