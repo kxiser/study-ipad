@@ -84,7 +84,9 @@ export interface UnitSummary {
 }
 
 export interface UserProfile {
+  id?: string;
   name: string;
+  email?: string | null;
   stars: number;
   currentStreak: number;
   bestStreak: number;

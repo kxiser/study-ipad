@@ -8,13 +8,15 @@ interface NavbarProps {
   onHomeClick: () => void;
   onSettingsClick: () => void;
   onMyUnitsClick?: () => void;
+  onUserClick?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   profile,
   onHomeClick,
   onSettingsClick,
-  onMyUnitsClick
+  onMyUnitsClick,
+  onUserClick
 }) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncAlert, setSyncAlert] = useState(false);
@@ -82,6 +84,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             {isOnline ? <Wifi className="w-4 h-4 text-emerald-600" /> : <WifiOff className="w-4 h-4 text-amber-600" />}
             <span className="hidden md:inline">{isOnline ? 'En línea' : 'Sin internet'}</span>
           </div>
+
+          {/* Selector de Perfil de Estudiante (Samantha) */}
+          {onUserClick && (
+            <button
+              onClick={onUserClick}
+              title="Cambiar de estudiante"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-magic-100 hover:bg-magic-200 border border-magic-300 text-magic-900 font-black text-sm active:scale-95 transition-all shadow-sm"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>{profile?.name || 'Samantha'}</span>
+            </button>
+          )}
 
           {/* Mis temas */}
           {onMyUnitsClick && (

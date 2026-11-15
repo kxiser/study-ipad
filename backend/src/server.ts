@@ -7,6 +7,7 @@ import path from 'path';
 import { config } from './config.js';
 import { exerciseRoutes } from './routes/exercises.routes.js';
 import { profileRoutes } from './routes/profile.routes.js';
+import { authRoutes } from './routes/auth.routes.js';
 import { healthRoutes } from './routes/health.routes.js';
 
 export function buildServer() {
@@ -32,6 +33,7 @@ export function buildServer() {
 
   // Registrar rutas API
   fastify.register(healthRoutes);
+  fastify.register(authRoutes);
   fastify.register(exerciseRoutes);
   fastify.register(profileRoutes);
 

@@ -1,5 +1,20 @@
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE,
+  avatar TEXT NOT NULL DEFAULT 'chispa',
+  pin_code TEXT NOT NULL DEFAULT '1234',
+  google_id TEXT UNIQUE,
+  stars INTEGER NOT NULL DEFAULT 10,
+  current_streak INTEGER NOT NULL DEFAULT 1,
+  best_streak INTEGER NOT NULL DEFAULT 1,
+  last_study_date TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS units (
   id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   subject TEXT NOT NULL,
   summary TEXT NOT NULL,
@@ -29,6 +44,7 @@ CREATE TABLE IF NOT EXISTS srs_items (
 
 CREATE TABLE IF NOT EXISTS study_sessions (
   id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
   unit_id TEXT REFERENCES units(id) ON DELETE SET NULL,
   session_type TEXT NOT NULL DEFAULT 'new', -- 'new' | 'review'
   completed_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -37,17 +53,3 @@ CREATE TABLE IF NOT EXISTS study_sessions (
   correct_answers INTEGER NOT NULL,
   stars_earned INTEGER NOT NULL DEFAULT 0
 );
-
-CREATE TABLE IF NOT EXISTS user_profile (
-  id INTEGER PRIMARY KEY CHECK (id = 1),
-  name TEXT NOT NULL DEFAULT 'Estudiante',
-  stars INTEGER NOT NULL DEFAULT 0,
-  current_streak INTEGER NOT NULL DEFAULT 0,
-  best_streak INTEGER NOT NULL DEFAULT 0,
-  last_study_date TEXT,
-  mascot TEXT NOT NULL DEFAULT 'chispa',
-  pin_code TEXT NOT NULL DEFAULT '1234'
-);
-
-INSERT OR IGNORE INTO user_profile (id, name, stars, current_streak, best_streak, mascot, pin_code)
-VALUES (1, 'Campeona', 10, 1, 1, 'chispa', '1234');

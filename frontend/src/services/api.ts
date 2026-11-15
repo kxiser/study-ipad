@@ -3,6 +3,21 @@ import { LocalStore } from './storage.js';
 
 const API_BASE = '/api';
 
+export function getCurrentUserId(): string {
+  return localStorage.getItem('study_current_user_id') || 'user-samantha';
+}
+
+export function setCurrentUserId(userId: string): void {
+  localStorage.setItem('study_current_user_id', userId);
+}
+
+function getAuthHeaders(customHeaders: Record<string, string> = {}): Record<string, string> {
+  return {
+    'x-user-id': getCurrentUserId(),
+    ...customHeaders
+  };
+}
+
 export async function checkServerHealth(): Promise<{ status: string; provider: string; providerName: string }> {
   const res = await fetch(`${API_BASE}/health`);
   if (!res.ok) throw new Error('Servidor no disponible');
@@ -70,9 +85,13 @@ export async function scanPages(files: File[], subject?: string): Promise<{ unit
   if (subject) {
     formData.append('subject', subject);
   }
+  formData.append('userId', getCurrentUserId());
 
   const res = await fetch(`${API_BASE}/scan`, {
     method: 'POST',
+    headers: {
+      'x-user-id': getCurrentUserId()
+    },
     body: formData
   });
 
@@ -82,18 +101,18 @@ export async function scanPages(files: File[], subject?: string): Promise<{ unit
   }
 
   const result = await res.json();
-  // Guardar en caché para poder repasarlo offline
   LocalStore.cacheUnit(result.unitId, result.exerciseSet);
   return result;
 }
 
 export async function fetchUnits(): Promise<UnitSummary[]> {
   try {
-    const res = await fetch(`${API_BASE}/units`);
+    const res = await fetch(`${API_BASE}/units`, {
+      headers: getAuthHeaders()
+    });
     if (!res.ok) throw new Error('Error al obtener unidades');
     return await res.json();
   } catch (err) {
-    // Si estamos offline, armar lista desde el caché local
     const cached = LocalStore.getAllCachedUnits();
     return Object.entries(cached).map(([id, set]) => ({
       id,
@@ -109,7 +128,9 @@ export async function fetchUnits(): Promise<UnitSummary[]> {
 
 export async function fetchUnit(id: string): Promise<ExerciseSet> {
   try {
-    const res = await fetch(`${API_BASE}/units/${id}`);
+    const res = await fetch(`${API_BASE}/units/${id}`, {
+      headers: getAuthHeaders()
+    });
     if (!res.ok) throw new Error('Unidad no encontrada');
     const data = await res.json();
     LocalStore.cacheUnit(id, data);
@@ -123,11 +144,12 @@ export async function fetchUnit(id: string): Promise<ExerciseSet> {
 
 export async function fetchReviewToday(limit = 8): Promise<ReviewItem[]> {
   try {
-    const res = await fetch(`${API_BASE}/review/today?limit=${limit}`);
+    const res = await fetch(`${API_BASE}/review/today?limit=${limit}`, {
+      headers: getAuthHeaders()
+    });
     if (!res.ok) throw new Error('Error al obtener repaso');
     return await res.json();
   } catch (err) {
-    // Fallback offline: tomar ejercicios de las unidades en caché
     const all = LocalStore.getAllCachedUnits();
     const items: ReviewItem[] = [];
     for (const [unitId, set] of Object.entries(all)) {
@@ -149,7 +171,9 @@ export async function fetchReviewToday(limit = 8): Promise<ReviewItem[]> {
 
 export async function fetchReviewCount(): Promise<number> {
   try {
-    const res = await fetch(`${API_BASE}/review/count`);
+    const res = await fetch(`${API_BASE}/review/count`, {
+      headers: getAuthHeaders()
+    });
     if (!res.ok) return 0;
     const data = await res.json();
     return data.count || 0;
@@ -167,7 +191,7 @@ export async function submitExerciseAnswer(exerciseId: string, isCorrect: boolea
   try {
     const res = await fetch(`${API_BASE}/exercises/${exerciseId}/answer`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ isCorrect })
     });
     if (!res.ok) {
@@ -179,6 +203,7 @@ export async function submitExerciseAnswer(exerciseId: string, isCorrect: boolea
 }
 
 export async function completeStudySession(params: {
+  userId?: string;
   unitId?: string;
   sessionType: 'new' | 'review';
   durationSeconds: number;
@@ -186,40 +211,84 @@ export async function completeStudySession(params: {
   correctAnswers: number;
   starsEarned: number;
 }): Promise<any> {
+  const payload = {
+    ...params,
+    userId: params.userId || getCurrentUserId()
+  };
+
   if (!navigator.onLine) {
-    LocalStore.queueSession({ ...params, timestamp: new Date().toISOString() });
+    LocalStore.queueSession({ ...payload, timestamp: new Date().toISOString() });
     return { offline: true };
   }
 
   try {
     const res = await fetch(`${API_BASE}/sessions/complete`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params)
+      headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(payload)
     });
     return await res.json();
   } catch {
-    LocalStore.queueSession({ ...params, timestamp: new Date().toISOString() });
+    LocalStore.queueSession({ ...payload, timestamp: new Date().toISOString() });
     return { offline: true };
   }
 }
 
 export async function fetchProfile(): Promise<UserProfile> {
   try {
-    const res = await fetch(`${API_BASE}/profile`);
+    const res = await fetch(`${API_BASE}/profile`, {
+      headers: getAuthHeaders()
+    });
     if (!res.ok) throw new Error('Error al cargar perfil');
     const profile = await res.json();
     LocalStore.cacheProfile(profile);
     return profile;
   } catch {
     return LocalStore.getCachedProfile() || {
-      name: 'Campeona',
-      stars: 10,
+      id: 'user-samantha',
+      name: 'Samantha',
+      stars: 30,
       currentStreak: 1,
       bestStreak: 1,
       mascot: 'chispa'
     };
   }
+}
+
+export async function fetchUsersList(): Promise<any[]> {
+  try {
+    const res = await fetch(`${API_BASE}/users`);
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+export async function createChildUserApi(name: string, avatar = 'chispa', pin = '1234'): Promise<any> {
+  const res = await fetch(`${API_BASE}/users`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, avatar, pin })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Error al crear estudiante');
+  }
+  return await res.json();
+}
+
+export async function loginWithGoogleApi(credential: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/auth/google`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ credential })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Error al autenticar con Google');
+  }
+  return await res.json();
 }
 
 export async function verifyPinCode(pin: string): Promise<boolean> {

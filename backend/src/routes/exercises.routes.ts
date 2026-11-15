@@ -19,17 +19,21 @@ export async function exerciseRoutes(fastify: FastifyInstance) {
       const parts = req.parts();
       const images: ImageData[] = [];
       let subjectHint: string | undefined;
+      let targetUserId = (req.headers['x-user-id'] as string) || 'user-samantha';
 
       for await (const part of parts) {
         if (part.type === 'file') {
           const buffer = await part.toBuffer();
-          // Solo mantener en memoria durante el procesamiento, nunca escribir en disco
           images.push({
             buffer,
             mimeType: part.mimetype || 'image/jpeg'
           });
-        } else if (part.type === 'field' && part.fieldname === 'subject') {
-          subjectHint = (part.value as string).trim();
+        } else if (part.type === 'field') {
+          if (part.fieldname === 'subject') {
+            subjectHint = (part.value as string).trim();
+          } else if (part.fieldname === 'userId') {
+            targetUserId = (part.value as string).trim();
+          }
         }
       }
 
@@ -40,15 +44,13 @@ export async function exerciseRoutes(fastify: FastifyInstance) {
       }
 
       const provider = getAIProvider();
-      req.log.info(`[Scan] Procesando ${images.length} imágenes con ${provider.name}`);
+      req.log.info(`[Scan] Procesando ${images.length} imágenes con ${provider.name} para usuario ${targetUserId}`);
 
       const exerciseSet = await provider.generateExercisesFromImages(images, subjectHint);
-
-      // Limpiar buffers explícitamente para que el garbage collector libere memoria de inmediato
       images.length = 0;
 
       const unitId = 'unit-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);
-      saveExerciseSet(unitId, exerciseSet);
+      saveExerciseSet(unitId, exerciseSet, targetUserId);
 
       return reply.status(201).send({
         unitId,
@@ -62,9 +64,10 @@ export async function exerciseRoutes(fastify: FastifyInstance) {
     }
   });
 
-  // Lista de unidades
-  fastify.get('/api/units', async () => {
-    return getUnitsList();
+  // Lista de unidades filtrada por usuario
+  fastify.get('/api/units', async (req: FastifyRequest<{ Querystring: { userId?: string } }>) => {
+    const userId = (req.headers['x-user-id'] as string) || req.query.userId || 'user-samantha';
+    return getUnitsList(userId);
   });
 
   // Detalle de una unidad
@@ -82,18 +85,20 @@ export async function exerciseRoutes(fastify: FastifyInstance) {
     return { success: true };
   });
 
-  // Repaso del día (SRS)
-  fastify.get('/api/review/today', async (req: FastifyRequest<{ Querystring: { limit?: string } }>) => {
+  // Repaso del día (SRS) filtrado por usuario
+  fastify.get('/api/review/today', async (req: FastifyRequest<{ Querystring: { limit?: string; userId?: string } }>) => {
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : 8;
-    return getExercisesForReview(limit);
+    const userId = (req.headers['x-user-id'] as string) || req.query.userId || 'user-samantha';
+    return getExercisesForReview(limit, userId);
   });
 
   // Contador de repasos pendientes
-  fastify.get('/api/review/count', async () => {
-    return { count: getReviewCountToday() };
+  fastify.get('/api/review/count', async (req: FastifyRequest<{ Querystring: { userId?: string } }>) => {
+    const userId = (req.headers['x-user-id'] as string) || req.query.userId || 'user-samantha';
+    return { count: getReviewCountToday(userId) };
   });
 
-  // Registrar respuesta individual (para SRS)
+  // Registrar respuesta individual
   fastify.post('/api/exercises/:id/answer', async (
     req: FastifyRequest<{ Params: { id: string }; Body: { isCorrect: boolean } }>,
     reply: FastifyReply
@@ -113,6 +118,7 @@ export async function exerciseRoutes(fastify: FastifyInstance) {
   fastify.post('/api/sessions/complete', async (
     req: FastifyRequest<{
       Body: {
+        userId?: string;
         unitId?: string;
         sessionType: 'new' | 'review';
         durationSeconds: number;
@@ -128,7 +134,8 @@ export async function exerciseRoutes(fastify: FastifyInstance) {
       return reply.status(400).send({ error: 'Datos de sesión incompletos.' });
     }
 
-    const result = recordSessionCompletion(body);
+    const targetUserId = (req.headers['x-user-id'] as string) || body.userId || 'user-samantha';
+    const result = recordSessionCompletion({ ...body, userId: targetUserId });
     return { success: true, ...result };
   });
 }

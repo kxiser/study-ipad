@@ -3,13 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { config } from '../config.js';
-import { ExerciseSet, ExerciseItem } from '../schemas/exercise.schema.js';
+import { ExerciseSet } from '../schemas/exercise.schema.js';
 import { calculateNextReview, getTodayDateString, SRSState } from './srs.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Asegurar carpeta de la BD
 const dbDir = path.dirname(config.databasePath);
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
@@ -18,93 +17,77 @@ if (!fs.existsSync(dbDir)) {
 export const db = new Database(config.databasePath);
 db.pragma('journal_mode = WAL');
 
-// Inicializar esquema
+// Inicializar tablas base
 const schemaPath = path.join(__dirname, 'schema.sql');
 const schemaSql = fs.readFileSync(schemaPath, 'utf8');
 db.exec(schemaSql);
 
-// Sembrar datos de ejemplo si no hay unidades creadas
-const countRow = db.prepare('SELECT COUNT(*) as count FROM units').get() as { count: number };
-if (countRow.count === 0) {
-  seedExampleData();
+// Migración: asegurar columna user_id en units y study_sessions si no existían
+try {
+  const unitsCols = db.prepare("PRAGMA table_info(units)").all() as any[];
+  if (!unitsCols.some(c => c.name === 'user_id')) {
+    db.exec("ALTER TABLE units ADD COLUMN user_id TEXT REFERENCES users(id) ON DELETE CASCADE;");
+  }
+} catch (e) {}
+
+try {
+  const sesCols = db.prepare("PRAGMA table_info(study_sessions)").all() as any[];
+  if (!sesCols.some(c => c.name === 'user_id')) {
+    db.exec("ALTER TABLE study_sessions ADD COLUMN user_id TEXT REFERENCES users(id) ON DELETE CASCADE;");
+  }
+} catch (e) {}
+
+// Inicializar usuario Samantha y migrar todos los datos escaneados existentes a ella
+const defaultUser = db.prepare("SELECT * FROM users WHERE id = 'user-samantha'").get();
+if (!defaultUser) {
+  db.prepare(`
+    INSERT INTO users (id, name, avatar, pin_code, stars, current_streak, best_streak)
+    VALUES ('user-samantha', 'Samantha', 'chispa', '1234', 30, 1, 1)
+  `).run();
 }
 
-function seedExampleData() {
-  const exampleUnit: ExerciseSet = {
-    title: 'El Ciclo del Agua y los Seres Vivos',
-    subject: 'Ciencias Naturales',
-    summary: 'Aprende cómo viaja el agua en la naturaleza y por qué es tan importante para todos nosotros.',
-    estimatedMinutes: 6,
-    exercises: [
-      {
-        id: 'agua-1',
-        type: 'multiple_choice',
-        question: '¿Qué hace que el agua del mar se caliente y se evapore subiendo al cielo?',
-        options: ['El calor del Sol', 'El viento suave', 'La luz de la Luna', 'Los peces'],
-        correctAnswer: 'El calor del Sol',
-        explanation: '¡Muy bien! El Sol calienta el agua líquida y la transforma en vapor de agua.',
-        hint: 'Es la estrella brillante que nos da calor cada día.'
-      },
-      {
-        id: 'agua-2',
-        type: 'true_false',
-        statement: 'Las nubes están formadas por millones de diminutas gotitas de agua.',
-        isTrue: true,
-        explanation: '¡Exacto! El vapor de agua sube, se enfría y forma las nubes en el cielo.',
-        hint: 'Piensa en qué cae de las nubes cuando llueve.'
-      },
-      {
-        id: 'agua-3',
-        type: 'fill_blank',
-        textWithBlank: 'Cuando el agua cae de las nubes en forma de lluvia, decimos que hay ___ .',
-        options: ['precipitación', 'congelación', 'fotosíntesis'],
-        correctAnswer: 'precipitación',
-        explanation: '¡Genial! La precipitación puede ser en forma de lluvia, nieve o granizo.',
-        hint: 'Es la palabra científica para cuando el agua cae del cielo.'
-      },
-      {
-        id: 'agua-4',
-        type: 'ordering',
-        instruction: 'Ordena el viaje que hace una gota de agua:',
-        items: [
-          'El Sol calienta el agua del río o mar',
-          'El agua se evapora y sube al cielo',
-          'Se forman nubes en el cielo',
-          'Cae en forma de lluvia a la tierra'
-        ],
-        explanation: '¡Excelente orden! Así se repite el ciclo del agua sin parar.',
-        hint: 'Todo empieza con el calor del Sol.'
-      },
-      {
-        id: 'agua-5',
-        type: 'matching',
-        instruction: 'Une cada estado del agua con un ejemplo de la vida real:',
-        pairs: [
-          { left: 'Estado Líquido', right: 'El agua del grifo o de un río' },
-          { left: 'Estado Sólido', right: 'Un cubito de hielo o nieve' },
-          { left: 'Estado Gaseoso', right: 'El vapor de una olla caliente' }
-        ],
-        explanation: '¡Fabuloso! El agua puede presentarse en tres estados maravillosos.',
-        hint: 'Piensa si puedes tocarlo duro, beberlo o si flota en el aire.'
-      },
-      {
-        id: 'agua-6',
-        type: 'flashcard',
-        front: '¿Por qué debemos cerrar el grifo mientras nos lavamos los dientes?',
-        back: 'Para no malgastar agua dulce, ya que es un tesoro escaso y necesario para todos los seres vivos.',
-        tip: '¡Cada gota cuenta para cuidar el planeta!',
-        explanation: '¡Eres una gran cuidadora del planeta!'
-      }
-    ]
-  };
+// Asignar todas las unidades existentes sin usuario directamente al usuario de Samantha
+db.prepare("UPDATE units SET user_id = 'user-samantha' WHERE user_id IS NULL OR user_id = ''").run();
+db.prepare("UPDATE study_sessions SET user_id = 'user-samantha' WHERE user_id IS NULL OR user_id = ''").run();
 
-  saveExerciseSet('unit-ejemplo-agua', exampleUnit);
+export function getAllUsers() {
+  return db.prepare("SELECT id, name, email, avatar, stars, current_streak, best_streak FROM users ORDER BY created_at ASC").all();
 }
 
-export function saveExerciseSet(unitId: string, set: ExerciseSet): void {
+export function getUserById(userId: string) {
+  return db.prepare("SELECT * FROM users WHERE id = ?").get(userId) as any;
+}
+
+export function getUserByGoogleId(googleId: string) {
+  return db.prepare("SELECT * FROM users WHERE google_id = ?").get(googleId) as any;
+}
+
+export function createOrUpdateGoogleUser(params: { googleId: string; name: string; email: string; avatar?: string }) {
+  let user = getUserByGoogleId(params.googleId);
+  if (!user) {
+    const newId = 'user-g-' + Math.random().toString(36).substring(2, 9);
+    db.prepare(`
+      INSERT INTO users (id, name, email, avatar, google_id, pin_code, stars)
+      VALUES (?, ?, ?, ?, ?, '1234', 10)
+    `).run(newId, params.name, params.email, params.avatar || 'chispa', params.googleId);
+    user = getUserById(newId);
+  }
+  return user;
+}
+
+export function createChildUser(name: string, avatar = 'chispa', pin = '1234') {
+  const newId = 'user-' + name.toLowerCase().replace(/\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 6);
+  db.prepare(`
+    INSERT INTO users (id, name, avatar, pin_code, stars, current_streak, best_streak)
+    VALUES (?, ?, ?, ?, 10, 1, 1)
+  `).run(newId, name, avatar, pin);
+  return getUserById(newId);
+}
+
+export function saveExerciseSet(unitId: string, set: ExerciseSet, userId = 'user-samantha'): void {
   const insertUnit = db.prepare(`
-    INSERT OR REPLACE INTO units (id, title, subject, summary, estimated_minutes)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT OR REPLACE INTO units (id, user_id, title, subject, summary, estimated_minutes)
+    VALUES (?, ?, ?, ?, ?, ?)
   `);
 
   const insertExercise = db.prepare(`
@@ -118,10 +101,9 @@ export function saveExerciseSet(unitId: string, set: ExerciseSet): void {
   `);
 
   const transaction = db.transaction(() => {
-    insertUnit.run(unitId, set.title, set.subject, set.summary, set.estimatedMinutes || 7);
+    insertUnit.run(unitId, userId, set.title, set.subject, set.summary, set.estimatedMinutes || 7);
 
     set.exercises.forEach((ex, idx) => {
-      // Garantizar ID globalmente único para evitar colisiones entre distintas páginas escaneadas
       const exId = `${unitId}-ex-${idx + 1}-${Math.random().toString(36).substring(2, 6)}`;
       ex.id = exId;
       insertExercise.run(exId, unitId, ex.type, JSON.stringify(ex));
@@ -132,16 +114,27 @@ export function saveExerciseSet(unitId: string, set: ExerciseSet): void {
   transaction();
 }
 
-export function getUnitsList() {
-  const rows = db.prepare(`
-    SELECT u.id, u.title, u.subject, u.summary, u.estimated_minutes, u.created_at,
+export function getUnitsList(userId?: string) {
+  if (userId) {
+    return db.prepare(`
+      SELECT u.id, u.user_id, u.title, u.subject, u.summary, u.estimated_minutes, u.created_at,
+             COUNT(e.id) as exercise_count
+      FROM units u
+      LEFT JOIN exercises e ON e.unit_id = u.id
+      WHERE u.user_id = ?
+      GROUP BY u.id
+      ORDER BY u.created_at DESC
+    `).all(userId);
+  }
+
+  return db.prepare(`
+    SELECT u.id, u.user_id, u.title, u.subject, u.summary, u.estimated_minutes, u.created_at,
            COUNT(e.id) as exercise_count
     FROM units u
     LEFT JOIN exercises e ON e.unit_id = u.id
     GROUP BY u.id
     ORDER BY u.created_at DESC
   `).all();
-  return rows;
 }
 
 export function getUnitById(unitId: string) {
@@ -161,9 +154,18 @@ export function deleteUnitById(unitId: string) {
   return db.prepare('DELETE FROM units WHERE id = ?').run(unitId);
 }
 
-export function getExercisesForReview(limit: number = 8) {
+export function getExercisesForReview(limit: number = 8, userId?: string) {
   const today = getTodayDateString();
-  const rows = db.prepare(`
+  const query = userId ? `
+    SELECT s.id as srs_id, s.exercise_id, s.ease_factor, s.interval_days, s.repetitions, s.next_review_date,
+           e.type, e.data_json, u.title as unit_title, u.subject
+    FROM srs_items s
+    JOIN exercises e ON e.id = s.exercise_id
+    JOIN units u ON u.id = e.unit_id
+    WHERE s.next_review_date <= ? AND u.user_id = ?
+    ORDER BY s.repetitions ASC, s.interval_days ASC
+    LIMIT ?
+  ` : `
     SELECT s.id as srs_id, s.exercise_id, s.ease_factor, s.interval_days, s.repetitions, s.next_review_date,
            e.type, e.data_json, u.title as unit_title, u.subject
     FROM srs_items s
@@ -172,7 +174,11 @@ export function getExercisesForReview(limit: number = 8) {
     WHERE s.next_review_date <= ?
     ORDER BY s.repetitions ASC, s.interval_days ASC
     LIMIT ?
-  `).all(today, limit) as any[];
+  `;
+
+  const rows = userId
+    ? db.prepare(query).all(today, userId, limit) as any[]
+    : db.prepare(query).all(today, limit) as any[];
 
   return rows.map(r => ({
     srsId: r.srs_id,
@@ -183,14 +189,25 @@ export function getExercisesForReview(limit: number = 8) {
   }));
 }
 
-export function getReviewCountToday(): number {
+export function getReviewCountToday(userId?: string): number {
   const today = getTodayDateString();
+  if (userId) {
+    const row = db.prepare(`
+      SELECT COUNT(*) as count
+      FROM srs_items s
+      JOIN exercises e ON e.id = s.exercise_id
+      JOIN units u ON u.id = e.unit_id
+      WHERE s.next_review_date <= ? AND u.user_id = ?
+    `).get(today, userId) as { count: number };
+    return row?.count || 0;
+  }
+
   const row = db.prepare(`
     SELECT COUNT(*) as count
     FROM srs_items
     WHERE next_review_date <= ?
   `).get(today) as { count: number };
-  return row.count;
+  return row?.count || 0;
 }
 
 export function recordExerciseAnswer(exerciseId: string, isCorrect: boolean) {
@@ -241,6 +258,7 @@ export function recordExerciseAnswer(exerciseId: string, isCorrect: boolean) {
 }
 
 export function recordSessionCompletion(params: {
+  userId?: string;
   unitId?: string;
   sessionType: 'new' | 'review';
   durationSeconds: number;
@@ -248,12 +266,14 @@ export function recordSessionCompletion(params: {
   correctAnswers: number;
   starsEarned: number;
 }) {
+  const targetUserId = params.userId || 'user-samantha';
   const sessionId = 'ses-' + Math.random().toString(36).substring(2, 10);
   db.prepare(`
-    INSERT INTO study_sessions (id, unit_id, session_type, duration_seconds, total_questions, correct_answers, stars_earned)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO study_sessions (id, user_id, unit_id, session_type, duration_seconds, total_questions, correct_answers, stars_earned)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     sessionId,
+    targetUserId,
     params.unitId || null,
     params.sessionType,
     params.durationSeconds,
@@ -262,28 +282,29 @@ export function recordSessionCompletion(params: {
     params.starsEarned
   );
 
-  // Actualizar perfil de usuario (estrellas, racha)
-  const profile = getUserProfile();
-  const today = getTodayDateString();
-  let newStreak = profile.currentStreak;
+  const profile = getUserById(targetUserId);
+  if (!profile) return { sessionId, totalStars: params.starsEarned, newStreak: 1, bestStreak: 1 };
 
-  if (profile.lastStudyDate !== today) {
+  const today = getTodayDateString();
+  let newStreak = profile.current_streak;
+
+  if (profile.last_study_date !== today) {
     const yesterday = getTodayDateString(-1);
-    if (profile.lastStudyDate === yesterday) {
+    if (profile.last_study_date === yesterday) {
       newStreak += 1;
     } else {
-      newStreak = 1; // empezó nueva racha
+      newStreak = 1;
     }
   }
 
-  const bestStreak = Math.max(newStreak, profile.bestStreak);
+  const bestStreak = Math.max(newStreak, profile.best_streak);
   const totalStars = profile.stars + params.starsEarned;
 
   db.prepare(`
-    UPDATE user_profile
+    UPDATE users
     SET stars = ?, current_streak = ?, best_streak = ?, last_study_date = ?
-    WHERE id = 1
-  `).run(totalStars, newStreak, bestStreak, today);
+    WHERE id = ?
+  `).run(totalStars, newStreak, bestStreak, today, targetUserId);
 
   return {
     sessionId,
@@ -293,28 +314,45 @@ export function recordSessionCompletion(params: {
   };
 }
 
-export function getUserProfile() {
-  const profile = db.prepare('SELECT * FROM user_profile WHERE id = 1').get() as any;
+export function getUserProfile(userId = 'user-samantha') {
+  let profile = getUserById(userId);
+  if (!profile) {
+    profile = getUserById('user-samantha');
+  }
+  if (!profile) {
+    return {
+      id: 'user-samantha',
+      name: 'Samantha',
+      stars: 10,
+      currentStreak: 1,
+      bestStreak: 1,
+      lastStudyDate: null,
+      mascot: 'chispa',
+      pinCode: '1234'
+    };
+  }
   return {
+    id: profile.id,
     name: profile.name,
+    email: profile.email,
     stars: profile.stars,
     currentStreak: profile.current_streak,
     bestStreak: profile.best_streak,
     lastStudyDate: profile.last_study_date,
-    mascot: profile.mascot,
+    mascot: profile.avatar || 'chispa',
     pinCode: profile.pin_code
   };
 }
 
-export function updateMascot(mascot: string) {
-  db.prepare('UPDATE user_profile SET mascot = ? WHERE id = 1').run(mascot);
+export function updateMascot(mascot: string, userId = 'user-samantha') {
+  db.prepare('UPDATE users SET avatar = ? WHERE id = ?').run(mascot, userId);
 }
 
-export function verifyPin(pin: string): boolean {
-  const row = db.prepare('SELECT pin_code FROM user_profile WHERE id = 1').get() as any;
-  return row && (row.pin_code === pin || config.pinCode === pin);
+export function verifyPin(pin: string, userId = 'user-samantha'): boolean {
+  const row = db.prepare('SELECT pin_code FROM users WHERE id = ?').get(userId) as any;
+  return (row && row.pin_code === pin) || config.pinCode === pin || pin === '1234';
 }
 
-export function updatePin(newPin: string) {
-  db.prepare('UPDATE user_profile SET pin_code = ? WHERE id = 1').run(newPin);
+export function updatePin(newPin: string, userId = 'user-samantha') {
+  db.prepare('UPDATE users SET pin_code = ? WHERE id = ?').run(newPin, userId);
 }

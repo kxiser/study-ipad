@@ -7,6 +7,7 @@ import { ReviewPage } from './pages/ReviewPage.js';
 import { UnitsPage } from './pages/UnitsPage.js';
 import { SettingsPage } from './pages/SettingsPage.js';
 import { PinModal } from './components/PinModal.js';
+import { UserSwitcherModal } from './components/UserSwitcherModal.js';
 import { fetchProfile, syncOfflineProgress } from './services/api.js';
 import { UserProfile, ExerciseSet } from './types.js';
 
@@ -15,6 +16,7 @@ export const App: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [activeUnit, setActiveUnit] = useState<{ id?: string; set: ExerciseSet } | null>(null);
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
   // Cargar perfil al inicio
   const loadProfile = async () => {
@@ -68,6 +70,7 @@ export const App: React.FC = () => {
           onHomeClick={() => handleNavigate('home')}
           onSettingsClick={handleSettingsClick}
           onMyUnitsClick={() => handleNavigate('units')}
+          onUserClick={() => setIsUserModalOpen(true)}
         />
 
         <main className="pb-12">
@@ -133,6 +136,16 @@ export const App: React.FC = () => {
         isOpen={isPinModalOpen}
         onClose={() => setIsPinModalOpen(false)}
         onSuccess={handlePinSuccess}
+      />
+
+      {/* Modal de selección de estudiante */}
+      <UserSwitcherModal
+        isOpen={isUserModalOpen}
+        onClose={() => setIsUserModalOpen(false)}
+        onUserSelected={() => {
+          loadProfile();
+          setCurrentPage('home');
+        }}
       />
     </div>
   );
