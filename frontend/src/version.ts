@@ -1,16 +1,15 @@
-export const APP_VERSION = '1.5.1';
-export const APP_BUILD = '2026.11.15-v1.5.1';
+export const APP_VERSION = '1.5.2';
+export const APP_BUILD = '2026.11.15-v1.5.2';
 
 export const VERSION_CHANGELOG = [
   {
-    version: '1.5.1',
+    version: '1.5.2',
     date: '15 Nov 2026',
-    title: 'Cartografía Auténtica de Alta Calidad en el Mapa del Mundo',
+    title: 'Capas de Renderizado SVG Corregidas: Cero Solapamiento de Nombres',
     items: [
-      '🗺️ Mapa del mundo renovado: sustituidos los polígonos aproximados por siluetas vectoriales auténticas de atlas mundial con más de 300 países y costas reales.',
-      '⭐ España y Europa perfectamente delimitadas con su península ibérica y estrella animada.',
-      '🌊 Océanos y continentes interactivos con botones táctiles grandes para iPad.',
-      '🔊 Explicaciones sonoras con botón de voz para cada continente y océano.'
+      '🏷️ Capas SVG ordenadas: Todas las etiquetas de texto, botones de océanos y nombres flotan en una capa superior independiente (Layer 2) por encima de los polígonos.',
+      '✨ Visibilidad 100% nítida: Ningún país ni isla puede tapar ahora los nombres de los continentes ni océanos.',
+      '⭐ Detalle de España reposicionado con holgura para una lectura perfecta sin colisiones.'
     ]
   }
 ];

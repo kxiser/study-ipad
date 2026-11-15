@@ -29,7 +29,7 @@ export const CONTINENTS_INFO: Record<string, InfoItem> = {
     color: '#10b981', // Verde esmeralda
     hoverColor: '#059669',
     labelX: 520,
-    labelY: 175,
+    labelY: 145,
     facts: 'El continente donde vivimos nosotros (¡donde está España!).',
     curiosity: 'Tiene países llenos de castillos e historia como España, Francia e Italia. Está separado de América por el Océano Atlántico.'
   },
@@ -374,152 +374,232 @@ export const WorldMapGame: React.FC<WorldMapGameProps> = ({ onBack, onStarsEarne
 
         <svg
           viewBox="0 0 950 620"
-          className="w-full h-auto max-h-[520px] drop-shadow-xl block"
+          className="w-full h-auto max-h-[540px] drop-shadow-xl block"
         >
           {/* Fondo oceánico */}
           <rect width="950" height="620" fill="transparent" />
 
-          {/* ================= BOTONES OCÉANOS INTERACTIVOS ================= */}
-          {/* Glacial Ártico */}
-          <g
-            onClick={() => handleSelect('artico')}
-            className="cursor-pointer group"
-          >
-            <rect x="360" y="25" width="230" height="42" rx="21" fill="#e0f2fe" fillOpacity={selectedId === 'artico' ? 0.95 : 0.75} stroke="#0284c7" strokeWidth="2" className="group-hover:fillOpacity-100 transition-all" />
-            <text x="475" y="51" fill="#0369a1" fontSize="13" fontWeight="900" textAnchor="middle">
-              ❄️ Glacial Ártico
-            </text>
+          {/* ================= CAPA 1: POLÍGONOS DE TIERRA (DEBAJO DE TODO) ================= */}
+          <g id="land-polygons-layer">
+            {Object.entries(CONTINENT_PATHS).map(([continentKey, countries]) => {
+              const info = CONTINENTS_INFO[continentKey];
+              if (!info) return null;
+              const isSelected = selectedId === continentKey;
+
+              return (
+                <g
+                  key={continentKey}
+                  onClick={() => handleSelect(continentKey)}
+                  className="cursor-pointer group"
+                >
+                  {/* Cada país renderizado con geometría cartográfica auténtica */}
+                  {countries.map((c, idx) => (
+                    <path
+                      key={`${c.id}-${idx}`}
+                      d={c.d}
+                      fill={isSelected ? info.hoverColor : info.color}
+                      stroke="#FFFFFF"
+                      strokeWidth={isSelected ? '1.2' : '0.6'}
+                      strokeLinejoin="round"
+                      className="transition-colors duration-150 group-hover:brightness-110"
+                    />
+                  ))}
+                </g>
+              );
+            })}
           </g>
 
-          {/* Océano Pacífico (Oeste) */}
-          <g
-            onClick={() => handleSelect('pacifico')}
-            className="cursor-pointer group"
-          >
-            <rect x="25" y="260" width="110" height="42" rx="21" fill="#e0f2fe" fillOpacity={selectedId === 'pacifico' ? 0.95 : 0.75} stroke="#0284c7" strokeWidth="2" className="group-hover:fillOpacity-100 transition-all" />
-            <text x="80" y="286" fill="#0369a1" fontSize="13" fontWeight="900" textAnchor="middle">
-              🐋 Océano Pacífico
-            </text>
-          </g>
+          {/* ================= CAPA 2: ETIQUETAS Y BOTONES TÁCTILES (ENCIMA DE TODO) ================= */}
+          {/* Esta capa se renderiza AL FINAL para que NINGÚN polígono pueda tapar jamás los nombres */}
+          <g id="ui-labels-layer">
+            {/* 1. Océano Ártico */}
+            <g
+              onClick={() => handleSelect('artico')}
+              className="cursor-pointer group"
+            >
+              <rect
+                x="365"
+                y="18"
+                width="220"
+                height="38"
+                rx="19"
+                fill={selectedId === 'artico' ? '#facc15' : '#ffffff'}
+                fillOpacity={0.96}
+                stroke={selectedId === 'artico' ? '#b45309' : '#0284c7'}
+                strokeWidth={selectedId === 'artico' ? '3' : '2'}
+                className="drop-shadow-md group-hover:scale-105 transition-transform"
+              />
+              <text x="475" y="42" fill={selectedId === 'artico' ? '#78350f' : '#0369a1'} fontSize="13" fontWeight="900" textAnchor="middle">
+                ❄️ Glacial Ártico
+              </text>
+            </g>
 
-          {/* Océano Pacífico (Este) */}
-          <g
-            onClick={() => handleSelect('pacifico')}
-            className="cursor-pointer group"
-          >
-            <rect x="815" y="260" width="110" height="42" rx="21" fill="#e0f2fe" fillOpacity={selectedId === 'pacifico' ? 0.95 : 0.75} stroke="#0284c7" strokeWidth="2" className="group-hover:fillOpacity-100 transition-all" />
-            <text x="870" y="286" fill="#0369a1" fontSize="13" fontWeight="900" textAnchor="middle">
-              🐋 Océano Pacífico
-            </text>
-          </g>
+            {/* 2. Océano Pacífico (Oeste) */}
+            <g
+              onClick={() => handleSelect('pacifico')}
+              className="cursor-pointer group"
+            >
+              <rect
+                x="20"
+                y="275"
+                width="116"
+                height="38"
+                rx="19"
+                fill={selectedId === 'pacifico' ? '#facc15' : '#ffffff'}
+                fillOpacity={0.96}
+                stroke={selectedId === 'pacifico' ? '#b45309' : '#0284c7'}
+                strokeWidth={selectedId === 'pacifico' ? '3' : '2'}
+                className="drop-shadow-md group-hover:scale-105 transition-transform"
+              />
+              <text x="78" y="299" fill={selectedId === 'pacifico' ? '#78350f' : '#0369a1'} fontSize="12" fontWeight="900" textAnchor="middle">
+                🐋 O. Pacífico
+              </text>
+            </g>
 
-          {/* Océano Atlántico (Centro) */}
-          <g
-            onClick={() => handleSelect('atlantico')}
-            className="cursor-pointer group"
-          >
-            <rect
-              x="340"
-              y="265"
-              width="130"
-              height="46"
-              rx="23"
-              fill={selectedId === 'atlantico' ? '#facc15' : '#e0f2fe'}
-              fillOpacity={selectedId === 'atlantico' ? 1 : 0.85}
-              stroke={selectedId === 'atlantico' ? '#b45309' : '#0284c7'}
-              strokeWidth="2.5"
-              className="group-hover:scale-105 transition-all drop-shadow-md"
-            />
-            <text x="405" y="293" fill={selectedId === 'atlantico' ? '#78350f' : '#0369a1'} fontSize="13" fontWeight="900" textAnchor="middle">
-              🌊 Océano Atlántico
-            </text>
-          </g>
+            {/* 3. Océano Pacífico (Este) */}
+            <g
+              onClick={() => handleSelect('pacifico')}
+              className="cursor-pointer group"
+            >
+              <rect
+                x="815"
+                y="275"
+                width="116"
+                height="38"
+                rx="19"
+                fill={selectedId === 'pacifico' ? '#facc15' : '#ffffff'}
+                fillOpacity={0.96}
+                stroke={selectedId === 'pacifico' ? '#b45309' : '#0284c7'}
+                strokeWidth={selectedId === 'pacifico' ? '3' : '2'}
+                className="drop-shadow-md group-hover:scale-105 transition-transform"
+              />
+              <text x="873" y="299" fill={selectedId === 'pacifico' ? '#78350f' : '#0369a1'} fontSize="12" fontWeight="900" textAnchor="middle">
+                🐋 O. Pacífico
+              </text>
+            </g>
 
-          {/* Océano Índico */}
-          <g
-            onClick={() => handleSelect('indico')}
-            className="cursor-pointer group"
-          >
-            <rect x="625" y="385" width="110" height="42" rx="21" fill="#e0f2fe" fillOpacity={selectedId === 'indico' ? 0.95 : 0.75} stroke="#0284c7" strokeWidth="2" className="group-hover:fillOpacity-100 transition-all" />
-            <text x="680" y="411" fill="#0369a1" fontSize="13" fontWeight="900" textAnchor="middle">
-              🐬 Océano Índico
-            </text>
-          </g>
+            {/* 4. Océano Atlántico (Centro - Gran protagonista) */}
+            <g
+              onClick={() => handleSelect('atlantico')}
+              className="cursor-pointer group"
+            >
+              <rect
+                x="330"
+                y="245"
+                width="145"
+                height="44"
+                rx="22"
+                fill={selectedId === 'atlantico' ? '#facc15' : '#ffffff'}
+                fillOpacity={0.98}
+                stroke={selectedId === 'atlantico' ? '#b45309' : '#0284c7'}
+                strokeWidth={selectedId === 'atlantico' ? '3.5' : '2.5'}
+                className="drop-shadow-lg group-hover:scale-105 transition-transform"
+              />
+              <text x="402" y="272" fill={selectedId === 'atlantico' ? '#78350f' : '#0284c7'} fontSize="13" fontWeight="900" textAnchor="middle">
+                🌊 Océano Atlántico
+              </text>
+            </g>
 
-          {/* Glacial Antártico */}
-          <g
-            onClick={() => handleSelect('antartico')}
-            className="cursor-pointer group"
-          >
-            <rect x="410" y="495" width="130" height="36" rx="18" fill="#e0f2fe" fillOpacity={selectedId === 'antartico' ? 0.95 : 0.75} stroke="#0284c7" strokeWidth="2" className="group-hover:fillOpacity-100 transition-all" />
-            <text x="475" y="518" fill="#0369a1" fontSize="12" fontWeight="900" textAnchor="middle">
-              🧊 Glacial Antártico
-            </text>
-          </g>
+            {/* 5. Océano Índico */}
+            <g
+              onClick={() => handleSelect('indico')}
+              className="cursor-pointer group"
+            >
+              <rect
+                x="620"
+                y="370"
+                width="120"
+                height="38"
+                rx="19"
+                fill={selectedId === 'indico' ? '#facc15' : '#ffffff'}
+                fillOpacity={0.96}
+                stroke={selectedId === 'indico' ? '#b45309' : '#0284c7'}
+                strokeWidth={selectedId === 'indico' ? '3' : '2'}
+                className="drop-shadow-md group-hover:scale-105 transition-transform"
+              />
+              <text x="680" y="394" fill={selectedId === 'indico' ? '#78350f' : '#0369a1'} fontSize="12" fontWeight="900" textAnchor="middle">
+                🐬 Océano Índico
+              </text>
+            </g>
 
-          {/* ================= CONTINENTES CON PAÍSES REALES ================= */}
-          {Object.entries(CONTINENT_PATHS).map(([continentKey, countries]) => {
-            const info = CONTINENTS_INFO[continentKey];
-            if (!info) return null;
-            const isSelected = selectedId === continentKey;
+            {/* 6. Glacial Antártico */}
+            <g
+              onClick={() => handleSelect('antartico')}
+              className="cursor-pointer group"
+            >
+              <rect
+                x="400"
+                y="515"
+                width="150"
+                height="36"
+                rx="18"
+                fill={selectedId === 'antartico' ? '#facc15' : '#ffffff'}
+                fillOpacity={0.96}
+                stroke={selectedId === 'antartico' ? '#b45309' : '#0284c7'}
+                strokeWidth={selectedId === 'antartico' ? '3' : '2'}
+                className="drop-shadow-md group-hover:scale-105 transition-transform"
+              />
+              <text x="475" y="538" fill={selectedId === 'antartico' ? '#78350f' : '#0369a1'} fontSize="12" fontWeight="900" textAnchor="middle">
+                🧊 Glacial Antártico
+              </text>
+            </g>
 
-            return (
-              <g
-                key={continentKey}
-                onClick={() => handleSelect(continentKey)}
-                className="cursor-pointer group"
-              >
-                {/* Renderizar cada país con geometría cartográfica auténtica */}
-                {countries.map((c, idx) => (
-                  <path
-                    key={`${c.id}-${idx}`}
-                    d={c.d}
-                    fill={isSelected ? info.hoverColor : info.color}
-                    stroke="#FFFFFF"
-                    strokeWidth={isSelected ? '1.2' : '0.6'}
-                    strokeLinejoin="round"
-                    className="transition-colors duration-150 group-hover:brightness-110"
-                  />
-                ))}
-
-                {/* Etiqueta visible flotante del continente */}
-                <g pointerEvents="none" className="transition-transform group-hover:scale-105">
+            {/* 7. ETIQUETAS DE CONTINENTES (TOTALMENTE FLOTANTES Y NUNCA SOLAPADAS) */}
+            {Object.entries(CONTINENTS_INFO).map(([key, info]) => {
+              const isSelected = selectedId === key;
+              return (
+                <g
+                  key={`label-${key}`}
+                  onClick={() => handleSelect(key)}
+                  className="cursor-pointer group"
+                >
                   <rect
-                    x={info.labelX - 58}
-                    y={info.labelY - 14}
-                    width="116"
-                    height="28"
-                    rx="14"
-                    fill="#FFFFFF"
-                    fillOpacity="0.95"
-                    stroke={isSelected ? '#F59E0B' : info.color}
-                    strokeWidth={isSelected ? '3' : '2'}
-                    className="drop-shadow-md"
+                    x={info.labelX - 60}
+                    y={info.labelY - 15}
+                    width="120"
+                    height="30"
+                    rx="15"
+                    fill={isSelected ? '#FEF08A' : '#FFFFFF'}
+                    fillOpacity={0.98}
+                    stroke={isSelected ? '#CA8A04' : info.color}
+                    strokeWidth={isSelected ? '3.5' : '2.5'}
+                    className="drop-shadow-lg group-hover:scale-105 transition-transform"
                   />
                   <text
                     x={info.labelX}
                     y={info.labelY + 5}
                     fill="#0f172a"
-                    fontSize="11"
+                    fontSize="12"
                     fontWeight="900"
                     textAnchor="middle"
                   >
                     {info.emoji} {info.name}
                   </text>
                 </g>
-              </g>
-            );
-          })}
+              );
+            })}
 
-          {/* ================= DETALLE ESPECIAL: ESPAÑA ================= */}
-          <g
-            onClick={() => handleSelect('europa')}
-            className="cursor-pointer group"
-          >
-            <circle cx="475" cy="205" r="7" fill="#facc15" stroke="#ef4444" strokeWidth="2.5" className="animate-pulse" />
-            <text x="475" y="226" fill="#FFFFFF" fontSize="11" fontWeight="900" textAnchor="middle" stroke="#000000" strokeWidth="0.6">
-              ⭐ España
-            </text>
+            {/* 8. DETALLE DESTACADO: ESPAÑA (EN EUROPA) */}
+            <g
+              onClick={() => handleSelect('europa')}
+              className="cursor-pointer group"
+            >
+              <circle cx="445" cy="210" r="8" fill="#facc15" stroke="#ef4444" strokeWidth="2.5" className="animate-pulse" />
+              <rect
+                x="415"
+                y="222"
+                width="60"
+                height="20"
+                rx="10"
+                fill="#ffffff"
+                stroke="#ef4444"
+                strokeWidth="1.5"
+                className="drop-shadow"
+              />
+              <text x="445" y="236" fill="#991b1b" fontSize="10" fontWeight="900" textAnchor="middle">
+                ⭐ España
+              </text>
+            </g>
           </g>
         </svg>
       </div>
