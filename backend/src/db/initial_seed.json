@@ -268,7 +268,7 @@
       "id": "5",
       "unit_id": "unit-mwhnjhir-5l2l",
       "type": "multiple_choice",
-      "data_json": "{\"id\":\"5\",\"type\":\"multiple_choice\",\"question\":\"¿Cuál de estos nombres corresponde a un océano?\",\"options\":[\"Europa\",\"Atlántico\",\"África\"],\"correctAnswer\":\"Atlántico\",\"explanation\":\"¡Genial! El Océano Atlántico es el gran océano que separa Europa y África de América.\"}",
+      "data_json": "{\"id\":\"5\",\"type\":\"multiple_choice\",\"question\":\"¿En qué planeta del Sistema Solar habitamos las personas y los animales?\",\"options\":[\"La Tierra\",\"Marte\",\"Júpiter\",\"Saturno\"],\"correctAnswer\":\"La Tierra\",\"explanation\":\"¡Exacto! La Tierra es nuestro hogar en el espacio con agua y atmósfera protectora.\",\"hint\":\"Tiene océanos azules y continentes verdes.\"}",
       "created_at": "2026-11-15 09:48:30"
     },
     {

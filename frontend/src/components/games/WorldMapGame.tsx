@@ -183,34 +183,14 @@ interface Mission {
 
 const QUIZ_MISSIONS: Mission[] = [
   {
-    targetId: 'atlantico',
-    prompt: '¡Encuentra el Océano Atlántico! (El que separa Europa de América)',
-    hint: 'Toca la masa de agua en el centro, entre América y Europa/África.'
-  },
-  {
     targetId: 'europa',
     prompt: '¿En qué continente vivimos nosotros? (¡Donde está España ⭐!)',
     hint: 'Busca el continente verde en el centro-norte, encima de África.'
   },
   {
-    targetId: 'antartida',
-    prompt: 'Toca el continente cubierto de hielo en el Polo Sur (la Antártida).',
-    hint: 'Está en la parte más baja de todo el mapa y es blanco como el hielo.'
-  },
-  {
     targetId: 'africa',
-    prompt: 'Toca el continente de África, famoso por sus leones y la sabana.',
+    prompt: 'Toca el continente de África, famoso por sus leones y la gran sabana.',
     hint: 'Es el continente amarillo en el centro, justo debajo de Europa.'
-  },
-  {
-    targetId: 'america-sur',
-    prompt: '¿Dónde está América del Sur, donde se encuentra la gran selva del Amazonas?',
-    hint: 'Está en la parte izquierda del mapa, abajo de América del Norte.'
-  },
-  {
-    targetId: 'oceania',
-    prompt: 'Toca Oceanía, la tierra de los canguros y koalas.',
-    hint: 'Busca abajo a la derecha del mapa (Australia y sus islas).'
   },
   {
     targetId: 'asia',
@@ -218,22 +198,50 @@ const QUIZ_MISSIONS: Mission[] = [
     hint: 'Es el continente gigante de color violeta a la derecha de Europa.'
   },
   {
+    targetId: 'america-norte',
+    prompt: '¿Dónde está América del Norte?',
+    hint: 'Está en la parte superior izquierda del mapa.'
+  },
+  {
+    targetId: 'america-sur',
+    prompt: '¿Dónde está América del Sur, donde se encuentra la gran selva del Amazonas?',
+    hint: 'Está en la parte izquierda del mapa, abajo de América del Norte.'
+  },
+  {
+    targetId: 'antartida',
+    prompt: 'Toca el continente cubierto de hielo en el Polo Sur (la Antártida).',
+    hint: 'Está en la parte más baja de todo el mapa y es blanco como el hielo.'
+  },
+  {
+    targetId: 'oceania',
+    prompt: 'Toca Oceanía, la tierra de los canguros y koalas.',
+    hint: 'Busca abajo a la derecha del mapa (Australia y sus islas).'
+  },
+  {
     targetId: 'pacifico',
-    prompt: 'Toca el Océano Pacífico, el más grande y profundo de todos.',
+    prompt: 'Toca el Océano Pacífico, el más grande y profundo de todo el planeta.',
     hint: 'Está en los laterales del mapa, cubriendo una inmensa parte de agua.'
+  },
+  {
+    targetId: 'atlantico',
+    prompt: '¡Encuentra el Océano Atlántico! (El que separa Europa de América)',
+    hint: 'Toca la masa de agua en el centro, entre América y Europa/África.'
   }
 ];
 
 export const WorldMapGame: React.FC<WorldMapGameProps> = ({ onBack, onStarsEarned }) => {
   const [selectedId, setSelectedId] = useState<string>('europa');
   const [gameMode, setGameMode] = useState<'explore' | 'quiz'>('explore');
+  const [activeMissions, setActiveMissions] = useState<Mission[]>(() =>
+    [...QUIZ_MISSIONS].sort(() => Math.random() - 0.5)
+  );
   const [quizIndex, setQuizIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [quizFeedback, setQuizFeedback] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
 
-  const currentMission = QUIZ_MISSIONS[quizIndex];
+  const currentMission = activeMissions[quizIndex] || activeMissions[0];
 
   const getInfo = (id: string): InfoItem => {
     return CONTINENTS_INFO[id] || OCEANS_INFO[id] || CONTINENTS_INFO['europa'];
@@ -318,6 +326,7 @@ export const WorldMapGame: React.FC<WorldMapGameProps> = ({ onBack, onStarsEarne
           <button
             onClick={() => {
               setGameMode('quiz');
+              setActiveMissions([...QUIZ_MISSIONS].sort(() => Math.random() - 0.5));
               setQuizIndex(0);
               setScore(0);
               setIsGameOver(false);

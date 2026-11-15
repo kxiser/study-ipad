@@ -24,28 +24,28 @@ const DRAWING_MISSIONS: Mission[] = [
     suggestedColors: ['#64748b', '#22c55e', '#facc15', '#0284c7']
   },
   {
-    id: 'm-llanura',
-    emoji: '✈️',
-    title: 'Aeropuerto en la Llanura',
-    prompt: 'Dibuja una llanura muy plana y añade una pista de aterrizaje recta para un avión.',
-    topic: 'Las Llanuras',
-    suggestedColors: ['#16a34a', '#475569', '#38bdf8', '#fbbf24']
+    id: 'm-naturaleza',
+    emoji: '🌻',
+    title: 'Campo Florido y Prado',
+    prompt: 'Dibuja un prado verde lleno de margaritas, amapolas rojas y un sol radiante.',
+    topic: 'Las Plantas',
+    suggestedColors: ['#16a34a', '#ef4444', '#facc15', '#38bdf8']
   },
   {
-    id: 'm-oceano',
-    emoji: '🌊',
-    title: 'El Océano Atlántico',
-    prompt: 'Dibuja un gran océano azul con olas gigantes y un barquito navegando.',
-    topic: 'La Tierra y Océanos',
-    suggestedColors: ['#0284c7', '#06b6d4', '#f43f5e', '#fbbf24']
+    id: 'm-espacio',
+    emoji: '🪐',
+    title: 'El Sistema Solar y la Tierra',
+    prompt: 'Dibuja el planeta Tierra en el espacio junto a la Luna y estrellas brillantes.',
+    topic: 'El Universo',
+    suggestedColors: ['#0284c7', '#10b981', '#facc15', '#e2e8f0']
   },
   {
-    id: 'm-vertebrado',
-    emoji: '🐶',
-    title: 'Animal Vertebrado',
-    prompt: 'Dibuja a un animal vertebrado que tenga huesos por dentro (como un perro o un gato).',
+    id: 'm-animales',
+    emoji: '🦊',
+    title: 'Animales Mágicos del Bosque',
+    prompt: 'Dibuja a un simpático zorro o un búho en la rama de un roble.',
     topic: 'Los Seres Vivos',
-    suggestedColors: ['#ea580c', '#854d0e', '#ec4899', '#10b981']
+    suggestedColors: ['#ea580c', '#854d0e', '#10b981', '#facc15']
   },
   {
     id: 'm-agua',
