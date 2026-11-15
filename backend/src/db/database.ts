@@ -50,6 +50,53 @@ if (!defaultUser) {
 db.prepare("UPDATE units SET user_id = 'user-samantha' WHERE user_id IS NULL OR user_id = ''").run();
 db.prepare("UPDATE study_sessions SET user_id = 'user-samantha' WHERE user_id IS NULL OR user_id = ''").run();
 
+// Cargar seed inicial con todos los temas escaneados de Samantha si están disponibles
+const seedCandidates = [
+  path.join(__dirname, 'initial_seed.json'),
+  path.join(process.cwd(), 'src/db/initial_seed.json'),
+  path.join(process.cwd(), 'dist/db/initial_seed.json')
+];
+const seedPath = seedCandidates.find(p => fs.existsSync(p));
+
+if (seedPath) {
+  try {
+    const seed = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+    if (seed.units && Array.isArray(seed.units)) {
+      const insUnit = db.prepare(`
+        INSERT OR IGNORE INTO units (id, user_id, title, subject, summary, estimated_minutes, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `);
+      const insEx = db.prepare(`
+        INSERT OR IGNORE INTO exercises (id, unit_id, type, data_json, created_at)
+        VALUES (?, ?, ?, ?, ?)
+      `);
+      const insSrs = db.prepare(`
+        INSERT OR IGNORE INTO srs_items (id, exercise_id, ease_factor, interval_days, repetitions, next_review_date, times_correct, times_incorrect)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      const seedTx = db.transaction(() => {
+        for (const u of seed.units) {
+          insUnit.run(u.id, u.user_id || 'user-samantha', u.title, u.subject, u.summary, u.estimated_minutes || 7, u.created_at);
+        }
+        if (seed.exercises) {
+          for (const e of seed.exercises) {
+            insEx.run(e.id, e.unit_id, e.type, e.data_json, e.created_at);
+          }
+        }
+        if (seed.srs) {
+          for (const s of seed.srs) {
+            insSrs.run(s.id, s.exercise_id, s.ease_factor, s.interval_days, s.repetitions, s.next_review_date, s.times_correct, s.times_incorrect);
+          }
+        }
+      });
+      seedTx();
+    }
+  } catch (err) {
+    console.warn('Error sembrando initial_seed.json:', err);
+  }
+}
+
 export function getAllUsers() {
   return db.prepare("SELECT id, name, email, avatar, stars, current_streak, best_streak FROM users ORDER BY created_at ASC").all();
 }

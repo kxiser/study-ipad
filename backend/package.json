@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc && cp src/db/schema.sql dist/db/schema.sql",
+    "build": "tsc && cp src/db/schema.sql dist/db/schema.sql && cp src/db/initial_seed.json dist/db/initial_seed.json",
     "start": "node dist/index.js",
     "test": "vitest run"
   },
