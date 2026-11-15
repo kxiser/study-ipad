@@ -1,25 +1,26 @@
-export const APP_VERSION = '1.4.0';
-export const APP_BUILD = '2026.11.15-v1.4.0';
+export const APP_VERSION = '1.5.0';
+export const APP_BUILD = '2026.11.15-v1.5.0';
 
 export const VERSION_CHANGELOG = [
   {
-    version: '1.4.0',
+    version: '1.5.0',
     date: '15 Nov 2026',
-    title: 'Reformulación dinámica tipo Duolingo + Pizarra Mágica para Dibujar',
+    title: 'Mapa del Mundo Interactivo (Explora la Tierra) + Océanos y Continentes',
     items: [
-      '🧠 Reformulación pedagógica tipo Duolingo: los conceptos se preguntan desde varios ángulos (situación con Chispa, Verdadero/Falso, pregunta directa) afianzando el aprendizaje sin aburrimiento.',
-      '🎨 Nuevo juego interactivo: Pizarra Mágica (Dibuja y Aprende) con colores mágicos, grosores táctiles, retos temáticos (montañas, aeropuertos, océanos) y botón para guardar en el iPad.',
-      '🛡️ Cero erratas garantizadas: todas las variantes nacen de un banco de hechos 100% auditados y verificados.',
-      '⭐ Recompensas de estrellas: ganar 5 estrellas al completar misiones artísticas de dibujo.'
+      '🌍 Nuevo mapa interactivo táctil: Explora la Tierra con los 6 continentes y los 5 océanos en vector SVG alta resolución para iPad.',
+      '🧭 Modo Reto Explorador: Chispa plantea misiones para localizar el Océano Atlántico, Europa (España), la Antártida y ganar 5 Estrellas Mágicas.',
+      '🔊 Modo Exploración con Voz: Información curiosa y didáctica para 3.º de Primaria leída en voz alta con botón de voz.',
+      '🎨 Pizarra Mágica: Dibuja y Aprende con retos temáticos y descarga de dibujos.',
+      '🛡️ 100% libre de erratas y respuestas verificadas.'
     ]
   },
   {
-    version: '1.3.1',
+    version: '1.4.0',
     date: '15 Nov 2026',
-    title: 'Eliminada heurística errónea de respuestas',
+    title: 'Reformulación tipo Duolingo y Pizarra Mágica',
     items: [
-      'Eliminado el código de auto-corrección que alteraba preguntas en caliente.',
-      'Auditoría y normalización de puntuación en todos los minijuegos.'
+      'Preguntas reformuladas desde varios ángulos para consolidar conceptos.',
+      'Pizarra de dibujo con herramientas táctiles y retos.'
     ]
   }
 ];

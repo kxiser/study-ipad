@@ -8,6 +8,7 @@ import { WheelGame } from '../components/games/WheelGame.js';
 import { TreasureMapGame } from '../components/games/TreasureMapGame.js';
 import { ClosetShop } from '../components/games/ClosetShop.js';
 import { DrawingGame } from '../components/games/DrawingGame.js';
+import { WorldMapGame } from '../components/games/WorldMapGame.js';
 import { generateDuolingoVariations } from '../utils/questionReformulator.js';
 import { Mascot } from '../components/Mascot.js';
 
@@ -17,7 +18,7 @@ interface GamesPageProps {
   onStarsUpdated?: (newStars: number) => void;
 }
 
-type ActiveGameMode = 'hub' | 'memory' | 'bubble' | 'wheel' | 'treasure' | 'closet' | 'drawing';
+type ActiveGameMode = 'hub' | 'memory' | 'bubble' | 'wheel' | 'treasure' | 'closet' | 'drawing' | 'worldmap';
 
 type TaggedExerciseItem = ExerciseItem & {
   unitId?: string;
@@ -160,6 +161,15 @@ export const GamesPage: React.FC<GamesPageProps> = ({
     return (
       <TreasureMapGame
         exercises={filteredExercises}
+        onBack={() => setActiveMode('hub')}
+        onStarsEarned={handleStarsEarned}
+      />
+    );
+  }
+
+  if (activeMode === 'worldmap') {
+    return (
+      <WorldMapGame
         onBack={() => setActiveMode('hub')}
         onStarsEarned={handleStarsEarned}
       />
@@ -364,7 +374,27 @@ export const GamesPage: React.FC<GamesPageProps> = ({
           </div>
         </button>
 
-        {/* 6. El Armario de Chispa */}
+        {/* 6. Mapa del Mundo Interactivo */}
+        <button
+          onClick={() => setActiveMode('worldmap')}
+          className="group relative bg-gradient-to-br from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white p-7 rounded-4xl shadow-xl shadow-cyan-200 border-4 border-cyan-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl shadow-inner group-hover:scale-110 transition-transform">
+            🌍
+          </div>
+
+          <div>
+            <span className="text-xs font-black uppercase tracking-wider text-cyan-200 block mb-1">
+              Geografía Interactiva
+            </span>
+            <h3 className="text-2xl font-black leading-tight">Explora la Tierra</h3>
+            <p className="text-cyan-100 text-xs md:text-sm font-semibold mt-1">
+              Toca los 6 continentes y los 5 océanos, aprende sus secretos y supera retos.
+            </p>
+          </div>
+        </button>
+
+        {/* 7. El Armario de Chispa */}
         <button
           onClick={() => setActiveMode('closet')}
           className="group relative bg-gradient-to-br from-pink-400 to-rose-500 hover:from-pink-500 hover:to-rose-600 text-white p-7 rounded-4xl shadow-xl shadow-pink-200 border-4 border-pink-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
