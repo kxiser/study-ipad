@@ -57,7 +57,7 @@ export const GamesPage: React.FC<GamesPageProps> = ({
             if (data?.exercises) {
               const sanitized: TaggedExerciseItem[] = data.exercises.map(ex => {
                 let updated = { ...ex, unitId: u.id, unitTitle: u.title, unitSubject: u.subject };
-                // Corrección directa de ejercicios conocidos con respuestas desfasadas
+                // Corrección directa de ejercicios específicos si tuvieran datos legacy
                 if (updated.type === 'multiple_choice') {
                   const mc = updated as TaggedExerciseItem & { type: 'multiple_choice' };
                   if (mc.id === 'unit-mwho7gch-jyjj-ex-7-xptp' || (mc.question && mc.question.includes('aeropuerto'))) {
@@ -66,16 +66,8 @@ export const GamesPage: React.FC<GamesPageProps> = ({
                   if (mc.question && mc.question.includes('parte más alta de una montaña')) {
                     mc.correctAnswer = 'La cima o cumbre';
                   }
-                  // Auto-corrección semántica si la explicación o el contexto contradice una respuesta incorrecta
-                  if (mc.options && mc.explanation) {
-                    const exp = mc.explanation.toLowerCase();
-                    for (const opt of mc.options) {
-                      const cleanOpt = opt.toLowerCase().replace(/[\.\,\!]/g, '').trim();
-                      if (cleanOpt.length >= 4 && exp.includes(cleanOpt) && !exp.includes('casi') && !exp.includes('en realidad no')) {
-                        mc.correctAnswer = opt;
-                        break;
-                      }
-                    }
+                  if (mc.question && mc.question.includes('corresponde a un océano')) {
+                    mc.correctAnswer = 'Atlántico';
                   }
                 }
                 return updated;
