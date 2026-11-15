@@ -4,7 +4,7 @@ import { sounds } from '../../utils/soundEffects.js';
 import { ConfettiCelebration } from '../ConfettiCelebration.js';
 import { SpeechButton } from '../SpeechButton.js';
 import { completeStudySession } from '../../services/api.js';
-import { VERIFIED_FACTS } from '../../utils/questionReformulator.js';
+import { getDynamicGameQuestions, GameQuestion } from '../../utils/questionReformulator.js';
 import { ExerciseItem } from '../../types.js';
 
 interface Point {
@@ -50,6 +50,7 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
   const nextDirRef = useRef<'UP' | 'DOWN' | 'LEFT' | 'RIGHT'>('UP');
 
   const [foods, setFoods] = useState<FoodItem[]>([]);
+  const [missions, setMissions] = useState<GameQuestion[]>([]);
   const [currentFactIdx, setCurrentFactIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -65,10 +66,16 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
   const [joystickKnob, setJoystickKnob] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDraggingJoystick, setIsDraggingJoystick] = useState(false);
 
-  const missions = VERIFIED_FACTS;
-  const currentMission = missions[currentFactIdx % missions.length];
+  const currentMission = missions[currentFactIdx] || {
+    id: 'placeholder',
+    question: 'Cargando misión didáctica...',
+    topic: 'Sabiduría',
+    correctAnswer: 'Correcto',
+    options: ['Correcto', 'Opción B', 'Opción C'],
+    explanation: '¡Muy bien!'
+  };
 
-  // Cambiar dirección con validación anti-retroceso
+  // Cambiar dirección con validación anti-retroceso instantáneo
   const changeDirection = useCallback((newDir: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT') => {
     setDirection(prev => {
       if (newDir === 'UP' && prev !== 'DOWN') {
@@ -92,8 +99,9 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
   }, []);
 
   // Generar las 3 comidas (A, B, C) con diseño nítido y coordenadas libres
-  const spawnFoods = useCallback((factIndex: number, currentSnake: Point[]) => {
-    const fact = missions[factIndex % missions.length];
+  const spawnFoods = useCallback((factIndex: number, currentSnake: Point[], currentMissions: GameQuestion[]) => {
+    if (!currentMissions || currentMissions.length === 0) return;
+    const mission = currentMissions[factIndex % currentMissions.length];
     const occupied = new Set(currentSnake.map(p => `${p.x},${p.y}`));
 
     const getRandomFreePos = (): Point => {
@@ -111,11 +119,10 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
     };
 
     // Crear lista de 3 opciones aleatorizadas
-    const rawOptions = [
-      { text: fact.correctAnswer, isCorrect: true },
-      { text: fact.distractors[0] || 'Opción 1', isCorrect: false },
-      { text: fact.distractors[1] || 'Opción 2', isCorrect: false }
-    ].sort(() => Math.random() - 0.5);
+    const rawOptions = mission.options.slice(0, 3).map(opt => ({
+      text: opt,
+      isCorrect: opt === mission.correctAnswer
+    })).sort(() => Math.random() - 0.5);
 
     const letters: Array<'A' | 'B' | 'C'> = ['A', 'B', 'C'];
     const emojis = ['🍎', '🫐', '🍊'];
@@ -137,10 +144,13 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
     });
 
     setFoods(newFoods);
-  }, [missions]);
+  }, []);
 
-  // Reiniciar juego
+  // Reiniciar juego con preguntas DINÁMICAS (nuevas y variadas cada vez)
   const restartGame = useCallback(() => {
+    const freshQuestions = getDynamicGameQuestions(exercises, 5);
+    setMissions(freshQuestions);
+
     const initialSnake: Point[] = [
       { x: 7, y: 7 },
       { x: 7, y: 8 },
@@ -157,14 +167,14 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
     setFeedback(null);
     setShowCelebration(false);
     setCurrentFactIdx(0);
-    spawnFoods(0, initialSnake);
-  }, [spawnFoods]);
+    spawnFoods(0, initialSnake, freshQuestions);
+  }, [exercises, spawnFoods]);
 
   useEffect(() => {
     restartGame();
   }, [restartGame]);
 
-  // Controles de teclado físico para iPad o Mac
+  // Controles de teclado físico para iPad con Magic Keyboard o Mac
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (['ArrowUp', 'KeyW'].includes(e.code)) changeDirection('UP');
@@ -198,15 +208,12 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
     const absDx = Math.abs(dx);
     const absDy = Math.abs(dy);
 
-    // Mínimo umbral para considerar swipe
     if (Math.max(absDx, absDy) < 20) return;
 
     if (absDx > absDy) {
-      // Horizontal
       if (dx > 0) changeDirection('RIGHT');
       else changeDirection('LEFT');
     } else {
-      // Vertical
       if (dy > 0) changeDirection('DOWN');
       else changeDirection('UP');
     }
@@ -229,7 +236,7 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
     const dx = clientX - joystickCenterRef.current.x;
     const dy = clientY - joystickCenterRef.current.y;
     const distance = Math.hypot(dx, dy);
-    const maxRadius = 38; // radio máximo de la palanca
+    const maxRadius = 38;
 
     const angle = Math.atan2(dy, dx);
     const clampedDist = Math.min(distance, maxRadius);
@@ -238,7 +245,6 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
 
     setJoystickKnob({ x: knobX, y: knobY });
 
-    // Determinar dirección basada en ángulo si el dedo se aleja más de 12px
     if (distance > 12) {
       const deg = (angle * 180) / Math.PI;
       if (deg >= -45 && deg <= 45) {
@@ -259,9 +265,9 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
     joystickCenterRef.current = null;
   };
 
-  // Bucle de movimiento continuo
+  // Bucle de movimiento continuo: LA SERPIENTE NO SE MUERDE LA COLA (100% AMABLE Y DIVERTIDA)
   useEffect(() => {
-    if (isPaused || isGameOver || hasWon) return;
+    if (isPaused || isGameOver || hasWon || missions.length === 0) return;
 
     const timer = setInterval(() => {
       setSnake(prevSnake => {
@@ -274,19 +280,13 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
         if (dir === 'LEFT') newHead.x -= 1;
         if (dir === 'RIGHT') newHead.x += 1;
 
-        // Envolvente Pac-Man por los bordes (sin muerte frustrante)
+        // Envolvente Pac-Man por los bordes (aparece por el lado opuesto)
         if (newHead.x < 0) newHead.x = GRID_SIZE - 1;
         if (newHead.x >= GRID_SIZE) newHead.x = 0;
         if (newHead.y < 0) newHead.y = GRID_SIZE - 1;
         if (newHead.y >= GRID_SIZE) newHead.y = 0;
 
-        // Choque con el propio cuerpo
-        const selfCollision = prevSnake.some((p, i) => i > 0 && p.x === newHead.x && p.y === newHead.y);
-        if (selfCollision) {
-          sounds.playWobbleSound();
-          setFeedback('¡Cuidado! No te muerdas la cola 🐍');
-          return prevSnake;
-        }
+        // NOTA: Para Samantha la cola es mágica y no la bloquea ni muestra mensajes molestos de morderse.
 
         // ¿Come algo?
         const foodIdx = foods.findIndex(f => f.x === newHead.x && f.y === newHead.y);
@@ -300,7 +300,7 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
             setFeedback(`¡Excelente! "${eatenFood.text}" es correcto ✨`);
 
             const nextFact = currentFactIdx + 1;
-            if (nextFact >= 5) {
+            if (nextFact >= missions.length) {
               setHasWon(true);
               setShowCelebration(true);
               sounds.playVictorySound();
@@ -308,8 +308,8 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
               completeStudySession({
                 sessionType: 'new',
                 durationSeconds: 60,
-                totalQuestions: 5,
-                correctAnswers: 5,
+                totalQuestions: missions.length,
+                correctAnswers: missions.length,
                 starsEarned: stars
               }).catch(() => {});
               if (onStarsEarned) onStarsEarned(stars);
@@ -317,7 +317,7 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
             } else {
               setCurrentFactIdx(nextFact);
               const updatedSnake = [newHead, ...prevSnake];
-              spawnFoods(nextFact, updatedSnake);
+              spawnFoods(nextFact, updatedSnake, missions);
               return updatedSnake;
             }
           } else {
@@ -339,7 +339,7 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
     }, TICK_SPEED);
 
     return () => clearInterval(timer);
-  }, [isPaused, isGameOver, hasWon, foods, currentFactIdx, onStarsEarned, spawnFoods]);
+  }, [isPaused, isGameOver, hasWon, foods, currentFactIdx, missions, onStarsEarned, spawnFoods]);
 
   return (
     <div className="max-w-2xl mx-auto px-3 sm:px-6 py-3 animate-fade-in space-y-3 select-none">
@@ -382,25 +382,25 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
         </button>
       </div>
 
-      {/* Misión Didáctica */}
+      {/* Misión Didáctica Dinámica */}
       <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 rounded-3xl p-3.5 text-white shadow-lg border-2 border-emerald-400 flex items-center justify-between gap-3 text-left">
         <div className="flex items-center gap-3">
           <span className="text-3xl animate-bounce">🐍</span>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-black uppercase tracking-wider bg-black/25 px-2.5 py-0.5 rounded-full">
-                Misión {currentFactIdx + 1} de 5
+                Misión {currentFactIdx + 1} de {missions.length || 5}
               </span>
               <span className="text-xs font-bold text-emerald-100">{currentMission.topic}</span>
             </div>
             <h3 className="text-sm sm:text-base font-black mt-0.5 leading-tight text-white drop-shadow-sm">
-              {currentMission.directQuestion}
+              {currentMission.question}
             </h3>
           </div>
         </div>
 
         <div className="shrink-0 hidden sm:block">
-          <SpeechButton text={currentMission.directQuestion} size="md" />
+          <SpeechButton text={currentMission.question} size="md" />
         </div>
       </div>
 
@@ -432,7 +432,6 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
         onTouchEnd={handleBoardTouchEnd}
         className="relative bg-slate-950 rounded-4xl p-2.5 shadow-2xl border-4 border-emerald-400 overflow-hidden mx-auto aspect-square max-w-[390px] touch-none"
       >
-        {/* Patrón de césped sutil */}
         <div
           className="grid gap-1 w-full h-full"
           style={{
@@ -461,7 +460,7 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
                   </div>
                 )}
 
-                {/* Segmentos del cuerpo de la serpiente */}
+                {/* Segmentos del cuerpo de la serpiente (cola suave de luz) */}
                 {isBody && (
                   <div
                     style={{
@@ -531,7 +530,7 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
             <span className="absolute left-1.5 text-[10px] font-bold text-slate-500">◀</span>
             <span className="absolute right-1.5 text-[10px] font-bold text-slate-500">▶</span>
 
-            {/* Palanca / Pomo central móvil */}
+            {/* Palanca central móvil */}
             <div
               style={{
                 transform: `translate(${joystickKnob.x}px, ${joystickKnob.y}px)`,
@@ -544,12 +543,12 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
           </div>
         </div>
 
-        {/* Deslizar directamente con el dedo en el tablero o usar toques rápidos */}
+        {/* Instrucciones táctiles */}
         <div className="text-left bg-emerald-50 border border-emerald-200 p-3 rounded-2xl max-w-[170px] space-y-1">
           <span className="text-[10px] font-black uppercase text-emerald-800 block">✨ Modo Táctil iPad</span>
           <p className="text-[11px] font-bold text-emerald-950 leading-tight">
-            • Usa la palanca <br />
-            • O desliza el dedo en el tablero hacia donde quieras que vaya.
+            • Mueve la palanca <br />
+            • O desliza el dedo en el tablero hacia donde quieras ir.
           </p>
         </div>
       </div>
@@ -585,7 +584,7 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
               className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm active:scale-95 transition-all shadow-md shadow-emerald-200 flex items-center justify-center gap-2"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Jugar de nuevo</span>
+              <span>Jugar de nuevo (Nuevas preguntas)</span>
             </button>
           </div>
         </div>

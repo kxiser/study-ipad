@@ -1,25 +1,24 @@
-export const APP_VERSION = '1.7.1';
-export const APP_BUILD = '2026.11.15-v1.7.1';
+export const APP_VERSION = '1.8.0';
+export const APP_BUILD = '2026.11.15-v1.8.0';
 
 export const VERSION_CHANGELOG = [
   {
-    version: '1.7.1',
+    version: '1.8.0',
     date: '15 Nov 2026',
-    title: 'Mejoras Táctiles: Joystick Snake y Físicas Vivas de Plataformas 2D',
+    title: 'Mario & Zelda Auténtico, Serpiente sin Trabas y Preguntas Dinámicas',
     items: [
-      '🕹️ Joystick táctil interactivo en Snake: palanca virtual 360° más soporte para deslizar el dedo (swipe) directo en el tablero.',
-      '🍎 Manzanas nítidas con letras claras (A, B, C) y leyenda visible en la Serpiente Sabia: sin textos deformados ni bolas raras.',
-      '🦘 Físicas de Salto 60 FPS en la Aventura 2D: Chispa salta con respuesta instantánea y puede aterrizar sobre plataformas flotantes estilo Mario.',
-      '✨ Animaciones vivas: pasos de caminata, postura de salto en el aire, varita mágica, sol animado, flores mecidas y auras en los monstruos.'
+      '🍄 Bloques [?] y Pisotón Mario: Chispa puede golpear bloques flotantes desde abajo para conseguir gemas y aplastar enemigos cayendo desde arriba (stomp) con rebote.',
+      '🔥 Modo Super Chispa: Al conseguir gemas secretas, Chispa obtiene un aura dorada y velocidad extra.',
+      '🐍 Serpiente 100% amigable: Eliminado el molesto aviso de morderse la cola; la serpiente atraviesa su cuerpo con suavidad sin trabarse.',
+      '🎲 Preguntas Dinámicas e Infinitas: Se acabaron las preguntas repetitivas. Ahora combina el temario de la niña con un banco curricular ampliado de 30+ hechos de 3.º Primaria (Sociales, Naturales, Lengua y Mates), cambiando en cada partida.'
     ]
   },
   {
-    version: '1.7.0',
+    version: '1.7.1',
     date: '15 Nov 2026',
-    title: 'Nueva Aventura 2D: La Leyenda de Chispa (Estilo Mario y Zelda)',
+    title: 'Joystick Táctil Snake y Físicas Vivas de Plataformas 2D',
     items: [
-      '⚔️ Aventura 2D con scroll lateral: Camina con Chispa por un mundo mágico, salta plataformas, recoge estrellas y llega al Castillo del Saber.',
-      '🧙 Batallas RPG de Conocimiento: Cada monstruo o guardián que bloquea el camino te reta a un duelo con hechizos de respuesta correcta.'
+      'Joystick virtual 360° en la Serpiente y físicas de 60 FPS con salto parabólico en la aventura 2D.'
     ]
   }
 ];
