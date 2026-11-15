@@ -13,6 +13,9 @@ import { SnakeGame } from '../components/games/SnakeGame.js';
 import { CastleDefenseGame } from '../components/games/CastleDefenseGame.js';
 import { PasapalabraGame } from '../components/games/PasapalabraGame.js';
 import { WordSearchGame } from '../components/games/WordSearchGame.js';
+import { BasketballGame } from '../components/games/BasketballGame.js';
+import { SoccerPenaltyGame } from '../components/games/SoccerPenaltyGame.js';
+import { HeroBattleGame } from '../components/games/HeroBattleGame.js';
 import { generateDuolingoVariations } from '../utils/questionReformulator.js';
 import { Mascot } from '../components/Mascot.js';
 
@@ -22,7 +25,22 @@ interface GamesPageProps {
   onStarsUpdated?: (newStars: number) => void;
 }
 
-type ActiveGameMode = 'hub' | 'pasapalabra' | 'wordsearch' | 'memory' | 'bubble' | 'wheel' | 'treasure' | 'closet' | 'drawing' | 'worldmap' | 'snake' | 'castle';
+type ActiveGameMode =
+  | 'hub'
+  | 'basketball'
+  | 'soccer'
+  | 'battle'
+  | 'pasapalabra'
+  | 'wordsearch'
+  | 'memory'
+  | 'bubble'
+  | 'wheel'
+  | 'treasure'
+  | 'closet'
+  | 'drawing'
+  | 'worldmap'
+  | 'snake'
+  | 'castle';
 
 type TaggedExerciseItem = ExerciseItem & {
   unitId?: string;
@@ -183,6 +201,39 @@ export const GamesPage: React.FC<GamesPageProps> = ({
     );
   }
 
+  if (activeMode === 'basketball') {
+    return (
+      <BasketballGame
+        exercises={filteredExercises}
+        title={`🏀 Tiro a Canasta: ${getSelectionLabel()}`}
+        onBack={() => setActiveMode('hub')}
+        onStarsEarned={handleStarsEarned}
+      />
+    );
+  }
+
+  if (activeMode === 'soccer') {
+    return (
+      <SoccerPenaltyGame
+        exercises={filteredExercises}
+        title={`⚽ Penaltis: ${getSelectionLabel()}`}
+        onBack={() => setActiveMode('hub')}
+        onStarsEarned={handleStarsEarned}
+      />
+    );
+  }
+
+  if (activeMode === 'battle') {
+    return (
+      <HeroBattleGame
+        exercises={filteredExercises}
+        title={`🥊 Duelo de Héroes: ${getSelectionLabel()}`}
+        onBack={() => setActiveMode('hub')}
+        onStarsEarned={handleStarsEarned}
+      />
+    );
+  }
+
   if (activeMode === 'pasapalabra') {
     return (
       <PasapalabraGame
@@ -334,7 +385,91 @@ export const GamesPage: React.FC<GamesPageProps> = ({
 
       {/* Cuadrícula de Juegos Mágicos Interactivos */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {/* 1. Memory Mágico */}
+        {/* 1. TIRO A CANASTA (BALONCESTO TRIVIA) */}
+        <button
+          onClick={() => setActiveMode('basketball')}
+          className="group relative bg-gradient-to-br from-orange-500 via-amber-600 to-orange-700 hover:from-orange-600 hover:to-orange-800 text-white p-7 rounded-4xl shadow-xl shadow-orange-300 border-4 border-amber-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+        >
+          <div className="flex items-start justify-between">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl shadow-inner group-hover:scale-110 transition-transform">
+              🏀
+            </div>
+            <span className="bg-amber-300 text-amber-950 text-[10px] font-black px-3 py-1 rounded-full shadow-md uppercase tracking-wider">
+              ¡NUEVO DEPORTE!
+            </span>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-xs font-black uppercase tracking-wider text-amber-200">
+                Puntería y Acierto
+              </span>
+              <Sparkles className="w-4 h-4 text-amber-200" />
+            </div>
+            <h3 className="text-2xl font-black leading-tight">Tiro a Canasta</h3>
+            <p className="text-orange-100 text-xs md:text-sm font-semibold mt-1">
+              Lanza triples a la canasta respondiendo a las preguntas de tu temario.
+            </p>
+          </div>
+        </button>
+
+        {/* 2. PENALTIS DE FÚTBOL (GOLAZO) */}
+        <button
+          onClick={() => setActiveMode('soccer')}
+          className="group relative bg-gradient-to-br from-emerald-600 via-teal-700 to-green-800 hover:from-emerald-700 hover:to-teal-800 text-white p-7 rounded-4xl shadow-xl shadow-emerald-300 border-4 border-emerald-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+        >
+          <div className="flex items-start justify-between">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl shadow-inner group-hover:scale-110 transition-transform">
+              ⚽
+            </div>
+            <span className="bg-emerald-300 text-emerald-950 text-[10px] font-black px-3 py-1 rounded-full shadow-md uppercase tracking-wider">
+              ¡NUEVO FÚTBOL!
+            </span>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-xs font-black uppercase tracking-wider text-emerald-200">
+                Tanda de Penaltis
+              </span>
+              <Sparkles className="w-4 h-4 text-emerald-200" />
+            </div>
+            <h3 className="text-2xl font-black leading-tight">Penaltis de Fútbol</h3>
+            <p className="text-emerald-100 text-xs md:text-sm font-semibold mt-1">
+              Apunta a la escuadra y marca goles engañando al portero con respuestas correctas.
+            </p>
+          </div>
+        </button>
+
+        {/* 3. DUELO DE HÉROES (PELEA Y PODERES) */}
+        <button
+          onClick={() => setActiveMode('battle')}
+          className="group relative bg-gradient-to-br from-rose-600 via-pink-700 to-purple-800 hover:from-rose-700 hover:to-purple-900 text-white p-7 rounded-4xl shadow-xl shadow-rose-300 border-4 border-amber-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+        >
+          <div className="flex items-start justify-between">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl shadow-inner group-hover:scale-110 transition-transform">
+              🥊
+            </div>
+            <span className="bg-amber-300 text-amber-950 text-[10px] font-black px-3 py-1 rounded-full shadow-md uppercase tracking-wider">
+              ¡NUEVA PELEA!
+            </span>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-xs font-black uppercase tracking-wider text-pink-200">
+                Arena de Héroes
+              </span>
+              <Sparkles className="w-4 h-4 text-pink-200" />
+            </div>
+            <h3 className="text-2xl font-black leading-tight">Duelo de Poderes</h3>
+            <p className="text-rose-100 text-xs md:text-sm font-semibold mt-1">
+              Lanza ataques mágicos al responder bien y derrota al jefe de las sombras en combate.
+            </p>
+          </div>
+        </button>
+
+        {/* 4. Memory Mágico */}
         <button
           onClick={() => setActiveMode('memory')}
           className="group relative bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white p-7 rounded-4xl shadow-xl shadow-indigo-200 border-4 border-indigo-400 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"

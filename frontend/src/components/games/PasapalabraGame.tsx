@@ -200,19 +200,75 @@ export const PasapalabraGame: React.FC<PasapalabraGameProps> = ({
 
   const hero = getSelectedCharacter();
 
-  // Inicializar el Rosco
+  // Inicializar el Rosco adaptado a los temas seleccionados
   useEffect(() => {
-    // Tomar 12 a 16 letras dinámicas para una sesión ágil en iPad
-    const initialized: RoscoLetter[] = DEFAULT_ROSCO_DATA.map(d => ({
+    const roscoMap = new Map<string, Omit<RoscoLetter, 'status'>>();
+
+    // Cargar defaults
+    DEFAULT_ROSCO_DATA.forEach(d => roscoMap.set(d.letter.toUpperCase(), d));
+
+    // Si hay ejercicios de temas seleccionados, extraer definiciones reales para el Rosco
+    if (exercises && exercises.length > 0) {
+      for (const ex of exercises) {
+        let answer = '';
+        let question = '';
+        let options: string[] = [];
+        let explanation = ex.explanation || '';
+        let subject = (ex as any).unitSubject || 'Temario Escolar';
+
+        if (ex.type === 'multiple_choice' && ex.correctAnswer && ex.question) {
+          answer = ex.correctAnswer.trim();
+          question = ex.question;
+          options = ex.options || [answer];
+        } else if (ex.type === 'fill_blank' && ex.correctAnswer && ex.textWithBlank) {
+          answer = ex.correctAnswer.trim();
+          question = `Completa: ${ex.textWithBlank}`;
+          options = ex.options || [answer];
+        } else if (ex.type === 'matching' && ex.pairs && ex.pairs.length > 0) {
+          answer = ex.pairs[0].right.trim();
+          question = `Se relaciona con: ${ex.pairs[0].left}`;
+          options = [answer, ...ex.pairs.slice(1).map(p => p.right)];
+        }
+
+        if (answer.length >= 2) {
+          // Obtener primera letra limpia
+          const firstChar = answer[0].toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          if (/^[A-Z]$/.test(firstChar)) {
+            // Asegurar que haya opciones válidas
+            const cleanOptions = Array.from(new Set([answer, ...options])).slice(0, 3);
+            while (cleanOptions.length < 3) {
+              cleanOptions.push('Otra respuesta');
+            }
+
+            roscoMap.set(firstChar, {
+              letter: firstChar,
+              question: question.includes('Empieza por') ? question : `Empieza por ${firstChar}: ${question}`,
+              answer,
+              options: cleanOptions.sort(() => Math.random() - 0.5),
+              explanation: explanation || `¡Correcto! ${answer} es la respuesta.`,
+              subject
+            });
+          }
+        }
+      }
+    }
+
+    // Ordenar alfabéticamente las letras del Rosco
+    const sortedLetters = Array.from(roscoMap.values())
+      .sort((a, b) => a.letter.localeCompare(b.letter))
+      .slice(0, 16); // 16 letras para una partida ágil en iPad
+
+    const initialized: RoscoLetter[] = sortedLetters.map(d => ({
       ...d,
       status: 'pending'
     }));
+
     setLetters(initialized);
     setCurrentIndex(0);
     setSecondsLeft(180);
     setIsFinished(false);
     setShowCelebration(false);
-  }, []);
+  }, [exercises]);
 
   // Temporizador amable (sin estrés para niños)
   useEffect(() => {

@@ -15,6 +15,7 @@ import { SpeechButton } from '../SpeechButton.js';
 import { completeStudySession } from '../../services/api.js';
 import { ExerciseItem } from '../../types.js';
 import { getSelectedCharacter } from '../../utils/characters.js';
+import { getKeywordsForWordSearch } from '../../utils/questionReformulator.js';
 
 interface WordSearchGameProps {
   exercises?: ExerciseItem[];
@@ -121,13 +122,30 @@ export const WordSearchGame: React.FC<WordSearchGameProps> = ({
 
   const hero = getSelectedCharacter();
 
-  // Inicializar sopa de letras
+  // Inicializar sopa de letras dinámica a partir de los temas elegidos
   const initGame = () => {
-    const rawWords = PUZZLE_WORDS.map(p => p.word);
+    const extracted = getKeywordsForWordSearch(exercises);
+    const colors = [
+      'bg-orange-200 border-orange-400 text-orange-950',
+      'bg-emerald-200 border-emerald-400 text-emerald-950',
+      'bg-blue-200 border-blue-400 text-blue-950',
+      'bg-cyan-200 border-cyan-400 text-cyan-950',
+      'bg-purple-200 border-purple-400 text-purple-950',
+      'bg-pink-200 border-pink-400 text-pink-950'
+    ];
+
+    const wordsToUse: WordToFind[] = extracted.map((item, idx) => ({
+      word: item.word,
+      clue: item.clue || 'Palabra clave del temario escolar',
+      found: false,
+      color: colors[idx % colors.length]
+    }));
+
+    const rawWords = wordsToUse.map(w => w.word);
     const { grid, placements: plc } = generateGrid(rawWords);
     setGridData(grid);
     setPlacements(plc);
-    setWordsList(PUZZLE_WORDS.map(w => ({ ...w, found: false })));
+    setWordsList(wordsToUse);
     setSelectedCells([]);
     setFoundCells([]);
     setIsFinished(false);
@@ -136,7 +154,7 @@ export const WordSearchGame: React.FC<WordSearchGameProps> = ({
 
   useEffect(() => {
     initGame();
-  }, []);
+  }, [exercises]);
 
   // Manejar clic / selección de celda (Tocar primera celda, tocar última celda)
   const handleCellClick = (r: number, c: number) => {

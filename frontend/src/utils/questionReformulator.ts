@@ -416,50 +416,115 @@ export const norm = (s: string) => (s || '').trim().toLowerCase().replace(/[\.\,
 
 /**
  * Obtiene una lista dinámica y variada de preguntas listas para cualquier juego.
- * Combina los ejercicios reales del temario de Samantha con el banco pedagógico de 30+ hechos.
- * Mezcla preguntas y opciones aleatoriamente para que NUNCA sean repetitivas.
+ * Convierte rigurosamente CUALQUIER tipo de ejercicio (multiple_choice, true_false,
+ * fill_blank, matching, flashcard, ordering) de los temas seleccionados por Samantha.
+ * Solo si faltan preguntas para el total solicitado recurre al banco ampliado de hechos.
  */
 export function getDynamicGameQuestions(
   exercises: ExerciseItem[] = [],
-  count = 5
+  count = 6
 ): GameQuestion[] {
   const result: GameQuestion[] = [];
   const usedQuestions = new Set<string>();
 
-  // 1. Extraer preguntas de los ejercicios del temario seleccionado (si existen)
+  // 1. Convertir TODOS los ejercicios del temario seleccionado a preguntas de juego
   if (exercises && exercises.length > 0) {
-    const validExercises = exercises.filter(
-      e => e.type === 'multiple_choice' && e.question && e.correctAnswer && e.options && e.options.length >= 2
-    );
-
-    // Desordenar
-    const shuffledExercises = [...validExercises].sort(() => Math.random() - 0.5);
+    const shuffledExercises = [...exercises].sort(() => Math.random() - 0.5);
 
     for (const ex of shuffledExercises) {
-      if (ex.type === 'multiple_choice' && ex.question && ex.correctAnswer && ex.options) {
+      if (result.length >= count) break;
+
+      // MULTIPLE CHOICE
+      if (ex.type === 'multiple_choice' && ex.question && ex.correctAnswer && ex.options && ex.options.length >= 2) {
         const cleanQ = norm(ex.question);
         if (!usedQuestions.has(cleanQ)) {
           usedQuestions.add(cleanQ);
-
-          // Barajar las opciones
           const shuffledOptions = [...ex.options].sort(() => Math.random() - 0.5);
-
           result.push({
             id: ex.id || `ex-${Math.random()}`,
             question: ex.question,
-            topic: 'Temario Escolar',
+            topic: (ex as any).unitTitle || 'Tema Escolar',
             correctAnswer: ex.correctAnswer,
             options: shuffledOptions,
             explanation: ex.explanation || `¡La respuesta correcta es ${ex.correctAnswer}!`
           });
+        }
+      }
 
-          if (result.length >= count) break;
+      // TRUE / FALSE
+      else if (ex.type === 'true_false' && ex.statement !== undefined && ex.isTrue !== undefined) {
+        const cleanQ = norm(ex.statement);
+        if (!usedQuestions.has(cleanQ)) {
+          usedQuestions.add(cleanQ);
+          result.push({
+            id: ex.id || `ex-${Math.random()}`,
+            question: `¿Verdadero o Falso?: "${ex.statement}"`,
+            topic: (ex as any).unitTitle || 'Tema Escolar',
+            correctAnswer: ex.isTrue ? 'Verdadero' : 'Falso',
+            options: ['Verdadero', 'Falso'],
+            explanation: ex.explanation || (ex.isTrue ? '¡Correcto! La afirmación es Verdadera.' : '¡Exacto! La afirmación es Falsa.')
+          });
+        }
+      }
+
+      // FILL BLANK
+      else if (ex.type === 'fill_blank' && ex.textWithBlank && ex.correctAnswer && ex.options && ex.options.length >= 2) {
+        const cleanQ = norm(ex.textWithBlank);
+        if (!usedQuestions.has(cleanQ)) {
+          usedQuestions.add(cleanQ);
+          const shuffledOptions = [...ex.options].sort(() => Math.random() - 0.5);
+          result.push({
+            id: ex.id || `ex-${Math.random()}`,
+            question: `Completa la oración: "${ex.textWithBlank}"`,
+            topic: (ex as any).unitTitle || 'Tema Escolar',
+            correctAnswer: ex.correctAnswer,
+            options: shuffledOptions,
+            explanation: ex.explanation || `¡Genial! La palabra que falta es "${ex.correctAnswer}".`
+          });
+        }
+      }
+
+      // MATCHING (Relacionar parejas)
+      else if (ex.type === 'matching' && ex.pairs && ex.pairs.length >= 2) {
+        for (const pair of ex.pairs) {
+          const cleanQ = norm(pair.left);
+          if (!usedQuestions.has(cleanQ)) {
+            usedQuestions.add(cleanQ);
+            const otherRights = ex.pairs.filter(p => p.left !== pair.left).map(p => p.right);
+            const options = [pair.right, ...otherRights.slice(0, 2)].sort(() => Math.random() - 0.5);
+            result.push({
+              id: `${ex.id}-${pair.left}`,
+              question: `¿Qué se relaciona directamente con "${pair.left}"?`,
+              topic: (ex as any).unitTitle || 'Tema Escolar',
+              correctAnswer: pair.right,
+              options,
+              explanation: ex.explanation || `¡Correcto! "${pair.left}" se relaciona con "${pair.right}".`
+            });
+            break;
+          }
+        }
+      }
+
+      // FLASHCARD (Concepto clave)
+      else if (ex.type === 'flashcard' && ex.front && ex.back) {
+        const cleanQ = norm(ex.front);
+        if (!usedQuestions.has(cleanQ)) {
+          usedQuestions.add(cleanQ);
+          const distractors = ['Opción incorrecta', 'Ninguna de las anteriores', 'Solo en invierno'];
+          result.push({
+            id: ex.id || `ex-${Math.random()}`,
+            question: ex.front.includes('?') ? ex.front : `¿Qué debemos saber sobre: ${ex.front}?`,
+            topic: (ex as any).unitTitle || 'Tema Escolar',
+            correctAnswer: ex.back,
+            options: [ex.back, ...distractors.slice(0, 2)].sort(() => Math.random() - 0.5),
+            explanation: ex.explanation || `¡Dato clave: ${ex.back}!`
+          });
         }
       }
     }
   }
 
-  // 2. Si faltan preguntas para completar el total, extraer del banco amplio VERIFIED_FACTS
+  // 2. Si aún faltan preguntas para completar el total, extraer del banco amplio VERIFIED_FACTS
   if (result.length < count) {
     const shuffledFacts = [...VERIFIED_FACTS].sort(() => Math.random() - 0.5);
 
@@ -468,15 +533,11 @@ export function getDynamicGameQuestions(
       if (!usedQuestions.has(cleanQ)) {
         usedQuestions.add(cleanQ);
 
-        // Elegir aleatoriamente entre formato directo o formato contextual estilo Duolingo
-        const useScenario = Math.random() > 0.5 && fact.contextScenario;
-        const qText = useScenario ? (fact.contextScenario || fact.directQuestion) : fact.directQuestion;
-
         const options = [fact.correctAnswer, ...fact.distractors.slice(0, 2)].sort(() => Math.random() - 0.5);
 
         result.push({
           id: fact.id,
-          question: qText,
+          question: fact.directQuestion,
           topic: fact.topic,
           correctAnswer: fact.correctAnswer,
           options,
@@ -489,6 +550,61 @@ export function getDynamicGameQuestions(
   }
 
   return result;
+}
+
+/**
+ * Extrae palabras clave curriculares de los ejercicios seleccionados para la Sopa de Letras
+ */
+export function getKeywordsForWordSearch(exercises: ExerciseItem[] = []): { word: string; clue: string }[] {
+  const result: { word: string; clue: string }[] = [];
+  const seen = new Set<string>();
+
+  if (exercises && exercises.length > 0) {
+    for (const ex of exercises) {
+      let candidate = '';
+      let clue = '';
+
+      if (ex.type === 'multiple_choice' && ex.correctAnswer) {
+        candidate = ex.correctAnswer;
+        clue = ex.question;
+      } else if (ex.type === 'fill_blank' && ex.correctAnswer) {
+        candidate = ex.correctAnswer;
+        clue = ex.textWithBlank.replace('___', '...');
+      } else if (ex.type === 'matching' && ex.pairs && ex.pairs.length > 0) {
+        candidate = ex.pairs[0].right;
+        clue = ex.pairs[0].left;
+      }
+
+      // Normalizar: solo letras simples de 3 a 8 caracteres
+      const clean = candidate.trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Z]/g, '');
+      if (clean.length >= 3 && clean.length <= 8 && !seen.has(clean)) {
+        seen.add(clean);
+        result.push({ word: clean, clue });
+        if (result.length >= 6) break;
+      }
+    }
+  }
+
+  // Si faltan, rellenar con palabras de 3.º de Primaria
+  const defaultWords = [
+    { word: 'VOLCAN', clue: 'Montaña con cráter que expulsa lava ardiente' },
+    { word: 'HUESO', clue: 'Pieza dura que forma el esqueleto humano' },
+    { word: 'TIERRA', clue: 'Nuestro planeta con agua líquida y atmósfera' },
+    { word: 'AGUA', clue: 'Líquido vital indispensable para los seres vivos' },
+    { word: 'FOSIL', clue: 'Resto prehistórico de animal conservado en piedra' },
+    { word: 'PLANETA', clue: 'Cuerpo celeste que gira alrededor del Sol' },
+    { word: 'LLANURA', clue: 'Terreno plano sin montañas para cultivar' }
+  ];
+
+  for (const dw of defaultWords) {
+    if (result.length >= 6) break;
+    if (!seen.has(dw.word)) {
+      seen.add(dw.word);
+      result.push(dw);
+    }
+  }
+
+  return result.slice(0, 6);
 }
 
 /**
