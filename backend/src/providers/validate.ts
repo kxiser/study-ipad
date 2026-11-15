@@ -113,12 +113,24 @@ export function normalizeRawExerciseSet(raw: any): any {
     // FILL IN THE BLANK
     // ==========================================
     else if (type === 'fill_blank') {
-      let text = ex.textWithBlank || ex.sentence || ex.frase || ex.question || '';
+      let text = String(ex.textWithBlank || ex.sentence || ex.frase || ex.question || '').trim();
       let rawCorrect = ex.correctAnswer ?? ex.answer ?? ex.palabra ?? ex.missingWord ?? ex.blankWord ?? ex.target ?? ex.correct;
 
       let options = Array.isArray(ex.options)
         ? ex.options.map((o: any) => String(o).trim()).filter((o: string) => o.toLowerCase() !== 'palabra')
         : [];
+
+      // Si el texto está casi vacío o solo contiene el hueco
+      const contentWithoutBlank = text.replace(/___|\[\.\.\.\]/g, '').trim();
+      if (contentWithoutBlank.length < 8) {
+        if (explanation && explanation.length > 15) {
+          // Extraer frase didáctica de la explicación
+          const cleanExp = explanation.replace(/^[¡!¿?A-Za-z\s]+!/i, '').trim();
+          text = cleanExp.includes('___') ? cleanExp : `En esta lección aprendemos que el concepto clave es: ___ .`;
+        } else {
+          text = `Completa la siguiente afirmación con la palabra adecuada: ___ .`;
+        }
+      }
 
       // Si no hay hueco, crearlo
       if (!text.includes('___') && !text.includes('[...]')) {
@@ -164,20 +176,28 @@ export function normalizeRawExerciseSet(raw: any): any {
     else if (type === 'matching') {
       base.instruction = ex.instruction || ex.question || ex.instruccion || 'Une cada pareja:';
       let rawPairs = Array.isArray(ex.pairs) ? ex.pairs : [];
-      base.pairs = rawPairs.map((p: any) => {
-        if (Array.isArray(p)) {
-          return { left: String(p[0]), right: String(p[1]) };
-        }
-        return {
-          left: String(p.left || p.concepto || p.termino || p.item || 'Concepto'),
-          right: String(p.right || p.definicion || p.pareja || p.valor || 'Definición')
-        };
-      }).slice(0, 5);
+      base.pairs = rawPairs
+        .map((p: any) => {
+          if (Array.isArray(p)) {
+            return { left: String(p[0] || '').trim(), right: String(p[1] || '').trim() };
+          }
+          return {
+            left: String(p.left || p.concepto || p.termino || p.item || '').trim(),
+            right: String(p.right || p.definicion || p.pareja || p.valor || '').trim()
+          };
+        })
+        .filter((p: any) => {
+          const l = p.left.toLowerCase();
+          const r = p.right.toLowerCase();
+          // Prohibir terminantemente 'Concepto' y 'Definición'
+          return l && r && l !== 'concepto' && r !== 'definición' && r !== 'definicion';
+        })
+        .slice(0, 5);
 
       if (base.pairs.length < 2) {
         base.pairs = [
-          { left: 'Elemento A', right: 'Definición A' },
-          { left: 'Elemento B', right: 'Definición B' }
+          { left: 'Ejemplo A', right: 'Descripción A' },
+          { left: 'Ejemplo B', right: 'Descripción B' }
         ];
       }
     }

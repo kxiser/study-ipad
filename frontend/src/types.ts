@@ -29,6 +29,7 @@ export interface TrueFalseExercise extends BaseExercise {
 export interface FillBlankExercise extends BaseExercise {
   type: 'fill_blank';
   textWithBlank: string;
+  question?: string;
   options: string[];
   correctAnswer: string;
 }
@@ -64,6 +65,8 @@ export type ExerciseItem =
   | OrderingExercise
   | MatchingExercise
   | FlashcardExercise;
+
+export type Exercise = ExerciseItem;
 
 export interface ExerciseSet {
   title: string;

@@ -17,6 +17,7 @@ import { BasketballGame } from '../components/games/BasketballGame.js';
 import { SoccerPenaltyGame } from '../components/games/SoccerPenaltyGame.js';
 import { HeroBattleGame } from '../components/games/HeroBattleGame.js';
 import { QuizShowGame } from '../components/games/QuizShowGame.js';
+import { SplitScreenDuelGame } from '../components/games/SplitScreenDuelGame.js';
 import { generateDuolingoVariations } from '../utils/questionReformulator.js';
 import { Mascot } from '../components/Mascot.js';
 
@@ -28,6 +29,7 @@ interface GamesPageProps {
 
 type ActiveGameMode =
   | 'hub'
+  | 'duel'
   | 'basketball'
   | 'soccer'
   | 'battle'
@@ -201,6 +203,17 @@ export const GamesPage: React.FC<GamesPageProps> = ({
         onBack={() => setActiveMode('hub')}
         onStarsEarned={handleStarsEarned}
       />
+    );
+  }
+
+  if (activeMode === 'duel') {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-4 md:py-6">
+        <SplitScreenDuelGame
+          onBack={() => setActiveMode('hub')}
+          onStarsEarned={handleStarsEarned}
+        />
+      </div>
     );
   }
 
@@ -399,6 +412,34 @@ export const GamesPage: React.FC<GamesPageProps> = ({
 
       {/* Cuadrícula de Juegos Mágicos Interactivos */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* 0. DUELO 1 VS 1 EN PANTALLA DIVIDIDA */}
+        <button
+          onClick={() => setActiveMode('duel')}
+          className="group relative bg-gradient-to-br from-amber-500 via-rose-600 to-indigo-700 hover:from-amber-600 hover:to-indigo-800 text-white p-7 rounded-4xl shadow-xl shadow-rose-300 border-4 border-amber-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+        >
+          <div className="flex items-start justify-between">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl shadow-inner group-hover:scale-110 transition-transform">
+              ⚔️
+            </div>
+            <span className="bg-amber-300 text-amber-950 text-[10px] font-black px-3 py-1 rounded-full shadow-md uppercase tracking-wider">
+              ¡PADRE VS HIJO!
+            </span>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-xs font-black uppercase tracking-wider text-amber-200">
+                Pantalla Dividida
+              </span>
+              <Sparkles className="w-4 h-4 text-amber-200" />
+            </div>
+            <h3 className="text-2xl font-black leading-tight">Duelo 1 vs 1 (Mesa)</h3>
+            <p className="text-rose-100 text-xs md:text-sm font-semibold mt-1">
+              Pon el iPad plano en la mesa. ¡Jugador 1 contra Jugador 2 compitiendo en directo!
+            </p>
+          </div>
+        </button>
+
         {/* 1. TIRO A CANASTA (BALONCESTO TRIVIA) */}
         <button
           onClick={() => setActiveMode('basketball')}

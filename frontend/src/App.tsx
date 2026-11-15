@@ -9,6 +9,7 @@ import { SettingsPage } from './pages/SettingsPage.js';
 import { GamesPage } from './pages/GamesPage.js';
 import { ExamSimulatorPage } from './pages/ExamSimulatorPage.js';
 import { EncyclopediaPage } from './pages/EncyclopediaPage.js';
+import { WorksheetPage } from './pages/WorksheetPage.js';
 import { PinModal } from './components/PinModal.js';
 import { UserSwitcherModal } from './components/UserSwitcherModal.js';
 import { VersionBadge } from './components/VersionBadge.js';
@@ -75,6 +76,7 @@ export const App: React.FC = () => {
           onGamesClick={() => handleNavigate('games')}
           onExamClick={() => handleNavigate('exam')}
           onEncyclopediaClick={() => handleNavigate('encyclopedia')}
+          onWorksheetClick={() => handleNavigate('worksheet')}
           onSettingsClick={handleSettingsClick}
           onMyUnitsClick={() => handleNavigate('units')}
           onUserClick={() => setIsUserModalOpen(true)}
@@ -138,7 +140,14 @@ export const App: React.FC = () => {
               mascotType={profile?.mascot}
               onBack={() => handleNavigate('home')}
               onOpenEncyclopedia={() => handleNavigate('encyclopedia')}
+              onOpenWorksheets={() => handleNavigate('worksheet')}
               onSelectUnit={(unitId, set) => handleNavigate('study', { unitId, set })}
+            />
+          )}
+
+          {currentPage === 'worksheet' && (
+            <WorksheetPage
+              onBack={() => handleNavigate('home')}
             />
           )}
 

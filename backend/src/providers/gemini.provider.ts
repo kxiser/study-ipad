@@ -85,9 +85,9 @@ REQUISITOS OBLIGATORIOS:
 - El objeto JSON DEBE incluir: "title", "subject", "summary", "estimatedMinutes", y "exercises".
 - Para "multiple_choice": 4 opciones y "correctAnswer" exacta.
 - Para "true_false": "statement", "isTrue", "explanation".
-- Para "fill_blank": "textWithBlank" con '___', "options", "correctAnswer".
+- Para "fill_blank": "textWithBlank" DEBE ser una frase completa y rica con sentido para niños donde '___' marca la palabra que falta (NUNCA envíes el hueco aislado sin palabras alrededor), 3 opciones y "correctAnswer".
 - Para "ordering": 3 o 4 pasos ordenados cronológica o lógicamente en "items".
-- Para "matching": 3 o 4 parejas en "pairs" con "left" y "right".
+- Para "matching": 3 o 4 parejas en "pairs" con "left" y "right". PROHIBIDO terminantemente usar las palabras "Concepto" y "Definición". Usa parejas dinámicas y lúdicas para 8 años: (ej: palabra y antónimo, animal y su grupo vertebrado, cálculo y resultado, u objeto y uso).
 - Responde EXCLUSIVAMENTE con el objeto JSON válido.`;
 
     const contents = [

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Flame, Wifi, WifiOff, Settings, Home, BookOpen, Gamepad2, GraduationCap, Compass } from 'lucide-react';
+import { Star, Flame, Wifi, WifiOff, Settings, Home, BookOpen, Gamepad2, GraduationCap, Compass, Printer } from 'lucide-react';
 import { UserProfile } from '../types.js';
 import { syncOfflineProgress } from '../services/api.js';
 import { VersionBadge } from './VersionBadge.js';
@@ -10,6 +10,7 @@ interface NavbarProps {
   onGamesClick?: () => void;
   onExamClick?: () => void;
   onEncyclopediaClick?: () => void;
+  onWorksheetClick?: () => void;
   onSettingsClick: () => void;
   onMyUnitsClick?: () => void;
   onUserClick?: () => void;
@@ -21,6 +22,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onGamesClick,
   onExamClick,
   onEncyclopediaClick,
+  onWorksheetClick,
   onSettingsClick,
   onMyUnitsClick,
   onUserClick
@@ -128,6 +130,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Compass className="w-4 h-4 text-teal-100" />
               <span className="hidden sm:inline">Descubrir</span>
+            </button>
+          )}
+
+          {/* Acceso Directo a Fichas Imprimibles PDF */}
+          {onWorksheetClick && (
+            <button
+              onClick={onWorksheetClick}
+              title="Fichas Imprimibles y Apple Pencil"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-black text-sm active:scale-95 transition-all shadow-sm"
+            >
+              <Printer className="w-4 h-4 text-rose-100" />
+              <span className="hidden sm:inline">Fichas PDF</span>
             </button>
           )}
 

@@ -17,8 +17,25 @@ export const FillBlank: React.FC<Props> = ({ exercise, onAnswer, onNext }) => {
   const [inputMode, setInputMode] = useState<'chips' | 'written'>('chips');
   const [validation, setValidation] = useState<ValidationResult | null>(null);
 
+  // Resiliencia pedagógica: si textWithBlank viene vacío o solo contiene el hueco sin palabras
+  const rawText = exercise.textWithBlank || '';
+  const textWithoutBlank = rawText.replace(/(?:___|\[\.\.\.\])/g, '').trim();
+
+  let safeTextWithBlank = rawText;
+  if (textWithoutBlank.length < 5) {
+    if (exercise.explanation && exercise.explanation.length > 15) {
+      const expClean = exercise.explanation.replace(/^[¡!¿?A-Za-z\s]+!/i, '').trim();
+      safeTextWithBlank = `Completa la lección: ___ . (${expClean})`;
+    } else {
+      safeTextWithBlank = `Completa la afirmación con la palabra adecuada: ___ .`;
+    }
+  }
+
   // Dividir texto por '___' o '[...]'
-  const parts = exercise.textWithBlank.split(/(?:___|\[\.\.\.\])/);
+  const parts = safeTextWithBlank.split(/(?:___|\[\.\.\.\])/);
+  if (parts.length === 1) {
+    parts.push('');
+  }
 
   const handleWordClick = (word: string) => {
     if (hasAnswered) return;

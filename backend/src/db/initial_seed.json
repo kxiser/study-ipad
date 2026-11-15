@@ -303,14 +303,14 @@
       "id": "unit-mwho1jzj-993z-ex-3-ymbp",
       "unit_id": "unit-mwho1jzj-993z",
       "type": "fill_blank",
-      "data_json": "{\"id\":\"unit-mwho1jzj-993z-ex-3-ymbp\",\"type\":\"fill_blank\",\"textWithBlank\":\" ___ .\",\"options\":[\"relieve\",\"agua\",\"bosque\"],\"correctAnswer\":\"relieve\",\"explanation\":\"¡Muy bien! El relieve es como el 'dibujo' o la forma que tiene el suelo.\"}",
+      "data_json": "{\"id\":\"unit-mwho1jzj-993z-ex-3-ymbp\",\"type\":\"fill_blank\",\"textWithBlank\":\"El conjunto de formas y alturas que tiene el terreno se llama ___ .\",\"options\":[\"relieve\",\"agua\",\"bosque\"],\"correctAnswer\":\"relieve\",\"explanation\":\"¡Muy bien! El relieve es como el 'dibujo' o la forma que tiene el suelo.\",\"hint\":\"Empieza por la letra R.\"}",
       "created_at": "2026-11-15 10:02:33"
     },
     {
       "id": "unit-mwho1jzj-993z-ex-4-2264",
       "unit_id": "unit-mwho1jzj-993z",
       "type": "matching",
-      "data_json": "{\"id\":\"unit-mwho1jzj-993z-ex-4-2264\",\"type\":\"matching\",\"instruction\":\"Une cada pareja:\",\"pairs\":[{\"left\":\"Concepto\",\"right\":\"Definición\"},{\"left\":\"Concepto\",\"right\":\"Definición\"},{\"left\":\"Concepto\",\"right\":\"Definición\"}],\"explanation\":\"¡Genial! Has relacionado perfectamente cada elemento natural con su ejemplo.\"}",
+      "data_json": "{\"id\":\"unit-mwho1jzj-993z-ex-4-2264\",\"type\":\"matching\",\"instruction\":\"Relaciona cada elemento con su forma del terreno:\",\"pairs\":[{\"left\":\"Montaña\",\"right\":\"Gran elevación natural del terreno\"},{\"left\":\"Llanura\",\"right\":\"Terreno plano y extenso sin apenas cuestas\"},{\"left\":\"Valle\",\"right\":\"Zona baja y llana situada entre montañas\"}],\"explanation\":\"¡Genial! Has relacionado perfectamente cada elemento natural con su ejemplo.\"}",
       "created_at": "2026-11-15 10:02:33"
     },
     {
@@ -450,7 +450,7 @@
       "id": "unit-mwho61fo-ji2o-ex-4-442s",
       "unit_id": "unit-mwho61fo-ji2o",
       "type": "matching",
-      "data_json": "{\"id\":\"unit-mwho61fo-ji2o-ex-4-442s\",\"type\":\"matching\",\"instruction\":\"Une cada pareja:\",\"pairs\":[{\"left\":\"Concepto\",\"right\":\"Definición\"},{\"left\":\"Concepto\",\"right\":\"Definición\"},{\"left\":\"Concepto\",\"right\":\"Definición\"}],\"explanation\":\"¡Lo has clavado! Cada forma del relieve tiene su nombre especial según si sube o baja.\"}",
+      "data_json": "{\"id\":\"unit-mwho61fo-ji2o-ex-4-442s\",\"type\":\"matching\",\"instruction\":\"Une cada forma del paisaje de interior con su descripción:\",\"pairs\":[{\"left\":\"Meseta\",\"right\":\"Llanura elevada a gran altura sobre el nivel del mar\"},{\"left\":\"Sierra\",\"right\":\"Conjunto de varias montañas alineadas\"},{\"left\":\"Colina\",\"right\":\"Pequeña montañita redondeada con poca altura\"}],\"explanation\":\"¡Lo has clavado! Cada forma del relieve tiene su nombre especial según su altura y forma.\"}",
       "created_at": "2026-11-15 10:06:02"
     },
     {

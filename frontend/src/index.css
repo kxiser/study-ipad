@@ -6,11 +6,31 @@
   html {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    font-size: 16px;
+  }
+
+  /* Escalado optimizado para iPad y Tablets (10.2", 11", 12.9") */
+  @media (min-width: 768px) {
+    html {
+      font-size: 18.5px; /* Aumenta toda la tipografía, botones y espacios un 15.6% */
+    }
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 20px; /* En iPad horizontal y pantallas grandes aumenta un 25% */
+    }
   }
 
   body {
     overscroll-behavior-y: none;
     -webkit-font-smoothing: antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Asegurar botones y áreas táctiles mínimas cómodas para dedos infantiles */
+  button, input, select {
+    touch-action: manipulation;
   }
 }
 

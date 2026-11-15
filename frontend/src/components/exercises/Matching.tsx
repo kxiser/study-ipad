@@ -20,9 +20,19 @@ const PAIR_COLORS = [
 ];
 
 export const Matching: React.FC<Props> = ({ exercise, onAnswer, onNext }) => {
+  // Filtrar parejas para eliminar cualquier dummy como 'Concepto' / 'Definición'
+  const validPairs = React.useMemo(() => {
+    const list = (exercise.pairs || []).filter(p => {
+      const l = p.left.trim().toLowerCase();
+      const r = p.right.trim().toLowerCase();
+      return l !== 'concepto' && r !== 'definición' && r !== 'definicion' && l !== '' && r !== '';
+    });
+    return list.length >= 2 ? list : exercise.pairs;
+  }, [exercise.pairs]);
+
   // Mezclar columna derecha al inicio
   const [shuffledRights] = useState(() => {
-    const list = exercise.pairs.map(p => p.right);
+    const list = validPairs.map(p => p.right);
     return list.sort(() => Math.random() - 0.5);
   });
 
@@ -44,7 +54,7 @@ export const Matching: React.FC<Props> = ({ exercise, onAnswer, onNext }) => {
     if (alreadyMatched) return;
 
     // Comprobar si esta pareja es correcta
-    const targetPair = exercise.pairs.find(p => p.left === selectedLeft);
+    const targetPair = validPairs.find(p => p.left === selectedLeft);
     if (targetPair && targetPair.right === rightText) {
       // Pareja correcta
       const newMatches = {
@@ -55,7 +65,7 @@ export const Matching: React.FC<Props> = ({ exercise, onAnswer, onNext }) => {
       setSelectedLeft(null);
 
       // Si ha completado todas las parejas
-      if (Object.keys(newMatches).length === exercise.pairs.length) {
+      if (Object.keys(newMatches).length === validPairs.length) {
         setHasAnswered(true);
         const wasPerfect = mistakeCount === 0;
         fireSuccessConfetti();
@@ -91,8 +101,10 @@ export const Matching: React.FC<Props> = ({ exercise, onAnswer, onNext }) => {
       <div className="grid grid-cols-2 gap-4 md:gap-6">
         {/* Columna Izquierda */}
         <div className="space-y-3">
-          <h3 className="font-black text-xs uppercase tracking-wider text-slate-400 text-center">Columna A</h3>
-          {exercise.pairs.map((p, idx) => {
+          <h3 className="font-black text-xs md:text-sm uppercase tracking-wider text-slate-500 text-center bg-slate-100 py-2 rounded-xl">
+            🏷️ Fichas
+          </h3>
+          {validPairs.map((p, idx) => {
             const isMatched = Boolean(matchedPairs[p.left]);
             const isSelected = selectedLeft === p.left;
             const matchInfo = matchedPairs[p.left];
@@ -103,16 +115,16 @@ export const Matching: React.FC<Props> = ({ exercise, onAnswer, onNext }) => {
                 type="button"
                 disabled={isMatched || hasAnswered}
                 onClick={() => handleLeftClick(p.left)}
-                className={`w-full min-h-[70px] p-4 rounded-2xl border-3 text-base md:text-lg font-bold text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-sm ${
+                className={`w-full min-h-[75px] md:min-h-[85px] p-4 md:p-5 rounded-3xl border-3 text-base md:text-xl font-black text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-sm ${
                   isMatched
-                    ? `${PAIR_COLORS[matchInfo.colorIdx]} ring-2 ring-emerald-300`
+                    ? `${PAIR_COLORS[matchInfo.colorIdx]} ring-4 ring-emerald-300`
                     : isSelected
-                    ? 'bg-magic-100 border-magic-600 text-magic-950 scale-102 ring-4 ring-magic-200'
+                    ? 'bg-magic-100 border-magic-600 text-magic-950 scale-102 ring-4 ring-magic-200 shadow-md'
                     : 'bg-white border-slate-200 text-slate-800 hover:bg-magic-50 hover:border-magic-300'
                 }`}
               >
                 <span>{p.left}</span>
-                {isMatched && <Check className="w-5 h-5 text-emerald-600 shrink-0" />}
+                {isMatched && <Check className="w-6 h-6 text-emerald-600 shrink-0" />}
               </button>
             );
           })}
@@ -120,7 +132,9 @@ export const Matching: React.FC<Props> = ({ exercise, onAnswer, onNext }) => {
 
         {/* Columna Derecha */}
         <div className="space-y-3">
-          <h3 className="font-black text-xs uppercase tracking-wider text-slate-400 text-center">Columna B</h3>
+          <h3 className="font-black text-xs md:text-sm uppercase tracking-wider text-slate-500 text-center bg-slate-100 py-2 rounded-xl">
+            🎯 Parejas
+          </h3>
           {shuffledRights.map((rightText, idx) => {
             const matchedLeft = Object.keys(matchedPairs).find(k => matchedPairs[k].right === rightText);
             const isMatched = Boolean(matchedLeft);
@@ -132,16 +146,16 @@ export const Matching: React.FC<Props> = ({ exercise, onAnswer, onNext }) => {
                 type="button"
                 disabled={isMatched || hasAnswered}
                 onClick={() => handleRightClick(rightText)}
-                className={`w-full min-h-[70px] p-4 rounded-2xl border-3 text-base md:text-lg font-bold text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-sm ${
+                className={`w-full min-h-[75px] md:min-h-[85px] p-4 md:p-5 rounded-3xl border-3 text-base md:text-xl font-black text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-sm ${
                   isMatched && matchInfo
-                    ? `${PAIR_COLORS[matchInfo.colorIdx]} ring-2 ring-emerald-300`
+                    ? `${PAIR_COLORS[matchInfo.colorIdx]} ring-4 ring-emerald-300`
                     : selectedLeft
                     ? 'bg-amber-50 border-amber-300 text-slate-800 hover:bg-amber-100 hover:border-amber-400'
                     : 'bg-white border-slate-200 text-slate-800 hover:bg-slate-50'
                 }`}
               >
                 <span>{rightText}</span>
-                {isMatched && <Check className="w-5 h-5 text-emerald-600 shrink-0" />}
+                {isMatched && <Check className="w-6 h-6 text-emerald-600 shrink-0" />}
               </button>
             );
           })}

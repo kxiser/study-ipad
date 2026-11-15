@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Camera, Sparkles, BookOpen, Star, RefreshCw, Trophy, Gamepad2, GraduationCap, Compass } from 'lucide-react';
+import { Camera, Sparkles, BookOpen, Star, RefreshCw, Trophy, Gamepad2, GraduationCap, Compass, Printer } from 'lucide-react';
 import { Mascot } from '../components/Mascot.js';
 import { UserProfile } from '../types.js';
 import { fetchReviewCount } from '../services/api.js';
@@ -189,6 +189,33 @@ export const Home: React.FC<HomeProps> = ({ profile, onNavigate }) => {
             <h3 className="text-xl md:text-2xl font-black leading-tight">Enciclopedia Infantil</h3>
             <p className="text-teal-100 text-xs font-semibold mt-1">
               Busca volcanes, dinosaurios o planetas por edad y crea lecciones interactivas.
+            </p>
+          </div>
+        </button>
+
+        {/* 7. Fichas Imprimibles en PDF (Apple Pencil & Papel) */}
+        <button
+          type="button"
+          onClick={() => onNavigate('worksheet')}
+          className="group relative bg-gradient-to-br from-rose-500 via-pink-600 to-rose-700 hover:from-rose-600 hover:to-rose-800 text-white p-6 rounded-4xl shadow-xl shadow-rose-200 border-4 border-rose-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px] sm:col-span-1 lg:col-span-2"
+        >
+          <div className="flex items-start justify-between">
+            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-inner group-hover:scale-110 transition-transform">
+              <Printer className="w-8 h-8 text-rose-100" />
+            </div>
+            <span className="bg-rose-200 text-rose-950 text-[10px] font-black px-3 py-1 rounded-full shadow-md uppercase tracking-wide">
+              Lápiz y Papel • iPad
+            </span>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-[11px] font-black uppercase tracking-wider text-rose-200">Fichas PDF</span>
+              <Sparkles className="w-3.5 h-3.5 text-rose-200" />
+            </div>
+            <h3 className="text-xl md:text-2xl font-black leading-tight">Generador de Fichas PDF</h3>
+            <p className="text-rose-100 text-xs font-semibold mt-1">
+              Descarga o imprime fichas de ejercicios con pauta escolar y solucionario para padres.
             </p>
           </div>
         </button>
