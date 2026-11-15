@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 
 export function fireSuccessConfetti() {
@@ -34,3 +35,13 @@ export function fireBigVictoryConfetti() {
     }
   })();
 }
+
+export const ConfettiCelebration: React.FC = () => {
+  useEffect(() => {
+    fireBigVictoryConfetti();
+  }, []);
+
+  return null;
+};
+
+export default ConfettiCelebration;

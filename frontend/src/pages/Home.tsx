@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Camera, Sparkles, BookOpen, Star, RefreshCw, Trophy } from 'lucide-react';
+import { Camera, Sparkles, BookOpen, Star, RefreshCw, Trophy, Gamepad2 } from 'lucide-react';
 import { Mascot } from '../components/Mascot.js';
 import { UserProfile } from '../types.js';
 import { fetchReviewCount } from '../services/api.js';
@@ -17,18 +17,18 @@ export const Home: React.FC<HomeProps> = ({ profile, onNavigate }) => {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 md:py-10 space-y-8 animate-fade-in">
+    <div className="max-w-5xl mx-auto px-4 py-6 md:py-10 space-y-8 animate-fade-in">
       {/* Saludo con la Mascota */}
       <div className="bg-gradient-to-r from-magic-100 via-white to-sunny-100 rounded-4xl p-6 md:p-8 border-3 border-magic-200 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-2 text-center md:text-left">
           <span className="inline-block bg-magic-600 text-white text-xs font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm">
-            ¡Hola, {profile?.name || 'Campeona'}!
+            ¡Hola, {profile?.name || 'Samantha'}!
           </span>
           <h2 className="text-3xl md:text-4xl font-black text-slate-800 leading-tight">
-            ¿Qué libro exploramos hoy?
+            ¿Qué jugamos y exploramos hoy?
           </h2>
           <p className="text-slate-600 font-bold text-base md:text-lg">
-            Haz una foto de tu libro del cole y jugaremos con sus actividades mágicas.
+            Aprende con tus libros del cole, juega en el arcade o disfraza a Chispa.
           </p>
         </div>
 
@@ -37,31 +37,31 @@ export const Home: React.FC<HomeProps> = ({ profile, onNavigate }) => {
             mascotType={profile?.mascot || 'chispa'}
             mood="happy"
             size="lg"
-            message="¡Estoy listo para aprender contigo!"
+            message="¡Estoy listo para jugar contigo!"
           />
         </div>
       </div>
 
       {/* Botones de Acción Gigantes Táctiles para iPad */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* 1. Escanear Libro */}
         <button
           type="button"
           onClick={() => onNavigate('scan')}
-          className="group relative bg-gradient-to-br from-magic-500 to-indigo-600 hover:from-magic-600 hover:to-indigo-700 text-white p-7 rounded-4xl shadow-xl shadow-magic-300 border-4 border-magic-400 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+          className="group relative bg-gradient-to-br from-magic-500 to-indigo-600 hover:from-magic-600 hover:to-indigo-700 text-white p-6 rounded-4xl shadow-xl shadow-magic-300 border-4 border-magic-400 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
         >
-          <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-inner group-hover:scale-110 transition-transform">
-            <Camera className="w-9 h-9" />
+          <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-inner group-hover:scale-110 transition-transform">
+            <Camera className="w-8 h-8" />
           </div>
 
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-black uppercase tracking-wider text-sunny-300">Nuevo Tema</span>
-              <Sparkles className="w-4 h-4 text-sunny-300" />
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-[11px] font-black uppercase tracking-wider text-sunny-300">Nuevo Tema</span>
+              <Sparkles className="w-3.5 h-3.5 text-sunny-300" />
             </div>
-            <h3 className="text-2xl font-black leading-tight">Escanear Libro</h3>
-            <p className="text-magic-100 text-xs md:text-sm font-semibold mt-1">
-              Foto a la página y la IA creará tus juegos
+            <h3 className="text-xl font-black leading-tight">Escanear Libro</h3>
+            <p className="text-magic-100 text-xs font-semibold mt-1">
+              Foto a la página y la IA creará tus ejercicios
             </p>
           </div>
         </button>
@@ -70,25 +70,25 @@ export const Home: React.FC<HomeProps> = ({ profile, onNavigate }) => {
         <button
           type="button"
           onClick={() => onNavigate('review')}
-          className="group relative bg-gradient-to-br from-amber-400 to-sunny-500 hover:from-amber-500 hover:to-sunny-600 text-amber-950 p-7 rounded-4xl shadow-xl shadow-amber-200 border-4 border-amber-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+          className="group relative bg-gradient-to-br from-amber-400 to-sunny-500 hover:from-amber-500 hover:to-sunny-600 text-amber-950 p-6 rounded-4xl shadow-xl shadow-amber-200 border-4 border-amber-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
         >
           <div className="flex items-start justify-between">
-            <div className="w-16 h-16 rounded-2xl bg-white/30 backdrop-blur-sm flex items-center justify-center text-amber-950 shadow-inner group-hover:scale-110 transition-transform">
-              <RefreshCw className="w-9 h-9" />
+            <div className="w-14 h-14 rounded-2xl bg-white/30 backdrop-blur-sm flex items-center justify-center text-amber-950 shadow-inner group-hover:scale-110 transition-transform">
+              <RefreshCw className="w-8 h-8" />
             </div>
             {reviewCount > 0 && (
-              <span className="bg-rose-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md animate-pulse">
-                {reviewCount} pendientes
+              <span className="bg-rose-500 text-white text-[11px] font-black px-2.5 py-0.5 rounded-full shadow-md animate-pulse">
+                {reviewCount}
               </span>
             )}
           </div>
 
           <div>
-            <span className="text-xs font-black uppercase tracking-wider text-amber-900 block mb-1">
-              Memoria Espaciada
+            <span className="text-[11px] font-black uppercase tracking-wider text-amber-900 block mb-1">
+              Memoria
             </span>
-            <h3 className="text-2xl font-black leading-tight">Repaso de Hoy</h3>
-            <p className="text-amber-900 text-xs md:text-sm font-semibold mt-1">
+            <h3 className="text-xl font-black leading-tight">Repaso de Hoy</h3>
+            <p className="text-amber-900 text-xs font-semibold mt-1">
               {reviewCount > 0
                 ? `${reviewCount} preguntas para recordar y ganar estrellas`
                 : '¡Todo al día! Practica cuando quieras'}
@@ -96,23 +96,45 @@ export const Home: React.FC<HomeProps> = ({ profile, onNavigate }) => {
           </div>
         </button>
 
-        {/* 3. Mis Temas Guardados */}
+        {/* 3. Sala de Juegos Mágicos */}
         <button
           type="button"
-          onClick={() => onNavigate('units')}
-          className="group relative bg-gradient-to-br from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-emerald-950 p-7 rounded-4xl shadow-xl shadow-emerald-200 border-4 border-emerald-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+          onClick={() => onNavigate('games')}
+          className="group relative bg-gradient-to-br from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white p-6 rounded-4xl shadow-xl shadow-pink-200 border-4 border-pink-400 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
         >
-          <div className="w-16 h-16 rounded-2xl bg-white/30 backdrop-blur-sm flex items-center justify-center text-emerald-950 shadow-inner group-hover:scale-110 transition-transform">
-            <BookOpen className="w-9 h-9" />
+          <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-inner group-hover:scale-110 transition-transform">
+            <Gamepad2 className="w-8 h-8" />
           </div>
 
           <div>
-            <span className="text-xs font-black uppercase tracking-wider text-emerald-900 block mb-1">
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-[11px] font-black uppercase tracking-wider text-sunny-200">Arcade</span>
+              <Sparkles className="w-3.5 h-3.5 text-sunny-200" />
+            </div>
+            <h3 className="text-xl font-black leading-tight">Juegos Mágicos</h3>
+            <p className="text-pink-100 text-xs font-semibold mt-1">
+              Memory, Burbujas, Ruleta, Tesoro y Armario de Chispa
+            </p>
+          </div>
+        </button>
+
+        {/* 4. Mis Temas Guardados */}
+        <button
+          type="button"
+          onClick={() => onNavigate('units')}
+          className="group relative bg-gradient-to-br from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-emerald-950 p-6 rounded-4xl shadow-xl shadow-emerald-200 border-4 border-emerald-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+        >
+          <div className="w-14 h-14 rounded-2xl bg-white/30 backdrop-blur-sm flex items-center justify-center text-emerald-950 shadow-inner group-hover:scale-110 transition-transform">
+            <BookOpen className="w-8 h-8" />
+          </div>
+
+          <div>
+            <span className="text-[11px] font-black uppercase tracking-wider text-emerald-900 block mb-1">
               Biblioteca
             </span>
-            <h3 className="text-2xl font-black leading-tight">Mis Temas</h3>
-            <p className="text-emerald-900 text-xs md:text-sm font-semibold mt-1">
-              Vuelve a jugar cualquiera de tus lecciones guardadas
+            <h3 className="text-xl font-black leading-tight">Mis Temas</h3>
+            <p className="text-emerald-900 text-xs font-semibold mt-1">
+              Vuelve a repasar cualquiera de tus lecciones
             </p>
           </div>
         </button>
@@ -128,7 +150,7 @@ export const Home: React.FC<HomeProps> = ({ profile, onNavigate }) => {
             ¡Tu racha mágica es de {profile?.currentStreak ?? 1} {profile?.currentStreak === 1 ? 'día' : 'días'}!
           </h4>
           <p className="text-xs md:text-sm text-slate-500 font-medium">
-            Estudiar 5 o 10 minutos cada día hace que tu cerebro se vuelva súper fuerte.
+            Estudiar y jugar 5 o 10 minutos cada día hace que tu cerebro se vuelva súper fuerte.
           </p>
         </div>
       </div>

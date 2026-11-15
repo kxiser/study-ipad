@@ -6,6 +6,7 @@ import { StudySession } from './pages/StudySession.js';
 import { ReviewPage } from './pages/ReviewPage.js';
 import { UnitsPage } from './pages/UnitsPage.js';
 import { SettingsPage } from './pages/SettingsPage.js';
+import { GamesPage } from './pages/GamesPage.js';
 import { PinModal } from './components/PinModal.js';
 import { UserSwitcherModal } from './components/UserSwitcherModal.js';
 import { fetchProfile, syncOfflineProgress } from './services/api.js';
@@ -68,6 +69,7 @@ export const App: React.FC = () => {
         <Navbar
           profile={profile}
           onHomeClick={() => handleNavigate('home')}
+          onGamesClick={() => handleNavigate('games')}
           onSettingsClick={handleSettingsClick}
           onMyUnitsClick={() => handleNavigate('units')}
           onUserClick={() => setIsUserModalOpen(true)}
@@ -78,6 +80,16 @@ export const App: React.FC = () => {
             <Home
               profile={profile}
               onNavigate={handleNavigate}
+            />
+          )}
+
+          {currentPage === 'games' && (
+            <GamesPage
+              profile={profile}
+              onBack={() => handleNavigate('home')}
+              onStarsUpdated={(newStars) => {
+                if (profile) setProfile({ ...profile, stars: newStars });
+              }}
             />
           )}
 

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Flame, Wifi, WifiOff, Settings, Home, BookOpen } from 'lucide-react';
+import { Star, Flame, Wifi, WifiOff, Settings, Home, BookOpen, Gamepad2 } from 'lucide-react';
 import { UserProfile } from '../types.js';
 import { syncOfflineProgress } from '../services/api.js';
 
 interface NavbarProps {
   profile: UserProfile | null;
   onHomeClick: () => void;
+  onGamesClick?: () => void;
   onSettingsClick: () => void;
   onMyUnitsClick?: () => void;
   onUserClick?: () => void;
@@ -14,6 +15,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   profile,
   onHomeClick,
+  onGamesClick,
   onSettingsClick,
   onMyUnitsClick,
   onUserClick
@@ -59,7 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </button>
 
         {/* Puntos y Racha */}
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-2 md:gap-3">
           {/* Estrellas */}
           <div className="flex items-center gap-1.5 bg-sunny-100 border border-sunny-300 px-3 py-1.5 rounded-full text-amber-900 font-extrabold text-sm md:text-base shadow-sm">
             <Star className="w-5 h-5 fill-amber-400 text-amber-500 animate-bounce" />
@@ -84,6 +86,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             {isOnline ? <Wifi className="w-4 h-4 text-emerald-600" /> : <WifiOff className="w-4 h-4 text-amber-600" />}
             <span className="hidden md:inline">{isOnline ? 'En línea' : 'Sin internet'}</span>
           </div>
+
+          {/* Acceso Directo a Juegos */}
+          {onGamesClick && (
+            <button
+              onClick={onGamesClick}
+              title="Sala de Juegos Mágica"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gradient-to-r from-sunny-400 to-amber-500 hover:from-sunny-500 hover:to-amber-600 text-amber-950 font-black text-sm active:scale-95 transition-all shadow-sm"
+            >
+              <Gamepad2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Juegos</span>
+            </button>
+          )}
 
           {/* Selector de Perfil de Estudiante (Samantha) */}
           {onUserClick && (
