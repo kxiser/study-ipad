@@ -71,6 +71,42 @@
       "estimated_minutes": 10,
       "created_at": "2026-11-15 10:06:02",
       "user_id": "user-samantha"
+    },
+    {
+      "id": "unit-lengua-gramatica",
+      "title": "Sustantivos, Adjetivos y Verbos Mágicos",
+      "subject": "Lengua Castellana",
+      "summary": "Aprende a reconocer sustantivos (personas, animales, cosas), adjetivos (cómo son) y verbos (acciones) con divertidos retos.",
+      "estimated_minutes": 8,
+      "created_at": "2026-11-15 15:30:00",
+      "user_id": "user-samantha"
+    },
+    {
+      "id": "unit-lengua-acentuacion",
+      "title": "Palabras Agudas, Llanas y Esdrújulas",
+      "subject": "Lengua Castellana",
+      "summary": "Domina el ritmo de las palabras descubriendo la sílaba tónica y sus reglas mágicas de acentuación.",
+      "estimated_minutes": 8,
+      "created_at": "2026-11-15 15:30:00",
+      "user_id": "user-samantha"
+    },
+    {
+      "id": "unit-mates-tablas",
+      "title": "Tablas de Multiplicar y Retos de Cálculo",
+      "subject": "Matemáticas",
+      "summary": "Conviértete en una velocista del cálculo mental dominando las tablas y las multiplicaciones.",
+      "estimated_minutes": 8,
+      "created_at": "2026-11-15 15:30:00",
+      "user_id": "user-samantha"
+    },
+    {
+      "id": "unit-mates-medidas",
+      "title": "El Reloj, Horas y Medidas del Mundo",
+      "subject": "Matemáticas",
+      "summary": "Aprende a leer el reloj de agujas y digital, minutos, horas, metros, kilos y céntimos.",
+      "estimated_minutes": 8,
+      "created_at": "2026-11-15 15:30:00",
+      "user_id": "user-samantha"
     }
   ],
   "exercises": [
@@ -437,6 +473,223 @@
       "type": "flashcard",
       "data_json": "{\"id\":\"unit-mwho61fo-ji2o-ex-7-hxdd\",\"type\":\"flashcard\",\"front\":\"¿Cómo diferenciamos un elemento natural de uno humanizado?\",\"back\":\"Los naturales (como cerros o ríos) los crea la naturaleza. Los humanizados (como puentes o vías del tren) los fabricamos nosotros. ¡Truco: Si tiene ladrillos, asfalto o metal, suele ser humanizado!\",\"explanation\":\"¡Buen trabajo! Ahora ya sabes distinguir qué estaba ahí antes y qué hemos puesto nosotros.\"}",
       "created_at": "2026-11-15 10:06:02"
+    },
+    {
+      "id": "ex-lg-1",
+      "unit_id": "unit-lengua-gramatica",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-lg-1\",\"type\":\"multiple_choice\",\"question\":\"¿Cuál de estas palabras es un SUSTANTIVO PROPIO y se escribe con mayúscula?\",\"options\":[\"Madrid\",\"ciudad\",\"río\",\"perro\"],\"correctAnswer\":\"Madrid\",\"explanation\":\"¡Genial! Los nombres propios de personas, ciudades y países como Madrid se escriben con mayúscula.\",\"hint\":\"Es el nombre de una ciudad concreta.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-lg-2",
+      "unit_id": "unit-lengua-gramatica",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-lg-2\",\"type\":\"multiple_choice\",\"question\":\"En la frase: \\\"El gato juguetón persigue la pelota\\\", ¿cuál palabra es el ADJETIVO?\",\"options\":[\"juguetón\",\"gato\",\"persigue\",\"pelota\"],\"correctAnswer\":\"juguetón\",\"explanation\":\"¡Correcto! \\\"Juguetón\\\" es el adjetivo porque nos dice cómo es el gato.\",\"hint\":\"Pregúntate: ¿Cómo es el gato?\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-lg-3",
+      "unit_id": "unit-lengua-gramatica",
+      "type": "true_false",
+      "data_json": "{\"id\":\"ex-lg-3\",\"type\":\"true_false\",\"statement\":\"Los verbos son palabras que indican acciones como saltar, reír, leer o soñar.\",\"isTrue\":true,\"explanation\":\"¡Exacto! Los verbos expresan todo lo que podemos hacer o sentir.\",\"hint\":\"Piensa si son acciones o movimientos.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-lg-4",
+      "unit_id": "unit-lengua-gramatica",
+      "type": "fill_blank",
+      "data_json": "{\"id\":\"ex-lg-4\",\"type\":\"fill_blank\",\"textWithBlank\":\"Las palabras que usamos para nombrar personas, animales, plantas y cosas se llaman ___ .\",\"options\":[\"sustantivos\",\"adjetivos\",\"verbos\"],\"correctAnswer\":\"sustantivos\",\"explanation\":\"¡Perfecto! Los sustantivos o nombres nos sirven para nombrar todo lo que nos rodea.\",\"hint\":\"Empieza por la letra S.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-lg-5",
+      "unit_id": "unit-lengua-gramatica",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-lg-5\",\"type\":\"multiple_choice\",\"question\":\"¿Cuál es el plural correcto de la palabra \\\"lápiz\\\"?\",\"options\":[\"lápices\",\"lápizs\",\"lápizes\",\"lapiceses\"],\"correctAnswer\":\"lápices\",\"explanation\":\"¡Muy bien! Las palabras que acaban en Z hacen su plural cambiando la Z por C: lápiz -> lápices.\",\"hint\":\"La Z se transforma en C al hacer el plural.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-lg-6",
+      "unit_id": "unit-lengua-gramatica",
+      "type": "matching",
+      "data_json": "{\"id\":\"ex-lg-6\",\"type\":\"matching\",\"instruction\":\"Relaciona cada palabra con su tipo gramatical:\",\"pairs\":[{\"left\":\"Castillo\",\"right\":\"Sustantivo común\"},{\"left\":\"Brillante\",\"right\":\"Adjetivo calificativo\"},{\"left\":\"Caminar\",\"right\":\"Verbo en acción\"}],\"explanation\":\"¡Excelente! Has clasificado a la perfección sustantivos, adjetivos y verbos.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-lg-7",
+      "unit_id": "unit-lengua-gramatica",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-lg-7\",\"type\":\"multiple_choice\",\"question\":\"¿Cómo se llama el sustantivo colectivo que nombra a un grupo de ovejas?\",\"options\":[\"Rebaño\",\"Jauría\",\"Banco\",\"Enjambre\"],\"correctAnswer\":\"Rebaño\",\"explanation\":\"¡Genial! Un conjunto de ovejas es un rebaño, de perros una jauría y de abejas un enjambre.\",\"hint\":\"Lo cuida un pastor.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-la-1",
+      "unit_id": "unit-lengua-acentuacion",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-la-1\",\"type\":\"multiple_choice\",\"question\":\"¿Dónde tienen la sílaba tónica (más fuerte) las palabras AGUDAS?\",\"options\":[\"En la última sílaba\",\"En la penúltima sílaba\",\"En la antepenúltima sílaba\",\"En la primera sílaba\"],\"correctAnswer\":\"En la última sílaba\",\"explanation\":\"¡Exacto! Las palabras agudas suenan con más fuerza en la última sílaba, como caracol o melón.\",\"hint\":\"Piensa en el final de la palabra.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-la-2",
+      "unit_id": "unit-lengua-acentuacion",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-la-2\",\"type\":\"multiple_choice\",\"question\":\"¿Cuál de estas palabras es ESDRÚJULA y siempre lleva tilde?\",\"options\":[\"Mágica\",\"Ratón\",\"Ventana\",\"Papel\"],\"correctAnswer\":\"Mágica\",\"explanation\":\"¡Fabuloso! Má-gi-ca tiene la fuerza en la antepenúltima sílaba y todas las esdrújulas llevan tilde.\",\"hint\":\"Tiene la fuerza tres sílabas antes del final.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-la-3",
+      "unit_id": "unit-lengua-acentuacion",
+      "type": "true_false",
+      "data_json": "{\"id\":\"ex-la-3\",\"type\":\"true_false\",\"statement\":\"Las palabras llanas tienen la fuerza en la penúltima sílaba, como \\\"árbol\\\" o \\\"mesa\\\".\",\"isTrue\":true,\"explanation\":\"¡Verdadero! La gran mayoría de palabras en español son llanas.\",\"hint\":\"Comprueba dónde das el golpe de voz.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-la-4",
+      "unit_id": "unit-lengua-acentuacion",
+      "type": "fill_blank",
+      "data_json": "{\"id\":\"ex-la-4\",\"type\":\"fill_blank\",\"textWithBlank\":\"Las palabras agudas llevan tilde cuando terminan en vocal, en N o en ___ .\",\"options\":[\"S\",\"M\",\"R\"],\"correctAnswer\":\"S\",\"explanation\":\"¡Regla de oro! Agudas con tilde si terminan en vocal, N o S: café, camión, compás.\",\"hint\":\"Es la letra de Samantha.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-la-5",
+      "unit_id": "unit-lengua-acentuacion",
+      "type": "matching",
+      "data_json": "{\"id\":\"ex-la-5\",\"type\":\"matching\",\"instruction\":\"Clasifica cada palabra según su sílaba tónica:\",\"pairs\":[{\"left\":\"Corazón\",\"right\":\"Palabra Aguda (última)\"},{\"left\":\"Mochila\",\"right\":\"Palabra Llana (penúltima)\"},{\"left\":\"Plátano\",\"right\":\"Palabra Esdrújula (antepenúltima)\"}],\"explanation\":\"¡Oído musical perfecto! Reconoces las sílabas tónicas de maravilla.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-mt-1",
+      "unit_id": "unit-mates-tablas",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-mt-1\",\"type\":\"multiple_choice\",\"question\":\"¿Cuánto es 7 x 8?\",\"options\":[\"56\",\"48\",\"64\",\"54\"],\"correctAnswer\":\"56\",\"explanation\":\"¡Matemáticas de campeona! 7 por 8 son 56.\",\"hint\":\"Es un poco más de 50.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-mt-2",
+      "unit_id": "unit-mates-tablas",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-mt-2\",\"type\":\"multiple_choice\",\"question\":\"¿Cuánto es 9 x 6?\",\"options\":[\"54\",\"63\",\"45\",\"56\"],\"correctAnswer\":\"54\",\"explanation\":\"¡Exacto! 9 x 6 = 54. Recuerda el truco de los dedos para la tabla del 9.\",\"hint\":\"Las dos cifras suman 9 (5 + 4 = 9).\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-mt-3",
+      "unit_id": "unit-mates-tablas",
+      "type": "true_false",
+      "data_json": "{\"id\":\"ex-mt-3\",\"type\":\"true_false\",\"statement\":\"Cualquier número multiplicado por 0 siempre da como resultado 0 (por ejemplo 8 x 0 = 0).\",\"isTrue\":true,\"explanation\":\"¡Verdadero! El cero absorbe cualquier número en la multiplicación.\",\"hint\":\"Si tienes 8 bolsas con cero caramelos, ¿cuántos caramelos tienes?\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-mt-4",
+      "unit_id": "unit-mates-tablas",
+      "type": "fill_blank",
+      "data_json": "{\"id\":\"ex-mt-4\",\"type\":\"fill_blank\",\"textWithBlank\":\"Si repartimos 24 galletas entre 4 amigos a partes iguales, a cada uno le tocan ___ galletas.\",\"options\":[\"6\",\"8\",\"4\"],\"correctAnswer\":\"6\",\"explanation\":\"¡Súper reparto! 24 dividido entre 4 es igual a 6 (porque 6 x 4 = 24).\",\"hint\":\"Busca qué número multiplicado por 4 da 24.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-mt-5",
+      "unit_id": "unit-mates-tablas",
+      "type": "matching",
+      "data_json": "{\"id\":\"ex-mt-5\",\"type\":\"matching\",\"instruction\":\"Relaciona cada multiplicación con su producto:\",\"pairs\":[{\"left\":\"6 x 7\",\"right\":\"42\"},{\"left\":\"8 x 8\",\"right\":\"64\"},{\"left\":\"9 x 9\",\"right\":\"81\"}],\"explanation\":\"¡Cálculo mental ultra rápido! Tablas memorizadas al 100%.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-mm-1",
+      "unit_id": "unit-mates-medidas",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-mm-1\",\"type\":\"multiple_choice\",\"question\":\"¿Cuántos minutos hay en una hora entera?\",\"options\":[\"60 minutos\",\"100 minutos\",\"30 minutos\",\"24 minutos\"],\"correctAnswer\":\"60 minutos\",\"explanation\":\"¡Bien hecho! Una hora tiene 60 minutos, y un día tiene 24 horas.\",\"hint\":\"Media hora son 30 minutos, así que una entera es el doble.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-mm-2",
+      "unit_id": "unit-mates-medidas",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-mm-2\",\"type\":\"multiple_choice\",\"question\":\"En un reloj analógico de manecillas, ¿qué indica la manecilla corta?\",\"options\":[\"Las horas\",\"Los minutos\",\"Los segundos\",\"Los días\"],\"correctAnswer\":\"Las horas\",\"explanation\":\"¡Correcto! La aguja corta marca las horas y la aguja larga marca los minutos.\",\"hint\":\"Es la más lenta y pequeña.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-mm-3",
+      "unit_id": "unit-mates-medidas",
+      "type": "true_false",
+      "data_json": "{\"id\":\"ex-mm-3\",\"type\":\"true_false\",\"statement\":\"Un metro de longitud tiene exactamente 100 centímetros.\",\"isTrue\":true,\"explanation\":\"¡Verdadero! 1 metro = 100 cm. ¡Por eso \\\"centi\\\" viene de cien!\",\"hint\":\"Piensa en una regla de medir del cole.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-mm-4",
+      "unit_id": "unit-mates-medidas",
+      "type": "fill_blank",
+      "data_json": "{\"id\":\"ex-mm-4\",\"type\":\"fill_blank\",\"textWithBlank\":\"Medio kilo de harina equivale exactamente a ___ gramos.\",\"options\":[\"500\",\"250\",\"1.000\"],\"correctAnswer\":\"500\",\"explanation\":\"¡Excelente! 1 kilo son 1.000 gramos, por tanto medio kilo son 500 gramos.\",\"hint\":\"La mitad de 1.000.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-mm-5",
+      "unit_id": "unit-mates-medidas",
+      "type": "matching",
+      "data_json": "{\"id\":\"ex-mm-5\",\"type\":\"matching\",\"instruction\":\"Empareja cada medida con su valor:\",\"pairs\":[{\"left\":\"1 hora\",\"right\":\"60 minutos\"},{\"left\":\"1 metro\",\"right\":\"100 centímetros\"},{\"left\":\"1 euro\",\"right\":\"100 céntimos\"}],\"explanation\":\"¡Magnífico! Dominas el tiempo, la longitud y el dinero.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-vert-extra-1",
+      "unit_id": "unit-mwhn4zox-pqqw",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-vert-extra-1\",\"type\":\"multiple_choice\",\"question\":\"¿Qué grupo de animales vertebrados tiene plumas, pico y pone huevos?\",\"options\":[\"Las aves\",\"Los mamíferos\",\"Los reptiles\",\"Los anfibios\"],\"correctAnswer\":\"Las aves\",\"explanation\":\"¡Genial! Todas las aves tienen plumas, pico y son ovíparas.\",\"hint\":\"Tienen alas para volar.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-vert-extra-2",
+      "unit_id": "unit-mwhn4zox-pqqw",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-vert-extra-2\",\"type\":\"multiple_choice\",\"question\":\"¿A qué grupo de animales pertenece la rana?\",\"options\":[\"A los anfibios\",\"A los peces\",\"A los reptiles\",\"A los insectos\"],\"correctAnswer\":\"A los anfibios\",\"explanation\":\"¡Exacto! Las ranas y sapos son anfibios: nacen en el agua y luego viven en la tierra.\",\"hint\":\"Pasan por una metamorfosis desde renacuajo.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-vert-extra-3",
+      "unit_id": "unit-mwhn4zox-pqqw",
+      "type": "true_false",
+      "data_json": "{\"id\":\"ex-vert-extra-3\",\"type\":\"true_false\",\"statement\":\"Los murciélagos son los únicos mamíferos que tienen la capacidad de volar.\",\"isTrue\":true,\"explanation\":\"¡Verdadero! Aunque vuelan como aves, los murciélagos tienen pelo, dan a luz a sus crías y las amamantan.\",\"hint\":\"Amamantan a sus crías con leche materna.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-vert-extra-4",
+      "unit_id": "unit-mwhn4zox-pqqw",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-vert-extra-4\",\"type\":\"multiple_choice\",\"question\":\"¿Cuántas patas tienen los insectos como las hormigas o las abejas?\",\"options\":[\"6 patas\",\"8 patas\",\"4 patas\",\"10 patas\"],\"correctAnswer\":\"6 patas\",\"explanation\":\"¡Muy bien! Todos los insectos tienen exactamente 6 patas articuladas. ¡Las arañas tienen 8 patas porque son arácnidos!\",\"hint\":\"Tres pares de patas.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-vert-extra-5",
+      "unit_id": "unit-mwhn4zox-pqqw",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-vert-extra-5\",\"type\":\"multiple_choice\",\"question\":\"¿A qué grupo de animales invertebrados pertenece el pulpo y el caracol?\",\"options\":[\"A los moluscos\",\"A los artrópodos\",\"A los gusanos\",\"A los peces\"],\"correctAnswer\":\"A los moluscos\",\"explanation\":\"¡Fabuloso! Los moluscos tienen el cuerpo blando y muchos tienen una concha que los protege.\",\"hint\":\"Tienen cuerpo blando.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-tierra-extra-1",
+      "unit_id": "unit-mwhnjhir-5l2l",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-tierra-extra-1\",\"type\":\"multiple_choice\",\"question\":\"¿Cuál es el continente más extenso y poblado de nuestro planeta?\",\"options\":[\"Asia\",\"Europa\",\"Oceanía\",\"África\"],\"correctAnswer\":\"Asia\",\"explanation\":\"¡Correcto! Asia es el continente más grande de la Tierra.\",\"hint\":\"Allí se encuentra la cordillera del Himalaya.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-tierra-extra-2",
+      "unit_id": "unit-mwhnjhir-5l2l",
+      "type": "multiple_choice",
+      "data_json": "{\"id\":\"ex-tierra-extra-2\",\"type\":\"multiple_choice\",\"question\":\"¿Qué movimiento de la Tierra sobre su propio eje dura 24 horas y produce el día y la noche?\",\"options\":[\"Movimiento de rotación\",\"Movimiento de traslación\",\"Movimiento de gravedad\",\"Marea lunar\"],\"correctAnswer\":\"Movimiento de rotación\",\"explanation\":\"¡Genial! La rotación es el giro sobre sí misma que tarda 1 día (24 horas).\",\"hint\":\"La Tierra rota como una peonza.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-tierra-extra-3",
+      "unit_id": "unit-mwhnjhir-5l2l",
+      "type": "true_false",
+      "data_json": "{\"id\":\"ex-tierra-extra-3\",\"type\":\"true_false\",\"statement\":\"El movimiento de traslación de la Tierra alrededor del Sol dura 365 días (un año) y da lugar a las cuatro estaciones.\",\"isTrue\":true,\"explanation\":\"¡Verdadero! Primavera, verano, otoño e invierno suceden gracias al viaje de traslación alrededor del Sol.\",\"hint\":\"Dura un año entero.\"}",
+      "created_at": "2026-11-15 15:30:00"
+    },
+    {
+      "id": "ex-tierra-extra-4",
+      "unit_id": "unit-mwhnjhir-5l2l",
+      "type": "fill_blank",
+      "data_json": "{\"id\":\"ex-tierra-extra-4\",\"type\":\"fill_blank\",\"textWithBlank\":\"La capa de gases y aire que envuelve la Tierra y nos permite respirar se llama ___ .\",\"options\":[\"atmósfera\",\"hidrosfera\",\"geosfera\"],\"correctAnswer\":\"atmósfera\",\"explanation\":\"¡Exacto! La atmósfera contiene el oxígeno que respiramos y nos protege de los rayos solares.\",\"hint\":\"Empieza por la letra A.\"}",
+      "created_at": "2026-11-15 15:30:00"
     }
   ],
   "srs": [

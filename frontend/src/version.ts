@@ -1,7 +1,19 @@
-export const APP_VERSION = '2.3.0';
-export const APP_BUILD = '2026.11.15-v2.3.0';
+export const APP_VERSION = '2.4.0';
+export const APP_BUILD = '2026.11.15-v2.4.0';
 
 export const VERSION_CHANGELOG = [
+  {
+    version: '2.4.0',
+    date: '15 Nov 2026',
+    title: 'Visual Sports Arcade & Anti-Repetición Curricular de 3.º Primaria',
+    items: [
+      '🏀 Baloncesto Trivia NBA: Cancha de parqué barnizado, tablero de cristal con cuadro rojo, aro 3D con red dinámica, marcador electrónico y reloj de posesión de 24s.',
+      '⚽ Penaltis de Primera División: Estadio nocturno bajo focos, césped rayado, portería 3D, portero con estirada y disparos a las 4 escuadras.',
+      '🥊 Duelo de Poderes RPG: Arena mística, combate contra el Gólem del Olvido y Dragón de Sombras, 4 hechizos elementales y daño crítico (-35 HP).',
+      '🎉 El Gran Concurso (Estilo Kahoot): 4 tarjetas táctiles gigantes (▲ Rojo, ◆ Azul, ● Amarillo, ■ Verde), temporizador pulsante y racha de fuego.',
+      '🧠 Cero repetición de preguntas: 84 hechos pedagógicos auditados (Naturales, Sociales, Lengua, Matemáticas), rastreo de historial de sesión y filtro estricto por asignatura.'
+    ]
+  },
   {
     version: '2.3.0',
     date: '15 Nov 2026',

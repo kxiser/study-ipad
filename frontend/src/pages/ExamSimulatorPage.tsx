@@ -97,7 +97,7 @@ export const ExamSimulatorPage: React.FC<ExamSimulatorPageProps> = ({
     } else if (selectedSubject === 'naturales') {
       factsPool = factsPool.filter(f => f.subject === 'Ciencias Naturales');
     } else if (selectedSubject === 'lengua') {
-      factsPool = factsPool.filter(f => f.subject === 'Lengua');
+      factsPool = factsPool.filter(f => f.subject === 'Lengua Castellana');
     } else if (selectedSubject === 'mates') {
       factsPool = factsPool.filter(f => f.subject === 'Matemáticas');
     }

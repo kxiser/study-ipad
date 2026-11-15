@@ -16,6 +16,7 @@ import { WordSearchGame } from '../components/games/WordSearchGame.js';
 import { BasketballGame } from '../components/games/BasketballGame.js';
 import { SoccerPenaltyGame } from '../components/games/SoccerPenaltyGame.js';
 import { HeroBattleGame } from '../components/games/HeroBattleGame.js';
+import { QuizShowGame } from '../components/games/QuizShowGame.js';
 import { generateDuolingoVariations } from '../utils/questionReformulator.js';
 import { Mascot } from '../components/Mascot.js';
 
@@ -30,6 +31,7 @@ type ActiveGameMode =
   | 'basketball'
   | 'soccer'
   | 'battle'
+  | 'quizshow'
   | 'pasapalabra'
   | 'wordsearch'
   | 'memory'
@@ -92,13 +94,14 @@ export const GamesPage: React.FC<GamesPageProps> = ({
           try {
             const data = await fetchUnit(u.id);
             if (data?.exercises) {
-              data.exercises.forEach((ex, exIdx) => {
-                // Generar variaciones tipo Duolingo a partir de hechos pedagógicos verificados
-                const variants = generateDuolingoVariations(ex, exIdx);
-                variants.forEach(v => {
-                  let updated = { ...v, unitId: u.id, unitTitle: u.title, unitSubject: u.subject };
-                  allExercises.push(updated);
-                });
+              data.exercises.forEach((ex) => {
+                const tagged: TaggedExerciseItem = {
+                  ...ex,
+                  unitId: u.id,
+                  unitTitle: u.title,
+                  unitSubject: u.subject
+                };
+                allExercises.push(tagged);
               });
             }
           } catch {}
@@ -228,6 +231,17 @@ export const GamesPage: React.FC<GamesPageProps> = ({
       <HeroBattleGame
         exercises={filteredExercises}
         title={`🥊 Duelo de Héroes: ${getSelectionLabel()}`}
+        onBack={() => setActiveMode('hub')}
+        onStarsEarned={handleStarsEarned}
+      />
+    );
+  }
+
+  if (activeMode === 'quizshow') {
+    return (
+      <QuizShowGame
+        exercises={filteredExercises}
+        title={`🎉 El Gran Concurso: ${getSelectionLabel()}`}
         onBack={() => setActiveMode('hub')}
         onStarsEarned={handleStarsEarned}
       />
@@ -451,7 +465,7 @@ export const GamesPage: React.FC<GamesPageProps> = ({
               🥊
             </div>
             <span className="bg-amber-300 text-amber-950 text-[10px] font-black px-3 py-1 rounded-full shadow-md uppercase tracking-wider">
-              ¡NUEVA PELEA!
+              ¡BATALLA RPG!
             </span>
           </div>
 
@@ -465,6 +479,34 @@ export const GamesPage: React.FC<GamesPageProps> = ({
             <h3 className="text-2xl font-black leading-tight">Duelo de Poderes</h3>
             <p className="text-rose-100 text-xs md:text-sm font-semibold mt-1">
               Lanza ataques mágicos al responder bien y derrota al jefe de las sombras en combate.
+            </p>
+          </div>
+        </button>
+
+        {/* 4. EL GRAN CONCURSO (ESTILO KAHOOT / BLOOKET) */}
+        <button
+          onClick={() => setActiveMode('quizshow')}
+          className="group relative bg-gradient-to-br from-indigo-600 via-purple-700 to-violet-900 hover:from-indigo-700 hover:to-purple-800 text-white p-7 rounded-4xl shadow-xl shadow-purple-300 border-4 border-yellow-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px]"
+        >
+          <div className="flex items-start justify-between">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl shadow-inner group-hover:scale-110 transition-transform">
+              🎉
+            </div>
+            <span className="bg-yellow-300 text-slate-950 text-[10px] font-black px-3 py-1 rounded-full shadow-md uppercase tracking-wider">
+              ¡ESTILO KAHOOT!
+            </span>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-xs font-black uppercase tracking-wider text-yellow-200">
+                Gran Concurso en Vivo
+              </span>
+              <Sparkles className="w-4 h-4 text-yellow-200" />
+            </div>
+            <h3 className="text-2xl font-black leading-tight">El Gran Concurso</h3>
+            <p className="text-purple-100 text-xs md:text-sm font-semibold mt-1">
+              Tarjetas táctiles de colores neón, rachas de fuego y marcador de concurso en vivo.
             </p>
           </div>
         </button>

@@ -6,8 +6,8 @@ import {
   RotateCcw,
   Star,
   Flame,
-  Check,
-  Shield,
+  CheckCircle2,
+  XCircle,
   Volume2
 } from 'lucide-react';
 import { sounds } from '../../utils/soundEffects.js';
@@ -27,293 +27,414 @@ interface SoccerPenaltyGameProps {
 
 export const SoccerPenaltyGame: React.FC<SoccerPenaltyGameProps> = ({
   exercises = [],
-  title = 'Tanda de Penaltis: ¡Golazo!',
+  title = '⚽ Penaltis de Primera: ¡Golazo!',
   onBack,
   onStarsEarned
 }) => {
   const [questions, setQuestions] = useState<GameQuestion[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [goals, setGoals] = useState(0);
-  const [savedCount, setSavedCount] = useState(0);
+  const [penaltyHistory, setPenaltyHistory] = useState<('goal' | 'miss')[]>([]);
   const [shootState, setShootState] = useState<'idle' | 'shooting' | 'goal' | 'saved'>('idle');
-  const [shotTarget, setShotTarget] = useState<number>(0);
+  const [shotZone, setShotZone] = useState<'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'>('top-left');
+  const [goalkeeperDive, setGoalkeeperDive] = useState<'left' | 'right' | 'center'>('center');
   const [feedback, setFeedback] = useState<{ isGoal: boolean; text: string } | null>(null);
   const [isFinished, setIsFinished] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
 
   const hero = getSelectedCharacter();
 
-  useEffect(() => {
+  const loadPenaltyShootout = () => {
     const list = getDynamicGameQuestions(exercises, 5);
     setQuestions(list);
     setCurrentIdx(0);
-    setGoals(0);
-    setSavedCount(0);
-    setIsFinished(false);
-    setShowCelebration(false);
-  }, [exercises]);
-
-  const currentQ = questions[currentIdx] || {
-    id: 'placeholder',
-    question: 'Cargando penalti...',
-    topic: 'Fútbol',
-    correctAnswer: 'Gol',
-    options: ['Gol', 'Fuera', 'Poste'],
-    explanation: '¡Golazo!'
-  };
-
-  const handleShootPenalty = (option: string, targetIdx: number) => {
-    if (shootState !== 'idle' || isFinished) return;
-
-    setShotTarget(targetIdx);
-    setShootState('shooting');
-    sounds.playPopSound();
-
-    const isCorrect = option === currentQ.correctAnswer;
-
-    setTimeout(() => {
-      if (isCorrect) {
-        sounds.playMatchSound();
-        setShootState('goal');
-        setGoals(g => g + 1);
-        setFeedback({
-          isGoal: true,
-          text: `¡GOLAZOOOO POR LA ESCUADRA! ⚽ ${currentQ.explanation}`
-        });
-      } else {
-        sounds.playWobbleSound();
-        setShootState('saved');
-        setSavedCount(s => s + 1);
-        setFeedback({
-          isGoal: false,
-          text: `¡Parada del portero! La respuesta correcta era "${currentQ.correctAnswer}". ${currentQ.explanation}`
-        });
-      }
-
-      setTimeout(() => {
-        setShootState('idle');
-        setFeedback(null);
-
-        const next = currentIdx + 1;
-        if (next >= questions.length) {
-          setIsFinished(true);
-          setShowCelebration(true);
-          sounds.playVictorySound();
-          const earned = Math.max(3, Math.round((goals / questions.length) * 5));
-          completeStudySession({
-            sessionType: 'new',
-            durationSeconds: 60,
-            totalQuestions: questions.length,
-            correctAnswers: goals + (isCorrect ? 1 : 0),
-            starsEarned: earned
-          }).catch(() => {});
-          if (onStarsEarned) onStarsEarned(earned);
-        } else {
-          setCurrentIdx(next);
-        }
-      }, 1900);
-    }, 700);
-  };
-
-  const restartMatch = () => {
-    const list = getDynamicGameQuestions(exercises, 5);
-    setQuestions(list);
-    setCurrentIdx(0);
-    setGoals(0);
-    setSavedCount(0);
+    setPenaltyHistory([]);
     setShootState('idle');
     setFeedback(null);
     setIsFinished(false);
     setShowCelebration(false);
   };
 
+  useEffect(() => {
+    loadPenaltyShootout();
+  }, [exercises]);
+
+  const currentQ = questions[currentIdx] || {
+    id: 'placeholder',
+    question: '¡Colocando el balón en el punto de penalti!',
+    topic: 'Fútbol Escolar',
+    correctAnswer: '',
+    options: [],
+    explanation: '¡Dispara con potencia!'
+  };
+
+  const zones: ('top-left' | 'top-right' | 'bottom-left' | 'bottom-right')[] = [
+    'top-left',
+    'top-right',
+    'bottom-left',
+    'bottom-right'
+  ];
+
+  const handleShoot = (option: string, zoneIdx: number) => {
+    if (shootState !== 'idle' || isFinished) return;
+
+    const chosenZone = zones[zoneIdx % zones.length];
+    setShotZone(chosenZone);
+    setShootState('shooting');
+    sounds.playPopSound();
+
+    const isCorrect = option.trim().toLowerCase() === currentQ.correctAnswer.trim().toLowerCase();
+
+    // El portero se lanza hacia el lado opuesto si aciertas, o hacia el mismo lado si fallas
+    const dive = isCorrect
+      ? chosenZone.includes('left') ? 'right' : 'left'
+      : chosenZone.includes('left') ? 'left' : 'right';
+    setGoalkeeperDive(dive);
+
+    setTimeout(() => {
+      if (isCorrect) {
+        sounds.playMatchSound();
+        setShootState('goal');
+        setPenaltyHistory(prev => [...prev, 'goal']);
+        setFeedback({
+          isGoal: true,
+          text: `¡¡¡GOOOOOOLAZO POR TODA LA ESCUADRA!!! ⚽ ${currentQ.explanation}`
+        });
+      } else {
+        sounds.playWobbleSound();
+        setShootState('saved');
+        setPenaltyHistory(prev => [...prev, 'miss']);
+        setFeedback({
+          isGoal: false,
+          text: `¡Parada del portero! La correcta era "${currentQ.correctAnswer}". ${currentQ.explanation}`
+        });
+      }
+
+      setTimeout(() => {
+        if (currentIdx + 1 < questions.length) {
+          setCurrentIdx(idx => idx + 1);
+          setShootState('idle');
+          setFeedback(null);
+          setGoalkeeperDive('center');
+        } else {
+          setIsFinished(true);
+          setShowCelebration(true);
+          sounds.playVictorySound();
+          const goalsScored = penaltyHistory.filter(p => p === 'goal').length + (isCorrect ? 1 : 0);
+          const earned = Math.max(3, goalsScored * 2);
+          if (onStarsEarned) onStarsEarned(earned);
+          completeStudySession({
+            unitId: 'soccer-session',
+            sessionType: 'review',
+            durationSeconds: 75,
+            totalQuestions: questions.length,
+            correctAnswers: goalsScored,
+            starsEarned: earned
+          }).catch(() => {});
+        }
+      }, 2600);
+    }, 850);
+  };
+
+  const goalsCount = penaltyHistory.filter(p => p === 'goal').length;
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-4 md:py-6 space-y-4 animate-fade-in select-none">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-emerald-950 to-green-950 text-white flex flex-col select-none overflow-x-hidden">
       {showCelebration && <ConfettiCelebration />}
 
-      {/* Marcador superior del estadio */}
-      <div className="flex items-center justify-between gap-2">
+      {/* HEADER / MARCADOR DE PENALTIS DE LA COPA */}
+      <header className="p-4 bg-black/60 backdrop-blur border-b border-emerald-500/30 flex items-center justify-between sticky top-0 z-30">
         <button
-          type="button"
           onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white hover:bg-slate-100 border-2 border-slate-200 text-slate-700 font-black text-xs md:text-sm active:scale-95 transition-all shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-white font-bold rounded-xl border border-slate-600 transition-all shadow-md"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Volver a Juegos</span>
+          <ArrowLeft className="w-5 h-5" />
+          <span>Volver</span>
         </button>
 
-        <div className="flex items-center gap-2">
-          {/* Goles a favor */}
-          <div className="flex items-center gap-1.5 bg-emerald-600 text-white px-3.5 py-1.5 rounded-2xl font-black text-xs md:text-sm shadow-md border-2 border-emerald-400">
-            <span>⚽ {goals} Goles</span>
+        {/* Tanda de Penaltis Visual (Balones verdes y rojos) */}
+        <div className="flex items-center gap-2 sm:gap-3 bg-slate-900/90 px-4 py-2 rounded-2xl border-2 border-emerald-500 shadow-lg shadow-emerald-500/20">
+          <span className="text-xs font-black text-emerald-400 uppercase tracking-widest hidden sm:inline">
+            Tanda:
+          </span>
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: questions.length }).map((_, idx) => {
+              const res = penaltyHistory[idx];
+              return (
+                <div
+                  key={idx}
+                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center font-black text-xs transition-all ${
+                    res === 'goal'
+                      ? 'bg-emerald-500 border-white text-slate-950 shadow-md shadow-emerald-500/50 scale-105'
+                      : res === 'miss'
+                      ? 'bg-rose-600 border-white text-white'
+                      : idx === currentIdx
+                      ? 'bg-slate-800 border-amber-400 text-amber-300 animate-pulse'
+                      : 'bg-slate-800/60 border-slate-700 text-slate-500'
+                  }`}
+                >
+                  {res === 'goal' ? '⚽' : res === 'miss' ? '❌' : idx + 1}
+                </div>
+              );
+            })}
           </div>
 
-          {/* Tiros restantes */}
-          <div className="flex items-center gap-1.5 bg-blue-600 text-white px-3.5 py-1.5 rounded-2xl font-black text-xs md:text-sm shadow-md border-2 border-blue-400">
-            <span>Penalti {currentIdx + 1} de {questions.length || 5}</span>
-          </div>
+          <div className="h-6 w-px bg-slate-700 mx-1" />
+
+          <span className="text-lg font-black text-emerald-300 font-mono">
+            {goalsCount} Goles
+          </span>
         </div>
-      </div>
 
-      {/* ESTADIO DE FÚTBOL CON PORTERÍA Y CÉSPED */}
-      <div className="bg-gradient-to-b from-sky-900 via-teal-950 to-emerald-950 rounded-4xl p-6 md:p-8 text-white shadow-2xl border-4 border-emerald-500 relative overflow-hidden flex flex-col items-center">
-        {/* Marcador del estadio con la pregunta del temario de Samantha */}
-        <div className="w-full max-w-2xl bg-black/85 rounded-3xl p-5 border-3 border-emerald-400 shadow-2xl space-y-2 text-center relative">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] md:text-xs font-black uppercase tracking-wider text-emerald-400 bg-emerald-400/20 px-3 py-0.5 rounded-full border border-emerald-400/40">
-              {currentQ.topic}
-            </span>
+        {/* Tema Escolar */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/40 rounded-xl">
+          <Sparkles className="w-4 h-4 text-emerald-400" />
+          <span className="text-xs font-bold text-emerald-200 truncate max-w-[200px]">
+            {currentQ.topic || 'Fútbol Trivia'}
+          </span>
+        </div>
+      </header>
 
-            <SpeechButton text={currentQ.question} size="sm" />
+      {/* ESTADIO NOCTURNO VECTORIAL: CÉSPED, PORTERÍA 3D Y BALÓN */}
+      <main className="flex-1 max-w-4xl w-full mx-auto p-4 flex flex-col justify-between">
+        <div className="relative w-full h-64 sm:h-80 rounded-3xl overflow-hidden shadow-2xl border-4 border-emerald-600/60 bg-gradient-to-b from-slate-900 via-emerald-950 to-green-900 flex flex-col justify-between p-4">
+          {/* Focos de luz de estadio */}
+          <div className="absolute top-0 left-8 w-32 h-44 bg-yellow-300/10 blur-2xl transform -rotate-45 pointer-events-none" />
+          <div className="absolute top-0 right-8 w-32 h-44 bg-yellow-300/10 blur-2xl transform rotate-45 pointer-events-none" />
+
+          {/* Gradas y siluetas de hinchas con bengalas en el fondo */}
+          <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-black/80 to-transparent flex items-center justify-around opacity-40">
+            <div className="w-2 h-2 rounded-full bg-red-400 animate-ping" />
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping delay-200" />
+            <div className="w-2 h-2 rounded-full bg-yellow-400 animate-ping delay-500" />
           </div>
 
-          <h3 className="text-base sm:text-lg md:text-xl font-black text-white leading-snug drop-shadow-md">
-            {currentQ.question}
-          </h3>
-        </div>
+          {/* CÉSPED A RAYAS DE PRIMERA DIVISIÓN */}
+          <div
+            className="absolute inset-x-0 bottom-0 h-44 opacity-80"
+            style={{
+              background: 'repeating-linear-gradient(0deg, #15803d 0px, #15803d 25px, #16a34a 25px, #16a34a 50px)'
+            }}
+          />
 
-        {/* LA PORTERÍA CON EL PORTERO Y LA TRAYECTORIA DEL BALÓN */}
-        <div className="relative w-full max-w-lg h-56 sm:h-64 my-4 flex flex-col items-center justify-between">
-          {/* Portería reglamentaria */}
-          <div className="relative w-72 sm:w-96 h-36 sm:h-44 bg-white/10 backdrop-blur-sm rounded-t-2xl border-x-4 border-t-4 border-white shadow-2xl flex items-center justify-center overflow-hidden">
-            {/* Red de la portería */}
-            <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:12px_12px] opacity-40"></div>
+          {/* Líneas blancas del área grande y punto de penalti */}
+          <svg className="absolute inset-x-0 bottom-0 w-full h-44 pointer-events-none" preserveAspectRatio="none">
+            <path d="M 0 60 Q 50% 120 100% 60" stroke="#ffffff" strokeWidth="3" fill="none" opacity="0.6" />
+            <circle cx="50%" cy="85%" r="6" fill="#ffffff" opacity="0.9" />
+          </svg>
 
-            {/* Portero animado */}
+          {/* PORTERÍA 3D CON RED HEXAGONAL */}
+          <div className="relative z-10 w-full flex justify-center pt-2">
+            <div className="relative w-72 sm:w-96 h-36 sm:h-44 flex flex-col items-center">
+              {/* Postes blancos de la portería */}
+              <div
+                className={`w-full h-full border-t-8 border-x-8 border-white rounded-t-lg relative shadow-2xl transition-transform ${
+                  shootState === 'goal' ? 'scale-105' : ''
+                }`}
+              >
+                {/* Red interior con cuadrícula */}
+                <div
+                  className={`absolute inset-0 bg-white/5 transition-all duration-300 ${
+                    shootState === 'goal' ? 'bg-emerald-500/20 scale-102' : ''
+                  }`}
+                  style={{
+                    backgroundImage:
+                      'linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%), linear-gradient(-45deg, rgba(255,255,255,0.2) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.2) 75%), linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.2) 75%)',
+                    backgroundSize: '16px 16px'
+                  }}
+                />
+
+                {/* Portero Rival animado */}
+                <div
+                  className={`absolute bottom-0 left-1/2 -translate-x-1/2 transition-all duration-500 ease-out flex flex-col items-center ${
+                    goalkeeperDive === 'left'
+                      ? '-translate-x-[110%] bottom-4 rotate-[-40deg]'
+                      : goalkeeperDive === 'right'
+                      ? 'translate-x-[20%] bottom-4 rotate-[40deg]'
+                      : shootState === 'saved'
+                      ? '-translate-x-1/2 bottom-8 scale-110'
+                      : '-translate-x-1/2 bottom-1'
+                  }`}
+                >
+                  <div className="relative flex flex-col items-center">
+                    {/* Cabeza y gorra */}
+                    <div className="w-8 h-8 rounded-full bg-amber-200 border-2 border-slate-800 shadow-md flex items-center justify-center text-xs">
+                      🧢
+                    </div>
+                    {/* Jersey de portero con guantes gigantes */}
+                    <div className="w-12 h-14 bg-gradient-to-b from-yellow-400 to-amber-500 rounded-t-xl border-2 border-slate-900 flex items-center justify-between px-1">
+                      <span className="text-base">🧤</span>
+                      <span className="font-black text-[10px] text-slate-900">1</span>
+                      <span className="text-base">🧤</span>
+                    </div>
+                    {/* Pantalón y medias */}
+                    <div className="w-10 h-7 bg-slate-900 rounded-b flex justify-between px-1">
+                      <div className="w-3 h-full bg-slate-800 rounded-b" />
+                      <div className="w-3 h-full bg-slate-800 rounded-b" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* BALÓN DE FÚTBOL ANIMADO */}
+          <div className="absolute inset-0 pointer-events-none z-20">
             <div
-              className={`text-5xl transition-transform duration-500 z-10 ${
-                shootState === 'shooting'
-                  ? 'translate-y-2'
+              className={`absolute transition-all duration-700 ease-out flex items-center justify-center ${
+                shootState === 'idle'
+                  ? 'bottom-6 left-1/2 -translate-x-1/2 scale-100'
+                  : shootState === 'shooting'
+                  ? shotZone === 'top-left'
+                    ? 'bottom-[55%] left-[34%] scale-65 rotate-[720deg]'
+                    : shotZone === 'top-right'
+                    ? 'bottom-[55%] left-[64%] scale-65 rotate-[720deg]'
+                    : shotZone === 'bottom-left'
+                    ? 'bottom-[35%] left-[34%] scale-65 rotate-[720deg]'
+                    : 'bottom-[35%] left-[64%] scale-65 rotate-[720deg]'
                   : shootState === 'goal'
-                  ? shotTarget === 0 ? 'translate-x-16 -rotate-45' : '-translate-x-16 rotate-45'
-                  : shootState === 'saved'
-                  ? shotTarget === 0 ? '-translate-x-20 -rotate-30' : 'translate-x-20 rotate-30'
-                  : 'animate-pulse'
+                  ? shotZone.includes('left')
+                    ? 'bottom-[52%] left-[32%] scale-60 rotate-[1080deg]'
+                    : 'bottom-[52%] left-[66%] scale-60 rotate-[1080deg]'
+                  : 'bottom-[40%] left-1/2 -translate-x-1/2 scale-70 rotate-180 translate-y-6'
               }`}
             >
-              🤖
-            </div>
-
-            {/* Marcadores de diana de disparo dentro de la portería */}
-            <div className="absolute top-2 left-3 w-8 h-8 rounded-full border-2 border-dashed border-amber-300/80 flex items-center justify-center text-[10px] font-black text-amber-300">
-              A
-            </div>
-            <div className="absolute top-2 right-3 w-8 h-8 rounded-full border-2 border-dashed border-amber-300/80 flex items-center justify-center text-[10px] font-black text-amber-300">
-              B
-            </div>
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full border-2 border-dashed border-amber-300/80 flex items-center justify-center text-[10px] font-black text-amber-300">
-              C
+              {/* Balón clásico con hexágonos blancos y negros */}
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white shadow-2xl border-2 border-slate-800 flex items-center justify-center overflow-hidden">
+                <div className="w-7 h-7 bg-slate-950 clip-polygon" style={{ clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)' }} />
+                <div className="absolute top-1 left-2 w-4 h-3 bg-white/60 rounded-full blur-[1px]" />
+              </div>
             </div>
           </div>
 
-          {/* Punto de penalti y balón */}
-          <div className="relative h-16 flex items-center justify-center w-full">
-            <div
-              className={`w-12 h-12 rounded-full bg-white border-2 border-slate-900 shadow-2xl flex items-center justify-center text-xl transition-all duration-700 ${
-                shootState === 'shooting'
-                  ? '-translate-y-28 scale-75 rotate-360'
-                  : shootState === 'goal'
-                  ? shotTarget === 0 ? '-translate-y-36 -translate-x-24 scale-65' : '-translate-y-36 translate-x-24 scale-65'
-                  : shootState === 'saved'
-                  ? '-translate-y-28 scale-75'
-                  : 'animate-bounce'
-              }`}
-            >
-              <span>⚽</span>
-            </div>
-
-            {/* Héroe lanzador en el campo */}
-            <div className="absolute bottom-0 left-6 sm:left-12 flex items-center gap-2 bg-black/40 backdrop-blur-sm px-3 py-1 rounded-2xl border border-white/20">
-              <span className="text-3xl">{hero.emoji}</span>
-              <span className="text-xs font-black text-emerald-300">{hero.name} al tiro</span>
+          {/* SAMANTHA AL BORDE DEL ÁREA CON EL DISPARO */}
+          <div className="absolute bottom-3 left-4 z-10 flex items-center gap-2 bg-black/50 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-white/20">
+            <span className="text-3xl animate-bounce">{hero.emoji}</span>
+            <div>
+              <span className="text-xs font-black text-emerald-300 block">{hero.name}</span>
+              <span className="text-[10px] text-slate-300">¡Dispara a la escuadra!</span>
             </div>
           </div>
+
+          {/* BANNER ANIMADO DE ¡¡¡GOOOOOOLAZO!!! */}
+          {shootState === 'goal' && (
+            <div className="absolute top-12 left-1/2 -translate-x-1/2 z-30 animate-bounce">
+              <span className="px-6 py-2.5 bg-gradient-to-r from-emerald-400 via-green-400 to-yellow-300 text-slate-950 font-black text-2xl rounded-2xl shadow-2xl border-2 border-white flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-emerald-900" />
+                ¡¡¡GOOOOOOLAZO!!!
+              </span>
+            </div>
+          )}
+          {shootState === 'saved' && (
+            <div className="absolute top-12 left-1/2 -translate-x-1/2 z-30 animate-pulse">
+              <span className="px-5 py-2 bg-rose-600 text-white font-black text-base rounded-2xl shadow-xl border border-rose-300">
+                ¡Parada del portero!
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* FEEDBACK DEL TIRO */}
+        {/* FEEDBACK PEDAGÓGICO */}
         {feedback && (
           <div
-            className={`w-full max-w-xl p-3.5 rounded-2xl font-black text-xs sm:text-sm text-center shadow-xl animate-scale-up mb-3 ${
+            className={`mt-3 p-3.5 rounded-2xl text-center font-bold text-sm sm:text-base border-2 shadow-xl flex items-center justify-center gap-3 transition-all ${
               feedback.isGoal
-                ? 'bg-emerald-500 text-white border-2 border-emerald-300'
-                : 'bg-rose-500 text-white border-2 border-rose-300'
+                ? 'bg-emerald-950/90 text-emerald-200 border-emerald-500 shadow-emerald-500/20'
+                : 'bg-rose-950/90 text-rose-200 border-rose-500 shadow-rose-500/20'
             }`}
           >
-            {feedback.text}
+            {feedback.isGoal ? (
+              <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
+            ) : (
+              <XCircle className="w-6 h-6 text-rose-400 shrink-0" />
+            )}
+            <p className="leading-snug">{feedback.text}</p>
           </div>
         )}
 
-        {/* BOTONES DE DISPARO (OPCIONES DE RESPUESTA) */}
-        {!isFinished && (
-          <div className="w-full max-w-xl space-y-2.5">
-            <span className="text-xs font-black uppercase tracking-wider text-emerald-300 text-center block">
-              ¡Apunta a la portería y chuta! 👇
-            </span>
+        {/* TARJETA DE PREGUNTA + SELECCIÓN DE TIRO A PUERTA */}
+        {!isFinished ? (
+          <div className="mt-4 bg-slate-900/90 backdrop-blur-md rounded-3xl p-5 border-2 border-emerald-500/40 shadow-2xl flex flex-col justify-between">
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 bg-emerald-500 text-slate-950 font-black text-xs rounded-full uppercase tracking-wider">
+                  Penalti {currentIdx + 1} de {questions.length}
+                </span>
+                <span className="text-xs text-emerald-300/80 font-bold hidden sm:inline">
+                  Acierta la pregunta para colocar el balón en la red
+                </span>
+              </div>
+              <SpeechButton text={`${currentQ.question}`} size="sm" />
+            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              {currentQ.options.map((opt, idx) => {
-                const letters = ['A (Escuadra Izq)', 'B (Escuadra Der)', 'C (Centro)', 'D (Raso)'];
+            <h2 className="text-lg sm:text-2xl font-black text-white leading-tight mb-5 text-center px-2">
+              {currentQ.question}
+            </h2>
+
+            {/* BOTONES DE RESPUESTA: 4 ZONAS DE TIRO */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {currentQ.options.map((option, optIdx) => {
+                const zoneNames = ['↖️ Escuadra Izquierda', '↗️ Escuadra Derecha', '↙️ Raso Izquierda', '↘️ Raso Derecha'];
+                const zoneBadge = zoneNames[optIdx % zoneNames.length];
 
                 return (
                   <button
-                    key={opt}
-                    type="button"
-                    onClick={() => handleShootPenalty(opt, idx)}
+                    key={optIdx}
+                    onClick={() => handleShoot(option, optIdx)}
                     disabled={shootState !== 'idle'}
-                    className="p-4 rounded-2xl border-3 bg-white hover:bg-emerald-50 text-slate-800 border-white hover:border-emerald-400 font-black text-sm flex flex-col items-center justify-center text-center shadow-lg active:scale-95 transition-all disabled:opacity-50"
+                    className="group relative p-4 rounded-2xl border-2 border-slate-700 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-emerald-950/60 hover:to-green-950/60 font-bold text-base sm:text-lg text-left transition-all duration-150 active:scale-98 flex items-center justify-between gap-3 shadow-md"
                   >
-                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full mb-1">
-                      {letters[idx] || '⚽'}
+                    <div className="flex items-center gap-3">
+                      <span className="w-8 h-8 rounded-xl bg-black/40 border border-white/20 flex items-center justify-center font-black text-emerald-400 shrink-0 group-hover:scale-110 transition-transform">
+                        {String.fromCharCode(65 + optIdx)}
+                      </span>
+                      <span className="text-white leading-snug">{option}</span>
+                    </div>
+                    <span className="text-[11px] font-bold text-emerald-400/80 bg-emerald-950/80 px-2 py-1 rounded-lg border border-emerald-500/30 shrink-0 hidden sm:inline">
+                      {zoneBadge}
                     </span>
-                    <span className="line-clamp-2 leading-tight">{opt}</span>
                   </button>
                 );
               })}
             </div>
           </div>
-        )}
-
-        {/* PANTALLA FINAL AL TERMINAR LA TANDA */}
-        {isFinished && (
-          <div className="w-full max-w-md bg-white rounded-4xl p-8 text-center text-slate-800 space-y-5 shadow-2xl border-4 border-emerald-500 animate-scale-up my-2">
-            <Trophy className="w-16 h-16 text-amber-500 mx-auto animate-bounce" />
-            <h3 className="text-2xl md:text-3xl font-black text-slate-800">
-              ¡Campeones de la Tanda!
-            </h3>
-            <p className="text-xs sm:text-sm font-bold text-slate-600">
-              ¡Has marcado {goals} golazos respondiendo con precisión a las preguntas del cole!
-            </p>
-
-            <div className="flex items-center justify-center gap-3 py-1">
-              <div className="flex items-center gap-1.5 bg-emerald-100 text-emerald-950 border border-emerald-300 px-4 py-2 rounded-2xl font-black text-sm">
-                <span>⚽ {goals} Goles</span>
-              </div>
-              <div className="flex items-center gap-1.5 bg-amber-100 text-amber-950 border border-amber-300 px-4 py-2 rounded-2xl font-black text-sm">
-                <Star className="w-4 h-4 fill-amber-400" />
-                <span>+5 Estrellas</span>
-              </div>
+        ) : (
+          /* PANTALLA FINAL: CAMPEONES DE LA COPA */
+          <div className="mt-4 bg-slate-900/95 backdrop-blur-md rounded-3xl p-8 border-2 border-emerald-500 text-center shadow-2xl flex flex-col items-center">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-emerald-500 to-green-300 flex items-center justify-center mb-4 shadow-xl shadow-emerald-500/30">
+              <Trophy className="w-12 h-12 text-slate-950" />
             </div>
 
-            <div className="flex items-center gap-2 pt-2">
+            <h2 className="text-3xl font-black text-white mb-2">¡CAMPEONA DEL TORNEO!</h2>
+            <p className="text-emerald-200 font-bold mb-6">
+              Has marcado {goalsCount} de {questions.length} penaltis decisivos.
+            </p>
+
+            <div className="flex items-center gap-2 mb-8 bg-emerald-500/20 px-6 py-3 rounded-2xl border border-emerald-500/40">
+              <Star className="w-8 h-8 fill-amber-400 text-amber-400" />
+              <span className="text-2xl font-black text-amber-300">
+                +{Math.max(3, goalsCount * 2)} Estrellas Ganadas
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-4 justify-center">
               <button
-                type="button"
-                onClick={restartMatch}
-                className="flex-1 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md shadow-emerald-200"
+                onClick={loadPenaltyShootout}
+                className="flex items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-slate-950 font-black rounded-2xl shadow-xl transition-all active:scale-95"
               >
-                <RotateCcw className="w-4 h-4" />
-                <span>Otra tanda</span>
+                <RotateCcw className="w-5 h-5" />
+                <span>Tirar Otra Tanda</span>
               </button>
               <button
-                type="button"
                 onClick={onBack}
-                className="flex-1 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-sm active:scale-95 transition-all"
+                className="flex items-center gap-2 px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl border border-slate-600 transition-all active:scale-95"
               >
-                Volver
+                <ArrowLeft className="w-5 h-5" />
+                <span>Volver al Menú</span>
               </button>
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };
