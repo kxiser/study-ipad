@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Camera, Sparkles, BookOpen, Star, RefreshCw, Trophy, Gamepad2 } from 'lucide-react';
+import { Camera, Sparkles, BookOpen, Star, RefreshCw, Trophy, Gamepad2, GraduationCap } from 'lucide-react';
 import { Mascot } from '../components/Mascot.js';
 import { UserProfile } from '../types.js';
 import { fetchReviewCount } from '../services/api.js';
@@ -135,6 +135,33 @@ export const Home: React.FC<HomeProps> = ({ profile, onNavigate }) => {
             <h3 className="text-xl font-black leading-tight">Mis Temas</h3>
             <p className="text-emerald-900 text-xs font-semibold mt-1">
               Vuelve a repasar cualquiera de tus lecciones
+            </p>
+          </div>
+        </button>
+
+        {/* 5. Simulador de Exámenes Reales */}
+        <button
+          type="button"
+          onClick={() => onNavigate('exam')}
+          className="group relative bg-gradient-to-br from-indigo-700 via-purple-700 to-indigo-900 hover:from-indigo-800 hover:to-purple-800 text-white p-6 rounded-4xl shadow-xl shadow-indigo-300 border-4 border-indigo-400 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px] sm:col-span-2 lg:col-span-2"
+        >
+          <div className="flex items-start justify-between">
+            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-inner group-hover:scale-110 transition-transform">
+              <GraduationCap className="w-8 h-8 text-amber-300" />
+            </div>
+            <span className="bg-amber-400 text-amber-950 text-[10px] font-black px-3 py-1 rounded-full shadow-md uppercase tracking-wide">
+              Pureza de María • Colegios Madrid
+            </span>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-[11px] font-black uppercase tracking-wider text-amber-300">Evaluación Oficial</span>
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            </div>
+            <h3 className="text-2xl font-black leading-tight">Simulador de Examen Real</h3>
+            <p className="text-indigo-100 text-xs sm:text-sm font-semibold mt-1">
+              Simula exámenes de 3.º de Primaria con nota sobre 10, temporizador, corrección explicada y opción de imprimir en PDF.
             </p>
           </div>
         </button>

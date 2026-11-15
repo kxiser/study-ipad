@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Flame, Wifi, WifiOff, Settings, Home, BookOpen, Gamepad2 } from 'lucide-react';
+import { Star, Flame, Wifi, WifiOff, Settings, Home, BookOpen, Gamepad2, GraduationCap } from 'lucide-react';
 import { UserProfile } from '../types.js';
 import { syncOfflineProgress } from '../services/api.js';
 import { VersionBadge } from './VersionBadge.js';
@@ -8,6 +8,7 @@ interface NavbarProps {
   profile: UserProfile | null;
   onHomeClick: () => void;
   onGamesClick?: () => void;
+  onExamClick?: () => void;
   onSettingsClick: () => void;
   onMyUnitsClick?: () => void;
   onUserClick?: () => void;
@@ -17,6 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   profile,
   onHomeClick,
   onGamesClick,
+  onExamClick,
   onSettingsClick,
   onMyUnitsClick,
   onUserClick
@@ -100,6 +102,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Gamepad2 className="w-4 h-4" />
               <span className="hidden sm:inline">Juegos</span>
+            </button>
+          )}
+
+          {/* Acceso Directo a Exámenes Reales */}
+          {onExamClick && (
+            <button
+              onClick={onExamClick}
+              title="Simulador de Exámenes Reales (Pureza de María / Madrid)"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black text-sm active:scale-95 transition-all shadow-sm"
+            >
+              <GraduationCap className="w-4 h-4 text-amber-300" />
+              <span className="hidden sm:inline">Exámenes</span>
             </button>
           )}
 

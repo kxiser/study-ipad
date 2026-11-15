@@ -7,6 +7,7 @@ import { ReviewPage } from './pages/ReviewPage.js';
 import { UnitsPage } from './pages/UnitsPage.js';
 import { SettingsPage } from './pages/SettingsPage.js';
 import { GamesPage } from './pages/GamesPage.js';
+import { ExamSimulatorPage } from './pages/ExamSimulatorPage.js';
 import { PinModal } from './components/PinModal.js';
 import { UserSwitcherModal } from './components/UserSwitcherModal.js';
 import { VersionBadge } from './components/VersionBadge.js';
@@ -71,6 +72,7 @@ export const App: React.FC = () => {
           profile={profile}
           onHomeClick={() => handleNavigate('home')}
           onGamesClick={() => handleNavigate('games')}
+          onExamClick={() => handleNavigate('exam')}
           onSettingsClick={handleSettingsClick}
           onMyUnitsClick={() => handleNavigate('units')}
           onUserClick={() => setIsUserModalOpen(true)}
@@ -86,6 +88,16 @@ export const App: React.FC = () => {
 
           {currentPage === 'games' && (
             <GamesPage
+              profile={profile}
+              onBack={() => handleNavigate('home')}
+              onStarsUpdated={(newStars) => {
+                if (profile) setProfile({ ...profile, stars: newStars });
+              }}
+            />
+          )}
+
+          {currentPage === 'exam' && (
+            <ExamSimulatorPage
               profile={profile}
               onBack={() => handleNavigate('home')}
               onStarsUpdated={(newStars) => {
