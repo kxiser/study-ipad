@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Servidor Ollama local para visión (100% gratuito y privado)
+  # Si ya tienes Ollama instalado nativamente en tu Mac/PC, puedes comentar este servicio
+  # y apuntar OLLAMA_BASE_URL a http://host.docker.internal:11434
+  ollama:
+    image: ollama/ollama:latest
+    container_name: study-ollama-local
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: study-backend-local
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - HOST=0.0.0.0
+      - DATABASE_PATH=/app/data/study.db
+      - AI_PROVIDER=ollama
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3.2-vision
+      - PIN_CODE=${PIN_CODE:-1234}
+      - CORS_ORIGIN=*
+    volumes:
+      - sqlite_data_local:/app/data
+    depends_on:
+      - ollama
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: study-frontend-local
+    restart: unless-stopped
+    ports:
+      - "80:80" # Accesible por la IP local del iPad en la Wi-Fi de casa (ej: http://192.168.1.35)
+    depends_on:
+      - backend
+
+volumes:
+  sqlite_data_local:
+  ollama_models:

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+    <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <!-- Fondo redondeado estilo iOS -->
+  <rect width="512" height="512" rx="115" fill="url(#bgGrad)"/>
+  
+  <!-- Libro abierto mágico -->
+  <path d="M120 330 C 180 300, 240 310, 256 340 C 272 310, 332 300, 392 330 L 392 180 C 332 150, 272 160, 256 190 C 240 160, 180 150, 120 180 Z" fill="#FFFFFF" opacity="0.95"/>
+  <path d="M256 190 L 256 340" stroke="#7C3AED" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Estrella brillante -->
+  <polygon points="256,70 278,125 338,128 290,165 306,222 256,186 206,222 222,165 174,128 234,125" fill="url(#starGrad)"/>
+  
+  <!-- Destellos mágicos -->
+  <circle cx="150" cy="120" r="10" fill="#FDE68A"/>
+  <circle cx="370" cy="110" r="14" fill="#FDE68A"/>
+  <circle cx="380" cy="270" r="8" fill="#FDE68A"/>
+  <circle cx="130" cy="260" r="8" fill="#FDE68A"/>
+</svg>
