@@ -362,21 +362,21 @@
       "id": "unit-mwho3aj7-4dje-ex-1-qxdx",
       "unit_id": "unit-mwho3aj7-4dje",
       "type": "multiple_choice",
-      "data_json": "{\"id\":\"unit-mwho3aj7-4dje-ex-1-qxdx\",\"type\":\"multiple_choice\",\"question\":\"¿Qué es una sierra?\",\"options\":[\"Una montaña solitaria en medio del campo.\",\"Un grupo de montañas que están juntas.\",\"Un río que baja muy rápido por la ladera.\"],\"correctAnswer\":\"Una montaña solitaria en medio del campo.\",\"explanation\":\"¡Genial! Recuerda que cuando varias montañas se juntan, forman una sierra. ¡Es como una familia de montañas!\"}",
+      "data_json": "{\"id\":\"unit-mwho3aj7-4dje-ex-1-qxdx\",\"type\":\"multiple_choice\",\"question\":\"¿Qué es una sierra?\",\"options\":[\"Una montaña solitaria en medio del campo.\",\"Un grupo de montañas que están juntas.\",\"Un río que baja muy rápido por la ladera.\"],\"correctAnswer\":\"Un grupo de montañas que están juntas.\",\"explanation\":\"¡Genial! Recuerda que cuando varias montañas se juntan, forman una sierra. ¡Es como una familia de montañas!\"}",
       "created_at": "2026-11-15 10:03:54"
     },
     {
       "id": "unit-mwho3aj7-4dje-ex-2-wim7",
       "unit_id": "unit-mwho3aj7-4dje",
       "type": "true_false",
-      "data_json": "{\"id\":\"unit-mwho3aj7-4dje-ex-2-wim7\",\"type\":\"true_false\",\"statement\":\"Los valles son terrenos llanos que se encuentran entre las montañas y por ellos suelen pasar ríos.\",\"isTrue\":false,\"explanation\":\"¡Exacto! Los valles son las zonas más bajas y llanas que hay entre las montañas. ¡Un lugar perfecto para que pase un río!\"}",
+      "data_json": "{\"id\":\"unit-mwho3aj7-4dje-ex-2-wim7\",\"type\":\"true_false\",\"statement\":\"Los valles son terrenos llanos que se encuentran entre las montañas y por ellos suelen pasar ríos.\",\"isTrue\":true,\"explanation\":\"¡Exacto! Los valles son las zonas más bajas y llanas que hay entre las montañas. ¡Un lugar perfecto para que pase un río!\"}",
       "created_at": "2026-11-15 10:03:54"
     },
     {
       "id": "unit-mwho3aj7-4dje-ex-3-w0n3",
       "unit_id": "unit-mwho3aj7-4dje",
       "type": "fill_blank",
-      "data_json": "{\"id\":\"unit-mwho3aj7-4dje-ex-3-w0n3\",\"type\":\"fill_blank\",\"textWithBlank\":\"La parte más alta de una montaña se llama ___.\",\"options\":[\"palabra\",\"pie\",\"ladera\",\"cima\"],\"correctAnswer\":\"palabra\",\"explanation\":\"¡Muy bien! La cima es el punto más alto. También podemos llamarla 'cumbre'. ¡Desde allí se ve todo pequeñito!\"}",
+      "data_json": "{\"id\":\"unit-mwho3aj7-4dje-ex-3-w0n3\",\"type\":\"fill_blank\",\"textWithBlank\":\"La parte más alta de una montaña se llama ___.\",\"options\":[\"pie\",\"ladera\",\"cima\"],\"correctAnswer\":\"cima\",\"explanation\":\"¡Muy bien! La cima es el punto más alto. También podemos llamarla 'cumbre'. ¡Desde allí se ve todo pequeñito!\"}",
       "created_at": "2026-11-15 10:03:54"
     },
     {
@@ -460,14 +460,14 @@
       "id": "unit-mwho61fo-ji2o-ex-2-lgoq",
       "unit_id": "unit-mwho61fo-ji2o",
       "type": "true_false",
-      "data_json": "{\"id\":\"unit-mwho61fo-ji2o-ex-2-lgoq\",\"type\":\"true_false\",\"statement\":\"Las mesetas son terrenos llanos que están a más altura que las tierras que las rodean.\",\"isTrue\":false,\"explanation\":\"¡Muy bien! Imagina que una meseta es como una mesa gigante puesta en medio del campo.\"}",
+      "data_json": "{\"id\":\"unit-mwho61fo-ji2o-ex-2-lgoq\",\"type\":\"true_false\",\"statement\":\"Las mesetas son terrenos llanos que están a más altura que las tierras que las rodean.\",\"isTrue\":true,\"explanation\":\"¡Muy bien! Imagina que una meseta es como una mesa gigante puesta en medio del campo.\"}",
       "created_at": "2026-11-15 10:06:02"
     },
     {
       "id": "unit-mwho61fo-ji2o-ex-3-iwdn",
       "unit_id": "unit-mwho61fo-ji2o",
       "type": "fill_blank",
-      "data_json": "{\"id\":\"unit-mwho61fo-ji2o-ex-3-iwdn\",\"type\":\"fill_blank\",\"textWithBlank\":\" ___ .\",\"options\":[\"palabra\",\"cerros\",\"océanos\",\"volcanes\"],\"correctAnswer\":\"palabra\",\"explanation\":\"¡Genial! Los cerros son como pequeñas montañitas con el 'techo' liso.\"}",
+      "data_json": "{\"id\":\"unit-mwho61fo-ji2o-ex-3-iwdn\",\"type\":\"fill_blank\",\"textWithBlank\":\" ___ .\",\"options\":[\"cerros\",\"océanos\",\"volcanes\"],\"correctAnswer\":\"cerros\",\"explanation\":\"¡Genial! Los cerros son como pequeñas montañitas con el 'techo' liso.\"}",
       "created_at": "2026-11-15 10:06:02"
     },
     {
@@ -509,14 +509,14 @@
       "id": "unit-mwho7gch-jyjj-ex-2-mwpk",
       "unit_id": "unit-mwho7gch-jyjj",
       "type": "true_false",
-      "data_json": "{\"id\":\"unit-mwho7gch-jyjj-ex-2-mwpk\",\"type\":\"true_false\",\"statement\":\"Las carreteras y las vías del tren en las llanuras suelen ser bastante rectas.\",\"isTrue\":false,\"explanation\":\"¡Muy bien! Como no hay montañas que esquivar, los caminos pueden ir en línea recta de un lugar a otro.\"}",
+      "data_json": "{\"id\":\"unit-mwho7gch-jyjj-ex-2-mwpk\",\"type\":\"true_false\",\"statement\":\"Las carreteras y las vías del tren en las llanuras suelen ser bastante rectas.\",\"isTrue\":true,\"explanation\":\"¡Muy bien! Como no hay montañas que esquivar, los caminos pueden ir en línea recta de un lugar a otro.\"}",
       "created_at": "2026-11-15 10:07:08"
     },
     {
       "id": "unit-mwho7gch-jyjj-ex-3-79b8",
       "unit_id": "unit-mwho7gch-jyjj",
       "type": "fill_blank",
-      "data_json": "{\"id\":\"unit-mwho7gch-jyjj-ex-3-79b8\",\"type\":\"fill_blank\",\"textWithBlank\":\" ___ .\",\"options\":[\"palabra\",\"pesca\",\"agricultura\",\"minería\"],\"correctAnswer\":\"palabra\",\"explanation\":\"¡Genial! La tierra plana y el agua de los ríos son perfectas para plantar frutas y verduras.\"}",
+      "data_json": "{\"id\":\"unit-mwho7gch-jyjj-ex-3-79b8\",\"type\":\"fill_blank\",\"textWithBlank\":\" ___ .\",\"options\":[\"pesca\",\"agricultura\",\"minería\"],\"correctAnswer\":\"agricultura\",\"explanation\":\"¡Genial! La tierra plana y el agua de los ríos son perfectas para plantar frutas y verduras.\"}",
       "created_at": "2026-11-15 10:07:08"
     },
     {

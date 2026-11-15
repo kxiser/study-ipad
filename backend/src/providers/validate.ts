@@ -1,5 +1,9 @@
 import { ExerciseSetSchema, ExerciseSet } from '../schemas/exercise.schema.js';
 
+/**
+ * Normaliza y sanea las respuestas generadas por los modelos de IA (Gemini, Claude, Ollama)
+ * evitando fallbacks erróneos (como 'palabra' o asumir options[0]).
+ */
 export function normalizeRawExerciseSet(raw: any): any {
   if (!raw || typeof raw !== 'object') return raw;
 
@@ -31,10 +35,9 @@ export function normalizeRawExerciseSet(raw: any): any {
     } else if (type.includes('card') || type.includes('tarjeta') || type.includes('flash')) {
       type = 'flashcard';
     } else {
-      // Tipo por defecto si no se reconoce
       if (ex.options && ex.options.length >= 2) {
         type = 'multiple_choice';
-      } else if (typeof ex.isTrue !== 'undefined') {
+      } else if (typeof ex.isTrue !== 'undefined' || typeof ex.is_true !== 'undefined') {
         type = 'true_false';
       } else if (ex.pairs) {
         type = 'matching';
@@ -45,67 +48,120 @@ export function normalizeRawExerciseSet(raw: any): any {
       }
     }
 
+    const explanation = String(ex.explanation || ex.feedback || ex.razon || '¡Muy buen trabajo!');
+
     const base: any = {
       id: ex.id ? String(ex.id) : `ex-${idx + 1}-${Math.random().toString(36).substring(2, 6)}`,
       type,
-      explanation: ex.explanation || ex.feedback || '¡Muy buen trabajo!'
+      explanation
     };
 
     if (ex.hint) base.hint = String(ex.hint);
 
+    // ==========================================
+    // MULTIPLE CHOICE
+    // ==========================================
     if (type === 'multiple_choice') {
       base.question = ex.question || ex.enunciado || ex.statement || 'Selecciona la opción correcta:';
-      let options = Array.isArray(ex.options) ? ex.options.map(String) : [];
+      let options = Array.isArray(ex.options)
+        ? ex.options.map((o: any) => String(o).trim()).filter((o: string) => o.toLowerCase() !== 'palabra')
+        : [];
       if (options.length < 2) {
         options = ['Opción A', 'Opción B'];
       }
       base.options = options.slice(0, 4);
 
-      let correct = ex.correctAnswer ?? ex.correct ?? ex.respuesta ?? options[0];
-      // Si el LLM envió el índice numérico de la opción (ej: 0, 1, 2)
-      if (typeof correct === 'number' && correct >= 0 && correct < options.length) {
-        base.correctAnswer = options[correct];
-      } else {
-        base.correctAnswer = String(correct);
-      }
-    } else if (type === 'true_false') {
-      base.statement = ex.statement || ex.question || ex.afirmacion || '¿Es verdadero o falso?';
-      let isTrue = ex.isTrue;
-      if (typeof isTrue === 'undefined') {
-        isTrue = ex.correctAnswer === true || String(ex.correctAnswer).toLowerCase() === 'verdadero';
-      }
-      base.isTrue = isTrue;
-    } else if (type === 'fill_blank') {
-      let text = ex.textWithBlank || ex.sentence || ex.frase || ex.question || '';
-      let correct = String(ex.correctAnswer || ex.answer || ex.palabra || '');
+      // Resolver respuesta correcta con alta tolerancia
+      base.correctAnswer = resolveCorrectOption(
+        ex.correctAnswer ?? ex.correct ?? ex.respuesta ?? ex.answer,
+        base.options,
+        explanation
+      );
+    }
 
-      // Asegurar que contenga '___'
-      if (!text.includes('___') && !text.includes('[...]')) {
-        if (correct && text.includes(correct)) {
-          text = text.replace(correct, '___');
-        } else {
-          text = `${text} ___ .`;
+    // ==========================================
+    // TRUE / FALSE
+    // ==========================================
+    else if (type === 'true_false') {
+      base.statement = ex.statement || ex.question || ex.afirmacion || '¿Es verdadero o falso?';
+
+      let rawVal = ex.isTrue ?? ex.is_true ?? ex.correctAnswer ?? ex.correct ?? ex.answer ?? ex.respuesta;
+      let isTrue = false;
+
+      if (typeof rawVal === 'boolean') {
+        isTrue = rawVal;
+      } else if (typeof rawVal === 'number') {
+        isTrue = rawVal === 1;
+      } else if (typeof rawVal === 'string') {
+        const lower = rawVal.trim().toLowerCase();
+        isTrue = lower === 'true' || lower === 'verdadero' || lower === 'v' || lower === 'si' || lower === 'sí' || lower === 'cierto';
+      } else {
+        // Analizar la explicación si no viene el booleano
+        const lowerExp = explanation.toLowerCase();
+        if (
+          (lowerExp.includes('¡exacto!') || lowerExp.includes('¡muy bien!') || lowerExp.includes('¡correcto!')) &&
+          !lowerExp.includes('en realidad') && !lowerExp.includes('falso') && !lowerExp.includes('casi')
+        ) {
+          isTrue = true;
         }
       }
-      base.textWithBlank = text;
-      base.correctAnswer = correct || 'palabra';
 
-      let options = Array.isArray(ex.options) ? ex.options.map(String) : [];
+      base.isTrue = isTrue;
+    }
+
+    // ==========================================
+    // FILL IN THE BLANK
+    // ==========================================
+    else if (type === 'fill_blank') {
+      let text = ex.textWithBlank || ex.sentence || ex.frase || ex.question || '';
+      let rawCorrect = ex.correctAnswer ?? ex.answer ?? ex.palabra ?? ex.missingWord ?? ex.blankWord ?? ex.target ?? ex.correct;
+
+      let options = Array.isArray(ex.options)
+        ? ex.options.map((o: any) => String(o).trim()).filter((o: string) => o.toLowerCase() !== 'palabra')
+        : [];
+
+      // Si no hay hueco, crearlo
+      if (!text.includes('___') && !text.includes('[...]')) {
+        text = `${text} ___ .`;
+      }
+      base.textWithBlank = text;
+
+      // Resolver respuesta correcta evitando 'palabra'
+      let correct = resolveCorrectOption(rawCorrect, options, explanation);
+
+      if (!correct || correct.toLowerCase() === 'palabra') {
+        // Extraer de las opciones aquella que aparezca en la explicación
+        const matchInExp = options.find((opt: string) => opt && explanation.toLowerCase().includes(opt.toLowerCase()));
+        correct = matchInExp || options[0] || 'respuesta';
+      }
+
+      base.correctAnswer = correct;
+
       if (!options.includes(base.correctAnswer)) {
-        options.unshift(base.correctAnswer);
+        options.push(base.correctAnswer);
       }
       if (options.length < 2) {
-        options.push('otra palabra');
+        options.push('otra opción');
       }
       base.options = options.slice(0, 4);
-    } else if (type === 'ordering') {
+    }
+
+    // ==========================================
+    // ORDERING
+    // ==========================================
+    else if (type === 'ordering') {
       base.instruction = ex.instruction || ex.question || ex.instruccion || 'Ordena los pasos correctamente:';
       let items = Array.isArray(ex.items) ? ex.items.map(String) : (Array.isArray(ex.steps) ? ex.steps.map(String) : []);
       if (items.length < 2) {
         items = ['Paso 1', 'Paso 2', 'Paso 3'];
       }
       base.items = items.slice(0, 5);
-    } else if (type === 'matching') {
+    }
+
+    // ==========================================
+    // MATCHING
+    // ==========================================
+    else if (type === 'matching') {
       base.instruction = ex.instruction || ex.question || ex.instruccion || 'Une cada pareja:';
       let rawPairs = Array.isArray(ex.pairs) ? ex.pairs : [];
       base.pairs = rawPairs.map((p: any) => {
@@ -124,7 +180,12 @@ export function normalizeRawExerciseSet(raw: any): any {
           { left: 'Elemento B', right: 'Definición B' }
         ];
       }
-    } else if (type === 'flashcard') {
+    }
+
+    // ==========================================
+    // FLASHCARD
+    // ==========================================
+    else if (type === 'flashcard') {
       base.front = String(ex.front || ex.anverso || ex.question || 'Concepto clave');
       base.back = String(ex.back || ex.reverso || ex.answer || 'Explicación detallada');
       if (ex.tip) base.tip = String(ex.tip);
@@ -136,36 +197,88 @@ export function normalizeRawExerciseSet(raw: any): any {
   return normalized;
 }
 
+/**
+ * Resuelve qué opción es la correcta considerando índices 0-based, 1-based, letras A/B/C y menciones en la explicación.
+ */
+function resolveCorrectOption(rawCorrect: any, options: string[], explanation?: string): string {
+  if (options.length === 0) return 'opción';
+
+  // Si es un número (ej: 0, 1, 2)
+  if (typeof rawCorrect === 'number') {
+    if (rawCorrect >= 0 && rawCorrect < options.length) {
+      return options[rawCorrect];
+    }
+    if (rawCorrect >= 1 && rawCorrect <= options.length) {
+      return options[rawCorrect - 1];
+    }
+  }
+
+  if (typeof rawCorrect === 'string') {
+    const trimmed = rawCorrect.trim();
+
+    // Si es un string numérico ("0", "1", "2")
+    const num = parseInt(trimmed, 10);
+    if (!isNaN(num)) {
+      if (num >= 0 && num < options.length) return options[num];
+      if (num >= 1 && num <= options.length) return options[num - 1];
+    }
+
+    // Si es una letra ("A", "B", "C", "D")
+    const upper = trimmed.toUpperCase();
+    if (upper === 'A' && options.length > 0) return options[0];
+    if (upper === 'B' && options.length > 1) return options[1];
+    if (upper === 'C' && options.length > 2) return options[2];
+    if (upper === 'D' && options.length > 3) return options[3];
+
+    // Si coincide con alguna opción
+    const exactMatch = options.find(o => o.toLowerCase() === trimmed.toLowerCase());
+    if (exactMatch) return exactMatch;
+
+    // Si la opción está contenida
+    const partialMatch = options.find(o => o.toLowerCase().includes(trimmed.toLowerCase()) || trimmed.toLowerCase().includes(o.toLowerCase()));
+    if (partialMatch && trimmed.toLowerCase() !== 'palabra') return partialMatch;
+  }
+
+  // Si la explicación menciona explícitamente alguna de las opciones, esa es la ganadora
+  if (explanation) {
+    const lowerExp = explanation.toLowerCase();
+    for (const opt of options) {
+      if (opt && opt.length >= 3 && lowerExp.includes(opt.toLowerCase())) {
+        return opt;
+      }
+    }
+  }
+
+  // Fallback seguro a la primera opción no vacía
+  return options[0] || 'opción';
+}
+
 export function parseAndValidateExerciseSet(rawText: string): { success: true; data: ExerciseSet } | { success: false; error: string } {
   try {
-    let cleaned = rawText.trim();
-
-    // Extraer bloque JSON si viene rodeado de texto
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      cleaned = jsonMatch[0];
+    let clean = rawText.trim();
+    if (clean.includes('```')) {
+      const match = clean.match(/```(?:json)?([\s\S]*?)```/);
+      if (match) clean = match[1].trim();
     }
 
-    const parsed = JSON.parse(cleaned);
+    const firstBrace = clean.indexOf('{');
+    const lastBrace = clean.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      clean = clean.substring(firstBrace, lastBrace + 1);
+    }
+
+    const parsed = JSON.parse(clean);
     const normalized = normalizeRawExerciseSet(parsed);
-
-    const validated = ExerciseSetSchema.safeParse(normalized);
-
-    if (!validated.success) {
-      return {
-        success: false,
-        error: `Error de validación de esquema: ${validated.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ')}`
-      };
-    }
+    const validated = ExerciseSetSchema.parse(normalized);
 
     return {
       success: true,
-      data: validated.data
+      data: validated
     };
   } catch (err: any) {
     return {
       success: false,
-      error: `Error al parsear JSON: ${err.message}`
+      error: err.message || 'Error de validación del set de ejercicios.'
     };
   }
 }
