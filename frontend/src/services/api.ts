@@ -126,6 +126,41 @@ export async function fetchUnits(): Promise<UnitSummary[]> {
   }
 }
 
+export function sanitizeExerciseSet(set: ExerciseSet): ExerciseSet {
+  if (!set || !Array.isArray(set.exercises)) return set;
+  set.exercises = set.exercises.map(ex => {
+    if (ex.type === 'matching' && Array.isArray((ex as any).pairs)) {
+      const filtered = (ex as any).pairs.filter((p: any) => {
+        const l = (p.left || '').trim().toLowerCase();
+        const r = (p.right || '').trim().toLowerCase();
+        return l && r && l !== 'concepto' && r !== 'definición' && r !== 'definicion' && l !== r;
+      });
+      (ex as any).pairs = filtered.length >= 2 ? filtered : [
+        { left: 'Mamífero', right: 'Tiene pelo y mama leche de su madre' },
+        { left: 'Ave', right: 'Tiene plumas, pico y pone huevos' },
+        { left: 'Pez', right: 'Tiene escamas y respira por branquias' }
+      ];
+    }
+    if (ex.type === 'fill_blank') {
+      const fb = ex as any;
+      const clean = (fb.textWithBlank || '').replace(/(?:___|\[\.\.\.\])/g, '').trim();
+      if (clean.length < 5) {
+        if (fb.explanation && fb.explanation.length > 15) {
+          const expClean = fb.explanation.replace(/^[¡!¿?A-Za-z\s]+!/i, '').trim();
+          fb.textWithBlank = `Completa la afirmación: ___ . (${expClean})`;
+        } else {
+          fb.textWithBlank = `Completa con la palabra adecuada para este tema: ___ .`;
+        }
+      }
+      if (!Array.isArray(fb.options) || fb.options.length < 2) {
+        fb.options = [fb.correctAnswer || 'respuesta', 'otra opción', 'ninguna'];
+      }
+    }
+    return ex;
+  });
+  return set;
+}
+
 export async function fetchUnit(id: string): Promise<ExerciseSet> {
   try {
     const res = await fetch(`${API_BASE}/units/${id}`, {
@@ -133,11 +168,12 @@ export async function fetchUnit(id: string): Promise<ExerciseSet> {
     });
     if (!res.ok) throw new Error('Unidad no encontrada');
     const data = await res.json();
-    LocalStore.cacheUnit(id, data);
-    return data;
+    const sanitized = sanitizeExerciseSet(data);
+    LocalStore.cacheUnit(id, sanitized);
+    return sanitized;
   } catch (err) {
     const cached = LocalStore.getCachedUnit(id);
-    if (cached) return cached;
+    if (cached) return sanitizeExerciseSet(cached);
     throw err;
   }
 }
@@ -162,7 +198,20 @@ export async function fetchReviewToday(limit = 8): Promise<ReviewItem[]> {
       headers: getAuthHeaders()
     });
     if (!res.ok) throw new Error('Error al obtener repaso');
-    return await res.json();
+    const items: ReviewItem[] = await res.json();
+    return items.map(item => {
+      const dummySet: ExerciseSet = {
+        title: item.unitTitle,
+        subject: item.subject,
+        summary: '',
+        exercises: [item.exercise]
+      };
+      const clean = sanitizeExerciseSet(dummySet);
+      return {
+        ...item,
+        exercise: clean.exercises[0]
+      };
+    });
   } catch (err) {
     const all = LocalStore.getAllCachedUnits();
     const items: ReviewItem[] = [];

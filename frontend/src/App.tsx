@@ -10,6 +10,7 @@ import { GamesPage } from './pages/GamesPage.js';
 import { ExamSimulatorPage } from './pages/ExamSimulatorPage.js';
 import { EncyclopediaPage } from './pages/EncyclopediaPage.js';
 import { WorksheetPage } from './pages/WorksheetPage.js';
+import { StickerAlbumModal } from './components/StickerAlbumModal.js';
 import { PinModal } from './components/PinModal.js';
 import { UserSwitcherModal } from './components/UserSwitcherModal.js';
 import { VersionBadge } from './components/VersionBadge.js';
@@ -22,6 +23,7 @@ export const App: React.FC = () => {
   const [activeUnit, setActiveUnit] = useState<{ id?: string; set: ExerciseSet } | null>(null);
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isAlbumOpen, setIsAlbumOpen] = useState(false);
 
   // Cargar perfil al inicio
   const loadProfile = async () => {
@@ -40,6 +42,10 @@ export const App: React.FC = () => {
   }, []);
 
   const handleNavigate = (page: string, params?: any) => {
+    if (page === 'album') {
+      setIsAlbumOpen(true);
+      return;
+    }
     if (page === 'study' && params?.set) {
       setActiveUnit({ id: params.unitId, set: params.set });
     }
@@ -77,6 +83,7 @@ export const App: React.FC = () => {
           onExamClick={() => handleNavigate('exam')}
           onEncyclopediaClick={() => handleNavigate('encyclopedia')}
           onWorksheetClick={() => handleNavigate('worksheet')}
+          onStickerAlbumClick={() => setIsAlbumOpen(true)}
           onSettingsClick={handleSettingsClick}
           onMyUnitsClick={() => handleNavigate('units')}
           onUserClick={() => setIsUserModalOpen(true)}
@@ -182,6 +189,12 @@ export const App: React.FC = () => {
         isOpen={isPinModalOpen}
         onClose={() => setIsPinModalOpen(false)}
         onSuccess={handlePinSuccess}
+      />
+
+      {/* Modal de Álbum de Cromos Coleccionables */}
+      <StickerAlbumModal
+        isOpen={isAlbumOpen}
+        onClose={() => setIsAlbumOpen(false)}
       />
 
       {/* Modal de selección de estudiante */}

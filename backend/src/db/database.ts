@@ -272,6 +272,9 @@ export function getReviewCountToday(userId?: string): number {
 }
 
 export function recordExerciseAnswer(exerciseId: string, isCorrect: boolean) {
+  // Verificar si el ejercicio existe en la tabla exercises para no violar clave foránea
+  const exExists = db.prepare('SELECT id FROM exercises WHERE id = ?').get(exerciseId);
+
   const row = db.prepare('SELECT * FROM srs_items WHERE exercise_id = ?').get(exerciseId) as any;
   const current: SRSState | null = row ? {
     easeFactor: row.ease_factor,
@@ -283,6 +286,11 @@ export function recordExerciseAnswer(exerciseId: string, isCorrect: boolean) {
   } : null;
 
   const updated = calculateNextReview(current, isCorrect);
+
+  if (!exExists) {
+    // Si es un ejercicio del temario oficial precargado en cliente, retornar cálculo sin fallo de clave foránea
+    return updated;
+  }
 
   if (row) {
     db.prepare(`

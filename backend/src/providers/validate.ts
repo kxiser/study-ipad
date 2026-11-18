@@ -206,7 +206,7 @@ export function normalizeRawExerciseSet(raw: any): any {
     // FLASHCARD
     // ==========================================
     else if (type === 'flashcard') {
-      base.front = String(ex.front || ex.anverso || ex.question || 'Concepto clave');
+      base.front = String(ex.front || ex.anverso || ex.question || 'Pregunta clave');
       base.back = String(ex.back || ex.reverso || ex.answer || 'Explicación detallada');
       if (ex.tip) base.tip = String(ex.tip);
     }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Flame, Wifi, WifiOff, Settings, Home, BookOpen, Gamepad2, GraduationCap, Compass, Printer } from 'lucide-react';
+import { Star, Flame, Wifi, WifiOff, Settings, Home, BookOpen, Gamepad2, GraduationCap, Compass, Printer, Sparkles } from 'lucide-react';
 import { UserProfile } from '../types.js';
 import { syncOfflineProgress } from '../services/api.js';
 import { VersionBadge } from './VersionBadge.js';
@@ -11,6 +11,7 @@ interface NavbarProps {
   onExamClick?: () => void;
   onEncyclopediaClick?: () => void;
   onWorksheetClick?: () => void;
+  onStickerAlbumClick?: () => void;
   onSettingsClick: () => void;
   onMyUnitsClick?: () => void;
   onUserClick?: () => void;
@@ -23,6 +24,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onExamClick,
   onEncyclopediaClick,
   onWorksheetClick,
+  onStickerAlbumClick,
   onSettingsClick,
   onMyUnitsClick,
   onUserClick
@@ -142,6 +144,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Printer className="w-4 h-4 text-rose-100" />
               <span className="hidden sm:inline">Fichas PDF</span>
+            </button>
+          )}
+
+          {/* Acceso al Álbum de Cromos */}
+          {onStickerAlbumClick && (
+            <button
+              onClick={onStickerAlbumClick}
+              title="Álbum de Cromos Mágicos Coleccionables"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-amber-950 font-black text-sm active:scale-95 transition-all shadow-sm"
+            >
+              <Sparkles className="w-4 h-4 text-amber-950" />
+              <span className="hidden md:inline">Cromos</span>
             </button>
           )}
 

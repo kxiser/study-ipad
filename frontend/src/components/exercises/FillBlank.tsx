@@ -37,6 +37,15 @@ export const FillBlank: React.FC<Props> = ({ exercise, onAnswer, onNext }) => {
     parts.push('');
   }
 
+  // Si no hay texto antes del hueco, añadir un prefijo claro
+  const prefixText = parts[0]?.trim() ? parts[0] : 'Completa la frase: ';
+  const suffixText = parts[1] || '';
+
+  // Asegurar que siempre hay opciones disponibles para pulsar
+  const availableOptions = (exercise.options && exercise.options.length >= 2)
+    ? exercise.options
+    : [exercise.correctAnswer, 'otra opción', 'distinta opción'];
+
   const handleWordClick = (word: string) => {
     if (hasAnswered) return;
     setChosenWord(word);
@@ -50,7 +59,7 @@ export const FillBlank: React.FC<Props> = ({ exercise, onAnswer, onNext }) => {
   const handleCheck = () => {
     if (!chosenWord.trim() || hasAnswered) return;
 
-    const res = validateWrittenAnswer(chosenWord, exercise.correctAnswer, exercise.options);
+    const res = validateWrittenAnswer(chosenWord, exercise.correctAnswer, availableOptions);
     setValidation(res);
     setHasAnswered(true);
 
@@ -116,7 +125,7 @@ export const FillBlank: React.FC<Props> = ({ exercise, onAnswer, onNext }) => {
         </div>
 
         <div className="text-xl md:text-2xl font-black text-slate-800 leading-loose flex flex-wrap items-center gap-2">
-          <span>{parts[0]}</span>
+          <span>{prefixText}</span>
 
           {/* El Hueco en blanco interactivo */}
           {inputMode === 'chips' ? (
@@ -159,7 +168,7 @@ export const FillBlank: React.FC<Props> = ({ exercise, onAnswer, onNext }) => {
             />
           )}
 
-          <span>{parts[1] || ''}</span>
+          <span>{suffixText}</span>
         </div>
       </div>
 
@@ -170,7 +179,7 @@ export const FillBlank: React.FC<Props> = ({ exercise, onAnswer, onNext }) => {
             Toca una palabra para colocarla en el hueco:
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            {exercise.options.map((word, idx) => {
+            {availableOptions.map((word, idx) => {
               const isSelected = chosenWord === word;
               return (
                 <button

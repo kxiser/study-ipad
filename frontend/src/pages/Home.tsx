@@ -219,6 +219,33 @@ export const Home: React.FC<HomeProps> = ({ profile, onNavigate }) => {
             </p>
           </div>
         </button>
+
+        {/* 8. Álbum de Cromos Mágicos Coleccionables */}
+        <button
+          type="button"
+          onClick={() => onNavigate('album')}
+          className="group relative bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 hover:from-amber-500 hover:to-rose-600 text-white p-6 rounded-4xl shadow-xl shadow-amber-200 border-4 border-amber-300 text-left transition-all duration-200 active:scale-95 flex flex-col justify-between min-h-[220px] sm:col-span-1 lg:col-span-2"
+        >
+          <div className="flex items-start justify-between">
+            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-inner group-hover:scale-110 transition-transform">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
+            <span className="bg-amber-200 text-amber-950 text-[10px] font-black px-3 py-1 rounded-full shadow-md uppercase tracking-wide">
+              ¡Recompensas!
+            </span>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-[11px] font-black uppercase tracking-wider text-amber-100">Colección</span>
+              <Sparkles className="w-3.5 h-3.5 text-amber-100" />
+            </div>
+            <h3 className="text-xl md:text-2xl font-black leading-tight">Álbum de Cromos</h3>
+            <p className="text-amber-100 text-xs font-semibold mt-1">
+              Desbloquea animales legendarios y planetas al acertar rachas seguidas sin fallos.
+            </p>
+          </div>
+        </button>
       </div>
 
       {/* Frase motivadora / Tips */}

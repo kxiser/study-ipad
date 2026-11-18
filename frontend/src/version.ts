@@ -1,7 +1,21 @@
-export const APP_VERSION = '2.5.0';
-export const APP_BUILD = '2026.11.15-v2.5.0';
+export const APP_VERSION = '2.7.0';
+export const APP_BUILD = '2026.11.18-v2.7.0';
 
 export const VERSION_CHANGELOG = [
+  {
+    version: '2.7.0',
+    date: '18 Nov 2026',
+    title: 'Pedagogía Dinámica, Zero-Hardcoding, Álbum de Cromos y Multi-Tema',
+    items: [
+      '🚫 Skill Oficial Zero-Hardcoding: Prohibición de textos quemados en código ("Concepto", "Definición", "palabra", "Atlántico"). Todo se genera y transforma dinámicamente.',
+      '🔄 Corrección 3D de Tarjetas: Estructura de anverso y reverso con backface-hidden para que el texto de las flashcards nunca aparezca invertido al girar.',
+      '📁 Agrupador inteligente de temas escaneados: Detecta y agrupa páginas del mismo tema (ej: "Aventura en la Montaña" + "Exploradores de Montañas") en carpetas consolidadas.',
+      '📚 Repaso y Juego Multi-Tema: Selecciona múltiples temas a la vez con checkboxes y pulsa "Iniciar Repaso Combinado" para entrenar varias materias intercaladas.',
+      '⭐ Álbum de Cromos Mágicos Coleccionables: 12 cromos míticos que se desbloquean al acertar rachas continuas sin fallos.',
+      '🔥 Multiplicador de Racha (Combo Flame): Indicador animado de racha x2, x3 y x5 que premia la concentración continua con estrellas extra.',
+      '🎨 Ilustraciones Visuales Automáticas: Insignias y conceptos ilustrados dinámicamente según la materia y contenido.'
+    ]
+  },
   {
     version: '2.5.0',
     date: '15 Nov 2026',

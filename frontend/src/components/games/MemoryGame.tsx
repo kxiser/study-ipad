@@ -41,25 +41,45 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({
 
     exercises.forEach(ex => {
       if (ex.type === 'matching' && ex.pairs?.length) {
-        ex.pairs.forEach(p => rawPairs.push({ prompt: p.left, target: p.right }));
+        ex.pairs.forEach(p => {
+          const l = (p.left || '').trim();
+          const r = (p.right || '').trim();
+          // Prohibir terminantemente cualquier texto dummy 'Concepto' / 'Definición'
+          if (l && r && l.toLowerCase() !== 'concepto' && r.toLowerCase() !== 'definición' && r.toLowerCase() !== 'definicion' && l !== r) {
+            rawPairs.push({ prompt: l, target: r });
+          }
+        });
       } else if (ex.type === 'flashcard' && ex.front && ex.back) {
-        rawPairs.push({ prompt: ex.front, target: ex.back });
+        rawPairs.push({ prompt: ex.front.trim(), target: ex.back.trim() });
       } else if (ex.type === 'multiple_choice' && ex.question && ex.correctAnswer) {
-        rawPairs.push({ prompt: ex.question, target: ex.correctAnswer });
+        rawPairs.push({ prompt: ex.question.trim(), target: ex.correctAnswer.trim() });
       } else if (ex.type === 'true_false' && ex.statement) {
-        rawPairs.push({ prompt: ex.statement, target: ex.isTrue ? 'Verdadero' : 'Falso' });
+        rawPairs.push({ prompt: ex.statement.trim(), target: ex.isTrue ? 'Verdadero' : 'Falso' });
       }
     });
 
+    // Eliminar posibles duplicados
+    const uniquePairs: Array<{ prompt: string; target: string }> = [];
+    const seenPrompts = new Set<string>();
+    for (const pair of rawPairs) {
+      const key = `${pair.prompt.toLowerCase()}_${pair.target.toLowerCase()}`;
+      if (!seenPrompts.has(key)) {
+        seenPrompts.add(key);
+        uniquePairs.push(pair);
+      }
+    }
+
     // Barajar parejas y elegir máximo 6 (12 cartas en total para que quepa bien en iPad)
-    const shuffledPairs = [...rawPairs].sort(() => Math.random() - 0.5).slice(0, 6);
+    const shuffledPairs = [...uniquePairs].sort(() => Math.random() - 0.5);
     if (shuffledPairs.length < 3) {
-      // Si hay pocas, rellenar con datos divertidos de estudio
+      // Si hay pocas, rellenar con datos divertidos de estudio curricular
       shuffledPairs.push(
-        { prompt: '¿Cuántos continentes hay?', target: '6 grandes continentes' },
-        { prompt: 'Animales con huesos', target: 'Vertebrados' },
-        { prompt: 'Animales sin huesos', target: 'Invertebrados' },
-        { prompt: '3 × 4', target: '12' }
+        { prompt: '🦁 Mamíferos', target: 'Nacen del vientre de la madre' },
+        { prompt: '🦅 Aves', target: 'Tienen plumas y ponen huevos' },
+        { prompt: '🐸 Anfibios', target: 'Sufren metamorfosis' },
+        { prompt: '🌿 Raíz de la planta', target: 'Absorbe agua y minerales' },
+        { prompt: '🪐 Sistema Solar', target: '8 planetas alrededor del Sol' },
+        { prompt: '✖️ 7 × 8', target: '56' }
       );
     }
 
