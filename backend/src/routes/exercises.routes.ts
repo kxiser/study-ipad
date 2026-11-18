@@ -19,6 +19,7 @@ export async function exerciseRoutes(fastify: FastifyInstance) {
       const parts = req.parts();
       const images: ImageData[] = [];
       let subjectHint: string | undefined;
+      let language: string | undefined;
       let targetUserId = (req.headers['x-user-id'] as string) || 'user-samantha';
 
       for await (const part of parts) {
@@ -31,6 +32,8 @@ export async function exerciseRoutes(fastify: FastifyInstance) {
         } else if (part.type === 'field') {
           if (part.fieldname === 'subject') {
             subjectHint = (part.value as string).trim();
+          } else if (part.fieldname === 'language') {
+            language = (part.value as string).trim();
           } else if (part.fieldname === 'userId') {
             targetUserId = (part.value as string).trim();
           }
@@ -44,9 +47,9 @@ export async function exerciseRoutes(fastify: FastifyInstance) {
       }
 
       const provider = getAIProvider();
-      req.log.info(`[Scan] Procesando ${images.length} imágenes con ${provider.name} para usuario ${targetUserId}`);
+      req.log.info(`[Scan] Procesando ${images.length} imágenes (materia: ${subjectHint || 'auto'}, idioma: ${language || 'auto'}) con ${provider.name} para usuario ${targetUserId}`);
 
-      const exerciseSet = await provider.generateExercisesFromImages(images, subjectHint);
+      const exerciseSet = await provider.generateExercisesFromImages(images, subjectHint, language);
       images.length = 0;
 
       const unitId = 'unit-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);

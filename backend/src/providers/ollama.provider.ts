@@ -13,7 +13,7 @@ export class OllamaProvider implements AIProvider {
     this.model = config.ollamaModel;
   }
 
-  async generateExercisesFromImages(images: ImageData[], subjectHint?: string): Promise<ExerciseSet> {
+  async generateExercisesFromImages(images: ImageData[], subjectHint?: string, language?: string): Promise<ExerciseSet> {
     const base64Images = images.map(img => img.buffer.toString('base64'));
 
     const userPrompt = `${SYSTEM_PROMPT_8_YEARS_OLD}\n\nPor favor, analiza las fotos del libro adjuntas y devuelve el JSON con los ejercicios para una niña de 8 años.${

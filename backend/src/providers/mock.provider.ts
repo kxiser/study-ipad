@@ -4,9 +4,72 @@ import { ExerciseSet } from '../schemas/exercise.schema.js';
 export class MockProvider implements AIProvider {
   readonly name = 'Modo Demo / Ejemplo (Gratis, Sin Clave)';
 
-  async generateExercisesFromImages(images: ImageData[], subjectHint?: string): Promise<ExerciseSet> {
+  async generateExercisesFromImages(images: ImageData[], subjectHint?: string, language?: string): Promise<ExerciseSet> {
     // Simulamos un breve retardo de procesamiento de 1 segundo
     await new Promise(r => setTimeout(r, 900));
+
+    const isEnglish = language === 'en' || (subjectHint && (
+      subjectHint.toLowerCase().includes('inglés') ||
+      subjectHint.toLowerCase().includes('english') ||
+      subjectHint.toLowerCase().includes('science')
+    ));
+
+    if (isEnglish) {
+      return {
+        title: 'Living Things & Vertebrates (Natural Science)',
+        subject: 'Natural Science',
+        summary: 'Learn about mammals, birds, reptiles, amphibians, and fish in English.',
+        estimatedMinutes: 6,
+        exercises: [
+          {
+            id: 'mock-en-1',
+            type: 'multiple_choice',
+            question: 'Which of these animals is a VERTEBRATE because it has a backbone?',
+            options: ['Dog', 'Butterfly', 'Snail', 'Jellyfish'],
+            correctAnswer: 'Dog',
+            explanation: 'Great job! Dogs, cats, birds, and humans have internal bones and a spine.',
+            hint: 'Think of an animal with an internal skeleton.'
+          },
+          {
+            id: 'mock-en-2',
+            type: 'true_false',
+            statement: 'Mammals are warm-blooded animals and mother mammals produce milk for their babies.',
+            isTrue: true,
+            explanation: 'Correct! Mammals have fur or hair and feed their babies with milk.',
+            hint: 'Think of lions, whales, and dogs.'
+          },
+          {
+            id: 'mock-en-3',
+            type: 'fill_blank',
+            textWithBlank: 'Fish breathe the oxygen in the water through their ___ .',
+            options: ['gills', 'lungs', 'wings'],
+            correctAnswer: 'gills',
+            explanation: 'Spot on! Fish use gills (branquias) to take in oxygen underwater.',
+            hint: 'They are located on the sides of the fish.'
+          },
+          {
+            id: 'mock-en-4',
+            type: 'matching',
+            instruction: 'Match each animal with its vertebrate group:',
+            pairs: [
+              { left: 'Eagle', right: 'Bird (aves)' },
+              { left: 'Dolphin', right: 'Mammal (mamíferos)' },
+              { left: 'Frog', right: 'Amphibian (anfibios)' },
+              { left: 'Salmon', right: 'Fish (peces)' }
+            ],
+            explanation: 'Awesome work! You matched all animal groups correctly.'
+          },
+          {
+            id: 'mock-en-5',
+            type: 'flashcard',
+            front: 'What makes a bird different from other vertebrates?',
+            back: 'Birds have feathers, two wings, a beak, and lay hard-shelled eggs. (Las aves tienen plumas, alas y pico).',
+            tip: 'Feathers keep them warm and help them fly!',
+            explanation: 'Key science fact saved to memory!'
+          }
+        ]
+      };
+    }
 
     const samples: ExerciseSet[] = [
       {

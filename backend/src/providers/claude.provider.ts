@@ -17,7 +17,7 @@ export class ClaudeProvider implements AIProvider {
     });
   }
 
-  async generateExercisesFromImages(images: ImageData[], subjectHint?: string): Promise<ExerciseSet> {
+  async generateExercisesFromImages(images: ImageData[], subjectHint?: string, language?: string): Promise<ExerciseSet> {
     const model = config.anthropicModel;
 
     const contentItems: Anthropic.MessageCreateParams['messages'][0]['content'] = images.map(img => {

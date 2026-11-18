@@ -35,21 +35,31 @@ interface UnitsPageProps {
 }
 
 const SUBJECT_COLORS: Record<string, string> = {
+  'Natural Science': 'bg-teal-100 text-teal-800 border-teal-300',
+  'Natural Science (Inglés)': 'bg-teal-100 text-teal-800 border-teal-300',
+  'Social Science': 'bg-cyan-100 text-cyan-800 border-cyan-300',
+  'Social Science (Inglés)': 'bg-cyan-100 text-cyan-800 border-cyan-300',
   'Ciencias de la Naturaleza': 'bg-emerald-100 text-emerald-800 border-emerald-300',
   'Ciencias Naturales': 'bg-emerald-100 text-emerald-800 border-emerald-300',
   'Matemáticas': 'bg-blue-100 text-blue-800 border-blue-300',
   'Lengua Castellana': 'bg-rose-100 text-rose-800 border-rose-300',
   'Ciencias Sociales': 'bg-amber-100 text-amber-800 border-amber-300',
   'Inglés': 'bg-purple-100 text-purple-800 border-purple-300',
+  'English': 'bg-purple-100 text-purple-800 border-purple-300',
 };
 
 const SUBJECT_ICONS: Record<string, string> = {
+  'Natural Science': '🔬',
+  'Natural Science (Inglés)': '🔬',
+  'Social Science': '🌐',
+  'Social Science (Inglés)': '🌐',
   'Ciencias de la Naturaleza': '🌿',
   'Ciencias Naturales': '🌿',
   'Matemáticas': '🔢',
   'Lengua Castellana': '📖',
   'Ciencias Sociales': '🌍',
   'Inglés': '🇬🇧',
+  'English': '🇬🇧',
 };
 
 // Extrae dinámicamente el tema conceptual eliminando palabras vacías y prefijos
@@ -162,13 +172,36 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
   // Temas del currículo oficial filtrados
   const filteredCurriculum = useMemo(() => {
     if (selectedSubject === 'all') return CURRICULUM_3_PRIMARIA;
-    return CURRICULUM_3_PRIMARIA.filter(t => t.subject === selectedSubject || (selectedSubject === 'Ciencias Naturales' && t.subject === 'Ciencias de la Naturaleza'));
+    return CURRICULUM_3_PRIMARIA.filter(t => {
+      const sub = t.subject as string;
+      if (selectedSubject === 'Ciencias Naturales' || selectedSubject === 'Ciencias de la Naturaleza') {
+        return sub === 'Ciencias de la Naturaleza' || sub === 'Ciencias Naturales';
+      }
+      if (selectedSubject === 'Natural Science') {
+        return sub === 'Natural Science' || t.title.toLowerCase().includes('science');
+      }
+      if (selectedSubject === 'Inglés') {
+        return sub === 'Inglés' || sub === 'English';
+      }
+      return sub === selectedSubject;
+    });
   }, [selectedSubject]);
 
   // Temas guardados filtrados (agrupados o individuales)
   const filteredCustomGroups = useMemo(() => {
     if (selectedSubject === 'all') return groupedCustomUnits;
-    return groupedCustomUnits.filter(g => g.subject === selectedSubject);
+    return groupedCustomUnits.filter(g => {
+      if (selectedSubject === 'Ciencias Naturales' || selectedSubject === 'Ciencias de la Naturaleza') {
+        return g.subject === 'Ciencias de la Naturaleza' || g.subject === 'Ciencias Naturales';
+      }
+      if (selectedSubject === 'Natural Science') {
+        return g.subject === 'Natural Science' || g.subject.toLowerCase().includes('science');
+      }
+      if (selectedSubject === 'Inglés') {
+        return g.subject === 'Inglés' || g.subject === 'English';
+      }
+      return g.subject === selectedSubject;
+    });
   }, [groupedCustomUnits, selectedSubject]);
 
   const toggleSelectUnit = (id: string, e?: React.MouseEvent) => {
@@ -454,18 +487,18 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
           🌟 Todas las materias
         </button>
 
-        {['Lengua Castellana', 'Matemáticas', 'Ciencias de la Naturaleza', 'Ciencias Sociales'].map(sub => (
+        {['Lengua Castellana', 'Matemáticas', 'Ciencias de la Naturaleza', 'Ciencias Sociales', 'Natural Science', 'Inglés'].map(sub => (
           <button
             key={sub}
             onClick={() => setSelectedSubject(sub)}
-            className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition-all border-2 active:scale-95 flex items-center gap-2 ${
+            className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition-all border-2 active:scale-95 flex items-center gap-2 cursor-pointer ${
               selectedSubject === sub
                 ? 'bg-magic-600 text-white border-magic-600 shadow-md'
                 : 'bg-white text-slate-700 border-slate-200 hover:border-magic-300'
             }`}
           >
             <span>{SUBJECT_ICONS[sub] || '📚'}</span>
-            <span>{sub}</span>
+            <span>{sub === 'Natural Science' ? '🔬 Natural Science (Inglés)' : sub}</span>
           </button>
         ))}
       </div>

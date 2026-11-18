@@ -17,7 +17,7 @@ export class GeminiProvider implements AIProvider {
     this.model = config.geminiModel || 'gemini-3-flash-preview';
   }
 
-  async generateExercisesFromImages(images: ImageData[], subjectHint?: string): Promise<ExerciseSet> {
+  async generateExercisesFromImages(images: ImageData[], subjectHint?: string, language?: string): Promise<ExerciseSet> {
     const parts: any[] = images.map(img => ({
       inline_data: {
         mime_type: img.mimeType,
@@ -25,7 +25,22 @@ export class GeminiProvider implements AIProvider {
       }
     }));
 
-    const promptText = `${SYSTEM_PROMPT_8_YEARS_OLD}\n\nAnaliza las páginas del libro adjuntas y crea una sesión didáctica de 5 a 8 ejercicios para una niña de 8 años en formato JSON.${
+    const isEnglish = language === 'en' || (subjectHint && (
+      subjectHint.toLowerCase().includes('inglés') ||
+      subjectHint.toLowerCase().includes('english') ||
+      subjectHint.toLowerCase().includes('science')
+    ));
+
+    let languageDirective = '';
+    if (isEnglish) {
+      languageDirective = `\n\nDIRECTIVA ESTRICTA DE IDIOMA (ENGLISH / BILINGUAL SCIENCE):\nLas páginas pertenecen a la materia de Science o Inglés. ¡NO TRADUZCAS AL ESPAÑOL!\nGenera absolutamente todas las actividades (título, enunciados, preguntas, opciones, huecos, parejas de unir, tarjetas y feedback) en INGLÉS adaptado para niños de 8 años (Year 3 / 3rd Grade, vocabulario accesible y estimulante).\nSamantha debe practicar su inglés escolar mientras aprende Science. En el campo "subject" usa "Natural Science", "Social Science" o "English".`;
+    } else if (language === 'es') {
+      languageDirective = `\n\nDIRECTIVA DE IDIOMA: Genera los ejercicios en ESPAÑOL para 3.º de Primaria.`;
+    } else {
+      languageDirective = `\n\nDIRECTIVA DE IDIOMA AUTOMÁTICA:\nAnaliza el idioma de las páginas adjuntas. Si el texto del libro está en INGLÉS (ej. Science, Natural Science, Social Science, English), ¡ESTÁ PROHIBIDO TRADUCIRLO AL ESPAÑOL! Genera todas las actividades en INGLÉS para Samantha.\nSi el texto está en ESPAÑOL, genera las actividades en ESPAÑOL.`;
+    }
+
+    const promptText = `${SYSTEM_PROMPT_8_YEARS_OLD}${languageDirective}\n\nAnaliza las páginas del libro adjuntas y crea una sesión didáctica de 5 a 8 ejercicios para una niña de 8 años en formato JSON.${
       subjectHint ? ` Materia orientativa: ${subjectHint}.` : ''
     }\nResponde EXCLUSIVAMENTE con el objeto JSON.`;
 
@@ -72,7 +87,14 @@ export class GeminiProvider implements AIProvider {
 
   async generateExercisesFromTopic(options: TopicPromptOptions): Promise<ExerciseSet> {
     const age = options.ageYears || 8;
+    const isEnglish = options.language === 'en' || (options.subjectHint && (
+      options.subjectHint.toLowerCase().includes('inglés') ||
+      options.subjectHint.toLowerCase().includes('english') ||
+      options.subjectHint.toLowerCase().includes('science')
+    ));
+
     const promptText = `${SYSTEM_PROMPT_8_YEARS_OLD}
+${isEnglish ? 'DIRECTIVA DE IDIOMA: Todo el contenido (título, preguntas, opciones, huecos y flashcards) DEBE GENERARSE EN INGLÉS adaptado para 3rd Grade (Year 3 / 8 años). NO TRADUCIR AL ESPAÑOL.' : ''}
 
 Eres el profesor de Samantha (niña de ${age} años, en educación primaria de Madrid, España).
 Genera una unidad didáctica completa, divertida y motivadora con entre 6 y 8 ejercicios sobre el tema: "${options.topic}".

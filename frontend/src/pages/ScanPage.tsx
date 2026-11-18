@@ -11,25 +11,35 @@ interface ScanPageProps {
 }
 
 const SUBJECT_OPTIONS = [
-  'Ciencias Naturales',
-  'Matemáticas',
-  'Lengua Castellana',
-  'Ciencias Sociales',
-  'Inglés',
-  'Música',
-  'Otro'
+  { id: 'Natural Science', label: 'Natural Science (Inglés)', icon: '🔬', isEnglish: true },
+  { id: 'Social Science', label: 'Social Science (Inglés)', icon: '🌐', isEnglish: true },
+  { id: 'English', label: 'Inglés (English)', icon: '🇬🇧', isEnglish: true },
+  { id: 'Ciencias Naturales', label: 'Ciencias Naturales', icon: '🌿', isEnglish: false },
+  { id: 'Ciencias Sociales', label: 'Ciencias Sociales', icon: '🌍', isEnglish: false },
+  { id: 'Lengua Castellana', label: 'Lengua Castellana', icon: '📖', isEnglish: false },
+  { id: 'Matemáticas', label: 'Matemáticas', icon: '🔢', isEnglish: false },
+  { id: 'Música', label: 'Música', icon: '🎵', isEnglish: false },
+  { id: 'Otro', label: 'Otro', icon: '✏️', isEnglish: false }
 ];
 
 export const ScanPage: React.FC<ScanPageProps> = ({ onBack, onSuccess, mascotType = 'chispa' }) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [subject, setSubject] = useState<string>('Ciencias Naturales');
+  const [subject, setSubject] = useState<string>('Natural Science');
+  const [languageMode, setLanguageMode] = useState<'auto' | 'en' | 'es'>('en');
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('Analizando imágenes...');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const isOnline = navigator.onLine;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSelectSubject = (item: typeof SUBJECT_OPTIONS[0]) => {
+    setSubject(item.id);
+    if (item.isEnglish) {
+      setLanguageMode('en');
+    }
+  };
 
   const handleFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -76,7 +86,7 @@ export const ScanPage: React.FC<ScanPageProps> = ({ onBack, onSuccess, mascotTyp
     const timer2 = setTimeout(() => setLoadingStep('Creando actividades divertidas y adaptadas para ti...'), 3500);
 
     try {
-      const result = await scanPages(selectedFiles, subject);
+      const result = await scanPages(selectedFiles, subject, languageMode);
       clearTimeout(timer1);
       clearTimeout(timer2);
       onSuccess(result.unitId, result.exerciseSet);
@@ -134,25 +144,96 @@ export const ScanPage: React.FC<ScanPageProps> = ({ onBack, onSuccess, mascotTyp
           </p>
         </div>
 
+        {/* SELECTOR DE IDIOMA Y MODO BILINGÜE SCIENCE */}
+        <div className="bg-gradient-to-r from-indigo-50/80 via-purple-50/60 to-teal-50/80 p-4 rounded-3xl border-2 border-indigo-200 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <label className="block text-xs font-black uppercase tracking-wider text-indigo-900 flex items-center gap-1.5">
+              <span>🌐</span>
+              <span>Idioma de Estudio:</span>
+            </label>
+
+            {languageMode === 'en' && (
+              <span className="text-[11px] font-black uppercase px-2.5 py-0.5 rounded-full bg-indigo-600 text-white shadow-xs">
+                🇬🇧 Modo Bilingüe Activo
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => setLanguageMode('en')}
+              className={`py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-extrabold transition-all border-2 flex items-center justify-center gap-2 cursor-pointer ${
+                languageMode === 'en'
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-md scale-102'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-300'
+              }`}
+            >
+              <span>🇬🇧</span>
+              <span>En Inglés (Science)</span>
+            </button>
+
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => setLanguageMode('auto')}
+              className={`py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-extrabold transition-all border-2 flex items-center justify-center gap-2 cursor-pointer ${
+                languageMode === 'auto'
+                  ? 'bg-magic-600 text-white border-magic-600 shadow-md scale-102'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-magic-300'
+              }`}
+            >
+              <span>🔄</span>
+              <span>Detectar Automático</span>
+            </button>
+
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => setLanguageMode('es')}
+              className={`py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-extrabold transition-all border-2 flex items-center justify-center gap-2 cursor-pointer ${
+                languageMode === 'es'
+                  ? 'bg-slate-800 text-white border-slate-800 shadow-md scale-102'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+              }`}
+            >
+              <span>🇪🇸</span>
+              <span>En Español</span>
+            </button>
+          </div>
+
+          <p className="text-[11px] sm:text-xs text-indigo-950/80 font-semibold leading-relaxed">
+            {languageMode === 'en'
+              ? '✨ ¡Perfecto para Science! Las preguntas, opciones, huecos y tarjetas se generarán en inglés (sin traducir al español) para que Samantha aprenda y afiance el inglés de su colegio.'
+              : languageMode === 'auto'
+              ? '💡 Si el libro está escrito en inglés (Science / English) se mantendrá en inglés. Si está en español, se generará en español.'
+              : '🇪🇸 Se generará todo el contenido en español.'}
+          </p>
+        </div>
+
         {/* Selector de Asignatura */}
         <div>
           <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">
             Materia / Asignatura del libro:
           </label>
           <div className="flex flex-wrap gap-2">
-            {SUBJECT_OPTIONS.map(sub => (
+            {SUBJECT_OPTIONS.map(opt => (
               <button
-                key={sub}
+                key={opt.id}
                 type="button"
                 disabled={loading}
-                onClick={() => setSubject(sub)}
-                className={`px-4 py-2 rounded-2xl font-bold text-sm transition-all active:scale-95 border-2 ${
-                  subject === sub
-                    ? 'bg-magic-600 text-white border-magic-600 shadow-sm'
+                onClick={() => handleSelectSubject(opt)}
+                className={`px-3.5 py-2 rounded-2xl font-bold text-xs sm:text-sm transition-all active:scale-95 border-2 flex items-center gap-1.5 cursor-pointer ${
+                  subject === opt.id
+                    ? opt.isEnglish
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                      : 'bg-magic-600 text-white border-magic-600 shadow-sm'
                     : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-magic-50'
                 }`}
               >
-                {sub}
+                <span>{opt.icon}</span>
+                <span>{opt.label}</span>
               </button>
             ))}
           </div>

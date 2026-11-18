@@ -74,7 +74,11 @@ export async function compressImage(file: File, maxDimension = 1600, quality = 0
   });
 }
 
-export async function scanPages(files: File[], subject?: string): Promise<{ unitId: string; exerciseSet: ExerciseSet }> {
+export async function scanPages(
+  files: File[],
+  subject?: string,
+  language?: string
+): Promise<{ unitId: string; exerciseSet: ExerciseSet }> {
   const formData = new FormData();
 
   for (let i = 0; i < files.length; i++) {
@@ -84,6 +88,9 @@ export async function scanPages(files: File[], subject?: string): Promise<{ unit
 
   if (subject) {
     formData.append('subject', subject);
+  }
+  if (language) {
+    formData.append('language', language);
   }
   formData.append('userId', getCurrentUserId());
 

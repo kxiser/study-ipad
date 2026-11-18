@@ -1,7 +1,19 @@
-export const APP_VERSION = '2.7.0';
-export const APP_BUILD = '2026.11.18-v2.7.0';
+export const APP_VERSION = '2.8.0';
+export const APP_BUILD = '2026.11.18-v2.8.0';
 
 export const VERSION_CHANGELOG = [
+  {
+    version: '2.8.0',
+    date: '18 Nov 2026',
+    title: 'Modo Bilingüe English & Science y Protección de Tarjetas',
+    items: [
+      '🔬 Modo Bilingüe Science (Inglés): Ahora Samantha puede estudiar Science en inglés (Natural Science & Social Science) sin que la IA traduzca el contenido al español.',
+      '🌐 Selector de Idioma en Escáner: Elige entre "En Inglés (Science)", "Detectar Automático" y "En Español".',
+      '🗣️ Síntesis de Voz en Inglés Nativo: Reconoce automáticamente el texto en inglés y lee con acento nativo británico/americano.',
+      '🦁 Unidades Oficiales de Science en Inglés: Living Things & Animals y The Plant Kingdom & Photosynthesis en el temario de 3.º de Primaria.',
+      '🃏 Tarjetas 3D sin Desbordamiento: Tipografía adaptativa y altura dinámica en Flashcards para evitar que el texto sobrepase el borde de la tarjeta.'
+    ]
+  },
   {
     version: '2.7.0',
     date: '18 Nov 2026',
