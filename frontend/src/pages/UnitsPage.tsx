@@ -18,7 +18,9 @@ import {
   CheckSquare,
   Square,
   Layers,
-  FolderOpen
+  FolderOpen,
+  ChevronDown,
+  FolderCheck
 } from 'lucide-react';
 import { Mascot } from '../components/Mascot.js';
 import { sounds } from '../utils/soundEffects.js';
@@ -50,22 +52,63 @@ const SUBJECT_ICONS: Record<string, string> = {
   'Inglés': '🇬🇧',
 };
 
-// Función para extraer palabra clave raíz de un tema y agrupar duplicados
-function getClusterKey(title: string): string {
-  const clean = title.toLowerCase()
+// Extrae dinámicamente el tema conceptual eliminando palabras vacías y prefijos
+function extractClusterTheme(title: string): string {
+  const cleaned = title
     .replace(/[¡!¿?]/g, '')
-    .replace(/\b(el|la|los|las|de|del|en|y|nuestro|nuestra|un|una|mundo|exploramos|exploradores|aventura)\b/g, '')
+    .replace(/\b(tema|unidad|lección|leccion|bloque|página|pagina|pág|pag)\s*\d+[:.-]?/gi, '')
+    .replace(/\b(el|la|los|las|de|del|en|y|o|nuestro|nuestra|un|una|mundo|exploramos|exploradores|aventura)\b/gi, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
-  if (clean.includes('montaña')) return 'La Montaña y el Relieve';
-  if (clean.includes('paisaje') || clean.includes('llanura') || clean.includes('relieve')) return 'Paisajes y Relieve de España';
-  if (clean.includes('seres vivos') || clean.includes('animal') || clean.includes('vertebrado')) return 'Seres Vivos y Reino Animal';
-  if (clean.includes('tierra') || clean.includes('planeta') || clean.includes('solar')) return 'El Planeta Tierra y el Espacio';
-  if (clean.includes('agua')) return 'El Agua y la Naturaleza';
-  if (clean.includes('aguda') || clean.includes('llana') || clean.includes('tilde') || clean.includes('acentu')) return 'Acentuación y Ortografía';
-  if (clean.includes('tabla') || clean.includes('multiplic') || clean.includes('cálculo')) return 'Tablas y Multiplicación';
-  if (clean.includes('reloj') || clean.includes('hora') || clean.includes('medida')) return 'El Reloj y las Medidas';
-  if (clean.includes('sustantiv') || clean.includes('adjetiv') || clean.includes('verbo')) return 'Gramática Española';
-  return title.trim();
+
+  if (!cleaned || cleaned.length < 3) return title.trim();
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+}
+
+// Algoritmo procedural de clustering para agrupar páginas escaneadas del mismo tema sin hardcoding
+interface UnitGroup {
+  groupName: string;
+  subject: string;
+  units: UnitSummary[];
+  totalExercises: number;
+}
+
+function clusterUnits(unitsList: UnitSummary[]): UnitGroup[] {
+  const groups: UnitGroup[] = [];
+
+  for (const unit of unitsList) {
+    const rawTheme = extractClusterTheme(unit.title);
+    const unitWords = rawTheme.toLowerCase().split(/\s+/).filter(w => w.length >= 4);
+
+    // Buscar si ya existe un grupo de la misma materia que comparta palabras clave
+    const matchedGroup = groups.find(g => {
+      if (g.subject !== unit.subject) return false;
+      const groupWords = extractClusterTheme(g.groupName).toLowerCase().split(/\s+/).filter(w => w.length >= 4);
+      return (
+        unitWords.some(uw => groupWords.includes(uw)) ||
+        rawTheme.toLowerCase().includes(g.groupName.toLowerCase()) ||
+        g.groupName.toLowerCase().includes(rawTheme.toLowerCase())
+      );
+    });
+
+    if (matchedGroup) {
+      matchedGroup.units.push(unit);
+      matchedGroup.totalExercises += (unit.exercise_count || 5);
+      // Mantener el nombre más conciso y claro
+      if (rawTheme.length >= 4 && rawTheme.length < matchedGroup.groupName.length) {
+        matchedGroup.groupName = rawTheme;
+      }
+    } else {
+      groups.push({
+        groupName: rawTheme || unit.title,
+        subject: unit.subject,
+        units: [unit],
+        totalExercises: unit.exercise_count || 5
+      });
+    }
+  }
+
+  return groups;
 }
 
 export const UnitsPage: React.FC<UnitsPageProps> = ({
@@ -86,6 +129,8 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
   // Selección multi-tema para repasar más de uno a la vez
   const [selectedUnitIds, setSelectedUnitIds] = useState<Set<string>>(new Set());
   const [groupByTheme, setGroupByTheme] = useState<boolean>(true);
+  // Carpetas desplegadas/expandidas de forma intuitiva
+  const [expandedGroupKeys, setExpandedGroupKeys] = useState<Set<string>>(new Set());
 
   const loadUnits = () => {
     fetchUnits().then(data => {
@@ -109,25 +154,9 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
     });
   }, [units]);
 
-  // Agrupar temas escaneados similares por núcleo semántico
+  // Agrupar temas escaneados similares por núcleo semántico dinámico
   const groupedCustomUnits = useMemo(() => {
-    const groups: Record<string, { groupName: string; subject: string; units: UnitSummary[]; totalExercises: number }> = {};
-
-    uniqueUnits.forEach(u => {
-      const clusterKey = getClusterKey(u.title);
-      if (!groups[clusterKey]) {
-        groups[clusterKey] = {
-          groupName: clusterKey,
-          subject: u.subject,
-          units: [],
-          totalExercises: 0
-        };
-      }
-      groups[clusterKey].units.push(u);
-      groups[clusterKey].totalExercises += (u.exercise_count || 5);
-    });
-
-    return Object.values(groups);
+    return clusterUnits(uniqueUnits);
   }, [uniqueUnits]);
 
   // Temas del currículo oficial filtrados
@@ -149,6 +178,43 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleGroupExpand = (groupName: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    sounds.playPopSound();
+    setExpandedGroupKeys(prev => {
+      const next = new Set(prev);
+      if (next.has(groupName)) next.delete(groupName);
+      else next.add(groupName);
+      return next;
+    });
+  };
+
+  const isGroupSelected = (group: UnitGroup) => {
+    return group.units.length > 0 && group.units.every(u => selectedUnitIds.has(u.id));
+  };
+
+  const isGroupPartiallySelected = (group: UnitGroup) => {
+    const count = group.units.filter(u => selectedUnitIds.has(u.id)).length;
+    return count > 0 && count < group.units.length;
+  };
+
+  const toggleSelectGroup = (group: UnitGroup, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    sounds.playPopSound();
+    const allSelected = isGroupSelected(group);
+    setSelectedUnitIds(prev => {
+      const next = new Set(prev);
+      group.units.forEach(u => {
+        if (allSelected) {
+          next.delete(u.id);
+        } else {
+          next.add(u.id);
+        }
+      });
       return next;
     });
   };
@@ -337,20 +403,41 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
           </button>
         </div>
 
-        {/* Toggle para agrupar temas escaneados repetidos */}
+        {/* Selector de Vista: Carpetas Inteligentes vs Lista Individual */}
         {activeTab === 'custom' && (
-          <button
-            type="button"
-            onClick={() => setGroupByTheme(!groupByTheme)}
-            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black border-2 transition-all flex items-center gap-2 ${
-              groupByTheme
-                ? 'bg-indigo-50 border-indigo-400 text-indigo-900 shadow-sm'
-                : 'bg-white border-slate-200 text-slate-600'
-            }`}
-          >
-            <FolderOpen className="w-4 h-4 text-indigo-600" />
-            <span>{groupByTheme ? '📁 Agrupados por temática (Activo)' : '📄 Ver lista individual'}</span>
-          </button>
+          <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-inner">
+            <button
+              type="button"
+              onClick={() => {
+                sounds.playPopSound();
+                setGroupByTheme(true);
+              }}
+              className={`py-2 px-3.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-1.5 cursor-pointer ${
+                groupByTheme
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <FolderOpen className="w-4 h-4" />
+              <span>📁 Carpetas Inteligentes</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                sounds.playPopSound();
+                setGroupByTheme(false);
+              }}
+              className={`py-2 px-3.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-1.5 cursor-pointer ${
+                !groupByTheme
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>📄 Páginas Sueltas</span>
+            </button>
+          </div>
         )}
       </div>
 
@@ -457,70 +544,161 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
       {activeTab === 'custom' && (
         <div className="space-y-4 animate-fade-in">
           {groupByTheme ? (
-            /* VISTA AGRUPADA (Evita duplicados) */
+            /* VISTA AGRUPADA INTUITIVA (Carpetas Conceptuales) */
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredCustomGroups.map(group => {
                 const badgeClass = SUBJECT_COLORS[group.subject] || 'bg-slate-100 text-slate-700 border-slate-200';
                 const subjectIcon = SUBJECT_ICONS[group.subject] || '📚';
+                const isExpanded = expandedGroupKeys.has(group.groupName);
+                const isSelected = isGroupSelected(group);
+                const isPartial = isGroupPartiallySelected(group);
 
                 return (
                   <div
                     key={group.groupName}
-                    className="bg-white rounded-3xl p-6 shadow-md border-3 border-indigo-100 hover:border-indigo-300 transition-all flex flex-col justify-between gap-4"
+                    className={`bg-white rounded-3xl p-6 shadow-md border-3 transition-all flex flex-col justify-between gap-4 ${
+                      isSelected
+                        ? 'border-indigo-500 ring-4 ring-indigo-100 bg-indigo-50/30'
+                        : 'border-indigo-100 hover:border-indigo-300'
+                    }`}
                   >
                     <div className="space-y-3">
+                      {/* Cabecera de la Carpeta */}
                       <div className="flex items-center justify-between">
                         <span className={`px-3 py-1 rounded-full text-xs font-black border flex items-center gap-1.5 ${badgeClass}`}>
                           <span>{subjectIcon}</span>
                           <span>{group.subject}</span>
                         </span>
 
-                        <span className="bg-indigo-50 text-indigo-700 text-xs font-black px-3 py-1 rounded-full border border-indigo-200">
-                          {group.units.length > 1 ? `📁 ${group.units.length} temas agrupados` : '📄 1 tema'}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="bg-indigo-50 text-indigo-700 text-xs font-black px-3 py-1 rounded-full border border-indigo-200">
+                            {group.units.length > 1 ? `📁 ${group.units.length} páginas combinadas` : '📄 1 página'}
+                          </span>
+
+                          {/* Checkbox para seleccionar todo el grupo en repaso multi-tema */}
+                          <button
+                            type="button"
+                            onClick={(e) => toggleSelectGroup(group, e)}
+                            title="Seleccionar todo el grupo para repaso multi-tema"
+                            className={`w-7 h-7 rounded-xl flex items-center justify-center font-bold text-sm transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-magic-600 text-white shadow-sm'
+                                : isPartial
+                                ? 'bg-magic-200 text-magic-800'
+                                : 'border-2 border-slate-300 text-transparent hover:border-magic-400'
+                            }`}
+                          >
+                            ✓
+                          </button>
+                        </div>
                       </div>
 
+                      {/* Título de la Carpeta */}
                       <div>
                         <h3 className="text-xl sm:text-2xl font-black text-slate-800 leading-snug">
                           {group.groupName}
                         </h3>
-                        <p className="text-xs text-slate-500 font-bold mt-1">
-                          {group.totalExercises} actividades en total combinadas
+                        <p className="text-xs sm:text-sm text-slate-500 font-bold mt-1">
+                          {group.totalExercises} actividades en total {group.units.length > 1 ? `(${group.units.length} páginas escaneadas)` : ''}
                         </p>
-
-                        {/* Lista de temas secundarios que componen el grupo */}
-                        {group.units.length > 1 && (
-                          <div className="mt-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
-                            <span className="text-[11px] font-black uppercase text-slate-400 block">Páginas escaneadas incluidas:</span>
-                            {group.units.map(u => (
-                              <div key={u.id} className="text-xs font-semibold text-slate-700 flex items-center justify-between">
-                                <span className="truncate">• {u.title}</span>
-                                <span className="text-slate-400 shrink-0 text-[11px]">({u.exercise_count} act.)</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
                       </div>
+
+                      {/* Acordeón / Desplegable intuitivo de páginas incluidas */}
+                      {group.units.length > 1 && (
+                        <div className="pt-1">
+                          <button
+                            type="button"
+                            onClick={(e) => toggleGroupExpand(group.groupName, e)}
+                            className="w-full py-2.5 px-3.5 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 font-extrabold text-xs sm:text-sm flex items-center justify-between transition-all cursor-pointer border border-indigo-200"
+                          >
+                            <span className="flex items-center gap-2">
+                              <FolderOpen className="w-4 h-4 text-indigo-600" />
+                              <span>{isExpanded ? 'Ocultar páginas escaneadas' : `Ver las ${group.units.length} páginas escaneadas`}</span>
+                            </span>
+                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                          </button>
+
+                          {/* Lista desplegada con acciones individuales por página */}
+                          {isExpanded && (
+                            <div className="mt-2.5 space-y-2 p-2.5 bg-slate-50 rounded-2xl border border-slate-200 animate-fade-in">
+                              {group.units.map(u => (
+                                <div
+                                  key={u.id}
+                                  className="bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-3 shadow-xs"
+                                >
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-xs sm:text-sm font-extrabold text-slate-800 truncate">
+                                      {u.title}
+                                    </p>
+                                    <span className="text-[11px] font-bold text-slate-400">
+                                      {u.exercise_count} actividades
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 shrink-0">
+                                    <button
+                                      type="button"
+                                      onClick={() => setUnitToDelete(u)}
+                                      title="Eliminar esta página escaneada"
+                                      className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handlePlayCustom(u.id)}
+                                      className="px-3 py-1.5 rounded-xl bg-magic-600 hover:bg-magic-700 text-white font-bold text-xs flex items-center gap-1 transition-all shadow-xs cursor-pointer"
+                                    >
+                                      <Play className="w-3 h-3 fill-white" />
+                                      <span>Jugar</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                      <button
-                        type="button"
-                        onClick={() => setUnitToDelete(group.units[0])}
-                        title="Eliminar tema del grupo"
-                        className="p-2.5 rounded-2xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-100 hover:border-rose-200 transition-all active:scale-95 flex items-center justify-center"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                    {/* Acciones del pie de la Carpeta */}
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                      {group.units.length === 1 ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setUnitToDelete(group.units[0])}
+                            title="Eliminar este tema"
+                            className="p-2.5 rounded-2xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-100 hover:border-rose-200 transition-all active:scale-95 flex items-center justify-center cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
 
-                      <button
-                        type="button"
-                        onClick={() => handlePlayGroup(group)}
-                        className="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm flex items-center gap-2 shadow-md shadow-indigo-200 active:scale-95 transition-all"
-                      >
-                        <Play className="w-4 h-4 fill-white" />
-                        <span>Estudiar todo el grupo ({group.totalExercises})</span>
-                      </button>
+                          <button
+                            type="button"
+                            onClick={() => handlePlayCustom(group.units[0].id)}
+                            className="px-5 py-2.5 rounded-2xl bg-magic-600 hover:bg-magic-700 text-white font-black text-sm flex items-center gap-2 shadow-md shadow-magic-200 active:scale-95 transition-all cursor-pointer"
+                          >
+                            <Play className="w-4 h-4 fill-white" />
+                            <span>Jugar tema ({group.totalExercises} act.)</span>
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-xs font-black text-indigo-700 flex items-center gap-1">
+                            <FolderCheck className="w-4 h-4 text-indigo-600" />
+                            <span>Carpeta Inteligente</span>
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={() => handlePlayGroup(group)}
+                            className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-magic-600 hover:from-indigo-700 hover:to-magic-700 text-white font-black text-sm flex items-center gap-2 shadow-md shadow-indigo-200 active:scale-95 transition-all cursor-pointer"
+                          >
+                            <Play className="w-4 h-4 fill-white" />
+                            <span>Estudiar todo el grupo ({group.totalExercises})</span>
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 );
