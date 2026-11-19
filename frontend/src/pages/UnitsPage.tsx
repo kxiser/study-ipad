@@ -474,11 +474,11 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
         )}
       </div>
 
-      {/* Barra de Filtros por Asignatura */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      {/* Barra de Filtros por Asignatura con scroll horizontal seguro */}
+      <div className="w-full overflow-x-auto overscroll-contain pb-2 scrollbar-none flex items-center gap-2">
         <button
           onClick={() => setSelectedSubject('all')}
-          className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition-all border-2 active:scale-95 ${
+          className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition-all border-2 active:scale-95 shrink-0 cursor-pointer ${
             selectedSubject === 'all'
               ? 'bg-slate-800 text-white border-slate-800 shadow-md'
               : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
@@ -491,7 +491,7 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
           <button
             key={sub}
             onClick={() => setSelectedSubject(sub)}
-            className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition-all border-2 active:scale-95 flex items-center gap-2 cursor-pointer ${
+            className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition-all border-2 active:scale-95 flex items-center gap-2 shrink-0 cursor-pointer ${
               selectedSubject === sub
                 ? 'bg-magic-600 text-white border-magic-600 shadow-md'
                 : 'bg-white text-slate-700 border-slate-200 hover:border-magic-300'
@@ -603,9 +603,9 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
                           <span>{group.subject}</span>
                         </span>
 
-                        <div className="flex items-center gap-2">
-                          <span className="bg-indigo-50 text-indigo-700 text-xs font-black px-3 py-1 rounded-full border border-indigo-200">
-                            {group.units.length > 1 ? `📁 ${group.units.length} páginas combinadas` : '📄 1 página'}
+                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                          <span className="bg-indigo-50 text-indigo-700 text-xs font-black px-2.5 py-1 rounded-full border border-indigo-200 shrink-0">
+                            {group.units.length > 1 ? `📁 ${group.units.length} pág.` : '📄 1 pág.'}
                           </span>
 
                           {/* Checkbox para seleccionar todo el grupo en repaso multi-tema */}
@@ -613,7 +613,7 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
                             type="button"
                             onClick={(e) => toggleSelectGroup(group, e)}
                             title="Seleccionar todo el grupo para repaso multi-tema"
-                            className={`w-7 h-7 rounded-xl flex items-center justify-center font-bold text-sm transition-all cursor-pointer ${
+                            className={`w-7 h-7 min-w-[28px] shrink-0 rounded-xl flex items-center justify-center font-bold text-sm transition-all cursor-pointer ${
                               isSelected
                                 ? 'bg-magic-600 text-white shadow-sm'
                                 : isPartial
@@ -717,18 +717,18 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
                         </>
                       ) : (
                         <>
-                          <span className="text-xs font-black text-indigo-700 flex items-center gap-1">
+                          <span className="text-xs font-black text-indigo-700 flex items-center gap-1 shrink-0">
                             <FolderCheck className="w-4 h-4 text-indigo-600" />
-                            <span>Carpeta Inteligente</span>
+                            <span>Carpeta</span>
                           </span>
 
                           <button
                             type="button"
                             onClick={() => handlePlayGroup(group)}
-                            className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-magic-600 hover:from-indigo-700 hover:to-magic-700 text-white font-black text-sm flex items-center gap-2 shadow-md shadow-indigo-200 active:scale-95 transition-all cursor-pointer"
+                            className="px-4 sm:px-5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-magic-600 hover:from-indigo-700 hover:to-magic-700 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md shadow-indigo-200 active:scale-95 transition-all cursor-pointer shrink-0"
                           >
                             <Play className="w-4 h-4 fill-white" />
-                            <span>Estudiar todo el grupo ({group.totalExercises})</span>
+                            <span>Estudiar grupo ({group.totalExercises})</span>
                           </button>
                         </>
                       )}

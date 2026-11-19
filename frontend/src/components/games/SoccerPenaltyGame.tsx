@@ -156,27 +156,27 @@ export const SoccerPenaltyGame: React.FC<SoccerPenaltyGameProps> = ({
       {showCelebration && <ConfettiCelebration />}
 
       {/* HEADER / MARCADOR DE PENALTIS DE LA COPA */}
-      <header className="p-4 bg-black/60 backdrop-blur border-b border-emerald-500/30 flex items-center justify-between sticky top-0 z-30">
+      <header className="p-3 sm:p-4 bg-black/60 backdrop-blur border-b border-emerald-500/30 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sticky top-0 z-30">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-white font-bold rounded-xl border border-slate-600 transition-all shadow-md"
+          className="flex items-center gap-2 px-3.5 py-2 bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-white font-bold rounded-xl border border-slate-600 transition-all shadow-md text-xs sm:text-sm shrink-0"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           <span>Volver</span>
         </button>
 
         {/* Tanda de Penaltis Visual (Balones verdes y rojos) */}
-        <div className="flex items-center gap-2 sm:gap-3 bg-slate-900/90 px-4 py-2 rounded-2xl border-2 border-emerald-500 shadow-lg shadow-emerald-500/20">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 bg-slate-900/90 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl border-2 border-emerald-500 shadow-lg shadow-emerald-500/20 shrink-0">
           <span className="text-xs font-black text-emerald-400 uppercase tracking-widest hidden sm:inline">
             Tanda:
           </span>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 sm:gap-1.5">
             {Array.from({ length: questions.length }).map((_, idx) => {
               const res = penaltyHistory[idx];
               return (
                 <div
                   key={idx}
-                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center font-black text-xs transition-all ${
+                  className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full border-2 flex items-center justify-center font-black text-[10px] sm:text-xs transition-all ${
                     res === 'goal'
                       ? 'bg-emerald-500 border-white text-slate-950 shadow-md shadow-emerald-500/50 scale-105'
                       : res === 'miss'
@@ -192,17 +192,17 @@ export const SoccerPenaltyGame: React.FC<SoccerPenaltyGameProps> = ({
             })}
           </div>
 
-          <div className="h-6 w-px bg-slate-700 mx-1" />
+          <div className="h-5 sm:h-6 w-px bg-slate-700 mx-1" />
 
-          <span className="text-lg font-black text-emerald-300 font-mono">
+          <span className="text-sm sm:text-base md:text-lg font-black text-emerald-300 font-mono whitespace-nowrap">
             {goalsCount} Goles
           </span>
         </div>
 
         {/* Tema Escolar */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/40 rounded-xl">
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/40 rounded-xl shrink-0">
           <Sparkles className="w-4 h-4 text-emerald-400" />
-          <span className="text-xs font-bold text-emerald-200 truncate max-w-[200px]">
+          <span className="text-xs font-bold text-emerald-200 truncate max-w-[160px] sm:max-w-[200px]">
             {currentQ.topic || 'Fútbol Trivia'}
           </span>
         </div>
@@ -230,10 +230,10 @@ export const SoccerPenaltyGame: React.FC<SoccerPenaltyGameProps> = ({
             }}
           />
 
-          {/* Líneas blancas del área grande y punto de penalti */}
-          <svg className="absolute inset-x-0 bottom-0 w-full h-44 pointer-events-none" preserveAspectRatio="none">
-            <path d="M 0 60 Q 50% 120 100% 60" stroke="#ffffff" strokeWidth="3" fill="none" opacity="0.6" />
-            <circle cx="50%" cy="85%" r="6" fill="#ffffff" opacity="0.9" />
+          {/* Líneas blancas del área grande y punto de penalti con viewBox nativo */}
+          <svg className="absolute inset-x-0 bottom-0 w-full h-44 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M 0 30 Q 50 70 100 30" stroke="#ffffff" strokeWidth="2" fill="none" opacity="0.6" />
+            <circle cx="50" cy="85" r="3" fill="#ffffff" opacity="0.9" />
           </svg>
 
           {/* PORTERÍA 3D CON RED HEXAGONAL */}
@@ -320,12 +320,12 @@ export const SoccerPenaltyGame: React.FC<SoccerPenaltyGameProps> = ({
             </div>
           </div>
 
-          {/* SAMANTHA AL BORDE DEL ÁREA CON EL DISPARO */}
-          <div className="absolute bottom-3 left-4 z-10 flex items-center gap-2 bg-black/50 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-white/20">
-            <span className="text-3xl animate-bounce">{hero.emoji}</span>
+          {/* SAMANTHA AL BORDE DEL CAMPO CON EL DISPARO */}
+          <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-white/20 shadow-md">
+            <span className="text-2xl sm:text-3xl animate-bounce">{hero.emoji}</span>
             <div>
               <span className="text-xs font-black text-emerald-300 block">{hero.name}</span>
-              <span className="text-[10px] text-slate-300">¡Dispara a la escuadra!</span>
+              <span className="text-[10px] text-slate-300 hidden sm:inline">¡Dispara a la escuadra!</span>
             </div>
           </div>
 

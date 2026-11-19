@@ -19,7 +19,7 @@ export const Home: React.FC<HomeProps> = ({ profile, onNavigate }) => {
   return (
     <div className="max-w-5xl mx-auto px-4 py-6 md:py-10 space-y-8 animate-fade-in">
       {/* Saludo con la Mascota */}
-      <div className="bg-gradient-to-r from-magic-100 via-white to-sunny-100 rounded-4xl p-6 md:p-8 border-3 border-magic-200 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="bg-gradient-to-r from-magic-100 via-white to-sunny-100 rounded-4xl p-6 md:p-8 border-3 border-magic-200 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden">
         <div className="space-y-2 text-center md:text-left">
           <span className="inline-block bg-magic-600 text-white text-xs font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm">
             ¡Hola, {profile?.name || 'Samantha'}!

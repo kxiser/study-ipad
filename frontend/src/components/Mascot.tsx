@@ -41,8 +41,8 @@ export const Mascot: React.FC<MascotProps> = ({
   const acc = activeAcc.accessory;
 
   return (
-    <div className="flex items-center gap-3 select-none">
-      <div className={`relative ${sizeMap[size]} transition-transform duration-300 transform hover:scale-105`}>
+    <div className="flex items-center gap-2.5 sm:gap-3 select-none max-w-full">
+      <div className={`relative ${sizeMap[size]} transition-transform duration-300 transform hover:scale-105 shrink-0`}>
         {mascotType === 'buho' ? (
           // Búho Sabio
           <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md overflow-visible">
@@ -214,7 +214,7 @@ export const Mascot: React.FC<MascotProps> = ({
       </div>
 
       {message && (
-        <div className="relative bg-white/95 backdrop-blur-sm border-2 border-magic-200 px-4 py-2.5 rounded-2xl shadow-sm max-w-xs md:max-w-md animate-fade-in text-slate-700 font-bold text-sm md:text-base">
+        <div className="relative bg-white/95 backdrop-blur-sm border-2 border-magic-200 px-3.5 py-2 rounded-2xl shadow-xs max-w-[190px] sm:max-w-xs md:max-w-sm animate-fade-in text-slate-700 font-bold text-xs sm:text-sm md:text-base leading-snug">
           {message}
           {/* Triángulo del globo de diálogo */}
           <div className="absolute top-1/2 -left-2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-r-8 border-r-white border-b-8 border-b-transparent"></div>

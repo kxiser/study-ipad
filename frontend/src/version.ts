@@ -1,7 +1,19 @@
-export const APP_VERSION = '2.8.0';
-export const APP_BUILD = '2026.11.18-v2.8.0';
+export const APP_VERSION = '2.8.1';
+export const APP_BUILD = '2026.11.19-v2.8.1';
 
 export const VERSION_CHANGELOG = [
+  {
+    version: '2.8.1',
+    date: '19 Nov 2026',
+    title: 'Diseño Responsivo Total y Tarjetas Didácticas 100% Flexibles',
+    items: [
+      '🃏 Flashcards con CSS Grid apilado 3D: Crecimiento orgánico automático que aloja explicaciones largas y trucos sin desbordamiento ni scrollbars.',
+      '🛡️ Botones de autoevaluación garantizados: Separación fluida que impide colisiones entre el texto de la respuesta y los botones "¿Te acordabas de la respuesta?".',
+      '📱 Navbar Responsivo con Menú Desplegable: En iPad y móvil, las opciones secundarias se agrupan en un menú limpio para evitar barras gigantes.',
+      '🔍 Sopa de Letras y Pasapalabra Adaptados: Cuadrícula responsive de celdas y rosco circular con holgura para la letra A en iPad portrait y landscape.',
+      '⚽ Baloncesto y Fútbol Vectorial sin Errores: Coordenadas SVG nativas sin valores porcentuales que causaban fallos en WebKit/Safari.'
+    ]
+  },
   {
     version: '2.8.0',
     date: '18 Nov 2026',

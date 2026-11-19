@@ -337,13 +337,23 @@ export function recordSessionCompletion(params: {
 }) {
   const targetUserId = params.userId || 'user-samantha';
   const sessionId = 'ses-' + Math.random().toString(36).substring(2, 10);
+
+  // Verificar si la unidad existe en SQLite para evitar fallo de clave foránea en temas del currículo o multi-tema
+  let validUnitId: string | null = null;
+  if (params.unitId) {
+    const unitExists = db.prepare('SELECT id FROM units WHERE id = ?').get(params.unitId);
+    if (unitExists) {
+      validUnitId = params.unitId;
+    }
+  }
+
   db.prepare(`
     INSERT INTO study_sessions (id, user_id, unit_id, session_type, duration_seconds, total_questions, correct_answers, stars_earned)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     sessionId,
     targetUserId,
-    params.unitId || null,
+    validUnitId,
     params.sessionType,
     params.durationSeconds,
     params.totalQuestions,

@@ -387,41 +387,41 @@ export const PasapalabraGame: React.FC<PasapalabraGameProps> = ({
       {showCelebration && <ConfettiCelebration />}
 
       {/* Barra superior con volver, aciertos y temporizador */}
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white hover:bg-slate-100 border-2 border-slate-200 text-slate-700 font-black text-xs md:text-sm active:scale-95 transition-all shadow-sm"
+          className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white hover:bg-slate-100 border-2 border-slate-200 text-slate-700 font-black text-xs md:text-sm active:scale-95 transition-all shadow-sm shrink-0"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Volver a Juegos</span>
         </button>
 
         {/* Marcador TV Pasapalabra */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Aciertos Verdes */}
-          <div className="flex items-center gap-1.5 bg-emerald-500 text-white px-3.5 py-1.5 rounded-2xl font-black text-sm shadow-md border-2 border-emerald-400">
-            <Check className="w-4 h-4 stroke-[3]" />
+          <div className="flex items-center gap-1.5 bg-emerald-500 text-white px-3 sm:px-3.5 py-1.5 rounded-2xl font-black text-xs sm:text-sm shadow-md border-2 border-emerald-400">
+            <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
             <span>{correctCount}</span>
           </div>
 
           {/* Fallos Rojos */}
-          <div className="flex items-center gap-1.5 bg-rose-500 text-white px-3.5 py-1.5 rounded-2xl font-black text-sm shadow-md border-2 border-rose-400">
-            <X className="w-4 h-4 stroke-[3]" />
+          <div className="flex items-center gap-1.5 bg-rose-500 text-white px-3 sm:px-3.5 py-1.5 rounded-2xl font-black text-xs sm:text-sm shadow-md border-2 border-rose-400">
+            <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
             <span>{wrongCount}</span>
           </div>
 
           {/* Temporizador */}
-          <div className="flex items-center gap-1 bg-amber-400 text-amber-950 px-3.5 py-1.5 rounded-2xl font-black text-sm shadow-md border-2 border-amber-300">
+          <div className="flex items-center gap-1 bg-amber-400 text-amber-950 px-3 sm:px-3.5 py-1.5 rounded-2xl font-black text-xs sm:text-sm shadow-md border-2 border-amber-300">
             <span>⏱️ {secondsLeft}s</span>
           </div>
         </div>
       </div>
 
       {/* EL GRAN ROSCO CIRCULAR INTERACTIVO */}
-      <div className="bg-gradient-to-br from-indigo-900 via-blue-900 to-indigo-950 rounded-4xl p-6 md:p-8 text-white shadow-2xl border-4 border-indigo-500/50 relative overflow-hidden flex flex-col items-center">
-        {/* Rosco Circular de Letras */}
-        <div className="relative w-64 h-64 sm:w-80 sm:h-80 my-2 flex items-center justify-center">
+      <div className="bg-gradient-to-br from-indigo-900 via-blue-900 to-indigo-950 rounded-4xl p-5 sm:p-8 text-white shadow-2xl border-4 border-indigo-500/50 relative flex flex-col items-center">
+        {/* Rosco Circular de Letras con margen superior amplio para que la letra A nunca se corte */}
+        <div className="relative w-72 h-72 sm:w-84 sm:h-84 my-4 flex items-center justify-center">
           {/* Círculo central con la mascota */}
           <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-white/10 backdrop-blur-md border-4 border-white/30 flex flex-col items-center justify-center shadow-inner z-10 text-center p-2">
             <span className="text-4xl sm:text-5xl animate-bounce">{hero.emoji}</span>
@@ -434,7 +434,9 @@ export const PasapalabraGame: React.FC<PasapalabraGameProps> = ({
           {letters.map((item, idx) => {
             const total = letters.length;
             const angle = (idx / total) * 2 * Math.PI - Math.PI / 2;
-            const radius = 115; // Radio en px (adaptable para iPad)
+            // Radio adaptativo para garantizar holgura completa en cualquier pantalla
+            const isSmallScreen = typeof window !== 'undefined' && window.innerWidth < 640;
+            const radius = isSmallScreen ? 112 : 128;
             const x = Math.cos(angle) * radius;
             const y = Math.sin(angle) * radius;
 
@@ -457,11 +459,18 @@ export const PasapalabraGame: React.FC<PasapalabraGameProps> = ({
               <div
                 key={item.letter}
                 style={{
-                  transform: `translate(${x}px, ${y}px)`
+                  left: `calc(50% + ${x}px)`,
+                  top: `calc(50% + ${y}px)`,
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: isCurrent ? 30 : 15
                 }}
-                className={`absolute w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center font-black text-xs sm:text-sm shadow-md transition-all duration-300 ${badgeStyle}`}
+                className="absolute flex items-center justify-center pointer-events-none"
               >
-                {item.letter}
+                <div
+                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center font-black text-xs sm:text-sm shadow-md transition-all duration-300 pointer-events-auto ${badgeStyle}`}
+                >
+                  {item.letter}
+                </div>
               </div>
             );
           })}

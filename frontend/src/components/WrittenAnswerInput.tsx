@@ -130,7 +130,7 @@ export const WrittenAnswerInput: React.FC<WrittenAnswerInputProps> = ({
             autoCapitalize="sentences"
             autoCorrect="off"
             spellCheck="false"
-            className={`w-full pl-13 pr-36 py-4 sm:py-5 text-lg sm:text-2xl font-black rounded-3xl border-3 shadow-lg transition-all outline-none ${
+            className={`w-full pl-14 sm:pl-16 pr-32 sm:pr-36 py-4 sm:py-5 text-base sm:text-xl md:text-2xl font-black rounded-3xl border-3 shadow-lg transition-all outline-none ${
               isListening
                 ? 'bg-rose-50 border-rose-400 text-rose-950 ring-4 ring-rose-200 animate-pulse'
                 : hasSubmitted

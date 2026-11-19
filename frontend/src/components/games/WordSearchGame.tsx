@@ -251,35 +251,35 @@ export const WordSearchGame: React.FC<WordSearchGameProps> = ({
       {showCelebration && <ConfettiCelebration />}
 
       {/* Barra superior */}
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white hover:bg-slate-100 border-2 border-slate-200 text-slate-700 font-black text-xs md:text-sm active:scale-95 transition-all shadow-sm"
+          className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white hover:bg-slate-100 border-2 border-slate-200 text-slate-700 font-black text-xs md:text-sm active:scale-95 transition-all shadow-sm shrink-0"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Volver a Juegos</span>
         </button>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-sunny-100 text-amber-950 px-3.5 py-1.5 rounded-2xl font-black text-xs md:text-sm border border-sunny-300">
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 bg-sunny-100 text-amber-950 px-3 sm:px-3.5 py-1.5 rounded-2xl font-black text-xs md:text-sm border border-sunny-300">
             <Search className="w-4 h-4 text-amber-600" />
             <span>{foundCount} de {wordsList.length} Palabras</span>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-magic-100 text-magic-950 px-3.5 py-1.5 rounded-2xl font-black text-xs md:text-sm border border-magic-300">
+          <div className="flex items-center gap-1.5 bg-magic-100 text-magic-950 px-3 sm:px-3.5 py-1.5 rounded-2xl font-black text-xs md:text-sm border border-magic-300">
             <span className="text-base">{hero.emoji}</span>
-            <span>{hero.name}</span>
+            <span className="hidden sm:inline">{hero.name}</span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
         {/* TABLERO DE LA SOPA DE LETRAS */}
-        <div className="md:col-span-2 bg-white rounded-4xl p-4 sm:p-6 shadow-xl border-4 border-magic-200 flex flex-col items-center">
-          <div className="inline-grid gap-1.5 sm:gap-2 p-2 bg-slate-50 rounded-3xl border-2 border-slate-200 touch-none">
+        <div className="lg:col-span-2 bg-white rounded-4xl p-3 sm:p-6 shadow-xl border-4 border-magic-200 flex flex-col items-center overflow-x-auto max-w-full">
+          <div className="inline-grid gap-1 sm:gap-2 p-1.5 sm:p-2 bg-slate-50 rounded-3xl border-2 border-slate-200 touch-none">
             {gridData.map((row, r) => (
-              <div key={r} className="flex gap-1.5 sm:gap-2">
+              <div key={r} className="flex gap-1 sm:gap-2">
                 {row.map((letter, c) => {
                   const isSelected = selectedCells.some(([sr, sc]) => sr === r && sc === c);
                   const foundInfo = foundCells.find(fc => fc.r === r && fc.c === c);
@@ -297,7 +297,7 @@ export const WordSearchGame: React.FC<WordSearchGameProps> = ({
                       key={c}
                       type="button"
                       onClick={() => handleCellClick(r, c)}
-                      className={`w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl border-2 flex items-center justify-center font-black text-sm sm:text-lg transition-all active:scale-90 ${cellClass}`}
+                      className={`w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-11 lg:h-11 rounded-lg sm:rounded-xl border-2 flex items-center justify-center font-black text-xs sm:text-sm md:text-base lg:text-lg transition-all active:scale-90 ${cellClass}`}
                     >
                       {letter}
                     </button>

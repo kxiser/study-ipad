@@ -163,45 +163,45 @@ export const BasketballGame: React.FC<BasketballGameProps> = ({
       {showCelebration && <ConfettiCelebration />}
 
       {/* HEADER / MARCADOR ELECTRÓNICO TIPO NBA */}
-      <header className="p-4 bg-black/60 backdrop-blur border-b border-amber-500/30 flex items-center justify-between sticky top-0 z-30">
+      <header className="p-3 sm:p-4 bg-black/60 backdrop-blur border-b border-amber-500/30 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sticky top-0 z-30">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-white font-bold rounded-xl border border-slate-600 transition-all shadow-md"
+          className="flex items-center gap-2 px-3.5 py-2 bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-white font-bold rounded-xl border border-slate-600 transition-all shadow-md text-xs sm:text-sm shrink-0"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           <span>Volver</span>
         </button>
 
         {/* Marcador Digital Central */}
-        <div className="flex items-center gap-4 bg-slate-900/90 px-5 py-2 rounded-2xl border-2 border-amber-500 shadow-lg shadow-amber-500/20">
+        <div className="flex items-center gap-2.5 sm:gap-4 bg-slate-900/90 px-3 sm:px-5 py-1.5 sm:py-2 rounded-2xl border-2 border-amber-500 shadow-lg shadow-amber-500/20 shrink-0">
           <div className="text-center">
-            <span className="text-[10px] tracking-widest text-amber-400 font-extrabold uppercase block">Puntos</span>
-            <span className="text-2xl font-black text-amber-300 font-mono">{score}</span>
+            <span className="text-[9px] sm:text-[10px] tracking-widest text-amber-400 font-extrabold uppercase block">Puntos</span>
+            <span className="text-lg sm:text-2xl font-black text-amber-300 font-mono">{score}</span>
           </div>
 
-          <div className="h-8 w-px bg-slate-700" />
+          <div className="h-6 sm:h-8 w-px bg-slate-700" />
 
           {/* Reloj de Posesión 24s */}
           <div className="text-center">
-            <span className="text-[10px] tracking-widest text-red-400 font-extrabold uppercase flex items-center justify-center gap-1">
+            <span className="text-[9px] sm:text-[10px] tracking-widest text-red-400 font-extrabold uppercase flex items-center justify-center gap-0.5">
               <Timer className="w-3 h-3" /> Posesión
             </span>
-            <span className={`text-2xl font-black font-mono ${shotClock <= 5 ? 'text-red-500 animate-pulse' : 'text-red-400'}`}>
+            <span className={`text-lg sm:text-2xl font-black font-mono ${shotClock <= 5 ? 'text-red-500 animate-pulse' : 'text-red-400'}`}>
               {shotClock.toString().padStart(2, '0')}s
             </span>
           </div>
 
-          <div className="h-8 w-px bg-slate-700" />
+          <div className="h-6 sm:h-8 w-px bg-slate-700" />
 
           <div className="text-center">
-            <span className="text-[10px] tracking-widest text-emerald-400 font-extrabold uppercase block">Canastas</span>
-            <span className="text-2xl font-black text-emerald-400 font-mono">
+            <span className="text-[9px] sm:text-[10px] tracking-widest text-emerald-400 font-extrabold uppercase block">Canastas</span>
+            <span className="text-lg sm:text-2xl font-black text-emerald-400 font-mono">
               {shotsMade}/{questions.length}
             </span>
           </div>
 
           {streak >= 2 && (
-            <div className="hidden sm:flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-red-600 to-amber-600 rounded-full font-black text-xs text-white animate-pulse shadow-md">
+            <div className="hidden md:flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-red-600 to-amber-600 rounded-full font-black text-xs text-white animate-pulse shadow-md">
               <Flame className="w-4 h-4 fill-amber-300" />
               <span>x{streak} RACHA!</span>
             </div>
@@ -209,9 +209,9 @@ export const BasketballGame: React.FC<BasketballGameProps> = ({
         </div>
 
         {/* Nivel / Tema actual */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-amber-500/20 border border-amber-500/40 rounded-xl">
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-amber-500/20 border border-amber-500/40 rounded-xl shrink-0">
           <Sparkles className="w-4 h-4 text-amber-400" />
-          <span className="text-xs font-bold text-amber-200 truncate max-w-[200px]">
+          <span className="text-xs font-bold text-amber-200 truncate max-w-[160px] sm:max-w-[200px]">
             {currentQ.topic || 'Baloncesto'}
           </span>
         </div>
@@ -229,11 +229,11 @@ export const BasketballGame: React.FC<BasketballGameProps> = ({
             }}
           />
 
-          {/* Líneas de la cancha (zona y línea de 3 puntos) */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
-            <circle cx="50%" cy="100%" r="40%" fill="none" stroke="#ffffff" strokeWidth="3" opacity="0.4" />
-            <path d="M 30% 0 L 30% 100 M 70% 0 L 70% 100" stroke="#ffffff" strokeWidth="3" opacity="0.3" />
-            <circle cx="50%" cy="20%" r="50" fill="none" stroke="#ffffff" strokeWidth="3" opacity="0.3" />
+          {/* Líneas de la cancha (zona y línea de 3 puntos) con viewBox nativo */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <circle cx="50" cy="100" r="40" fill="none" stroke="#ffffff" strokeWidth="2" opacity="0.4" />
+            <path d="M 30 0 L 30 100 M 70 0 L 70 100" stroke="#ffffff" strokeWidth="2" opacity="0.3" />
+            <circle cx="50" cy="20" r="15" fill="none" stroke="#ffffff" strokeWidth="2" opacity="0.3" />
           </svg>
 
           {/* CANASTA: TABLERO DE CRISTAL + ARO DE HIERRO + RED */}

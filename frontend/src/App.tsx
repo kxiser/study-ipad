@@ -178,10 +178,12 @@ export const App: React.FC = () => {
         </main>
       </div>
 
-      {/* Footer amable */}
-      <footer className="text-center py-4 text-xs font-bold text-slate-400 border-t border-slate-100 flex items-center justify-center gap-2">
-        <span>Mi Cuaderno Mágico para iPad • Diseñado para aprender jugando ✨</span>
-        <VersionBadge variant="footer" />
+      {/* Footer amable responsivo */}
+      <footer className="text-center py-4 px-4 text-xs font-bold text-slate-400 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-center gap-2.5 max-w-full overflow-hidden">
+        <span className="text-center max-w-md">Mi Cuaderno Mágico para iPad • Diseñado para aprender jugando ✨</span>
+        <div className="shrink-0 flex items-center justify-center">
+          <VersionBadge variant="footer" />
+        </div>
       </footer>
 
       {/* Modal de PIN para adultos */}

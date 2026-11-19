@@ -341,11 +341,11 @@ export const GamesPage: React.FC<GamesPageProps> = ({
       {/* Cabecera con Chispa y Bienvenida */}
       <div className="bg-gradient-to-r from-sunny-100 via-pink-50 to-magic-100 rounded-4xl p-6 md:p-8 border-3 border-magic-200 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-2 text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start gap-2">
-            <span className="inline-block bg-magic-600 text-white text-xs font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+            <span className="inline-block bg-magic-600 text-white text-xs font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm whitespace-nowrap shrink-0">
               🎮 Zona Arcade de Estudio
             </span>
-            <div className="flex items-center gap-1.5 bg-sunny-100 border border-sunny-300 px-3 py-1 rounded-full text-amber-900 font-extrabold text-xs shadow-sm">
+            <div className="flex items-center gap-1.5 bg-sunny-100 border border-sunny-300 px-3 py-1 rounded-full text-amber-900 font-extrabold text-xs shadow-sm whitespace-nowrap shrink-0">
               <Star className="w-4 h-4 fill-amber-400 text-amber-500 animate-bounce" />
               <span>{userStars} Estrellas</span>
             </div>
